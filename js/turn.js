@@ -4,11 +4,12 @@ function fight(a,d){
   const b=blk(d.x,d.y);
   const ahp0=a.hp, dhp0=d.hp, dieA=r(1,6), dieD=r(1,6), bon=(d.order==='hold'||d.order==='none'?1:0)+(b.owner===d.fam?1:0);
   const ra=musOf(a)+dieA, rd=musOf(d)+dieD+bon;
-  if(ra>=rd){d.hp-=ra-rd+3;a.hp-=1;L(`${a.name} (${fn(a.fam)}) overfalt ${d.name} (${fn(d.fam)}) i ${CO(b.x,b.y)} og vant.`)}
-  else{a.hp-=rd-ra+3;d.hp-=1;L(`${a.name} (${fn(a.fam)}) angrep ${d.name} (${fn(d.fam)}) i ${CO(b.x,b.y)}, men ble slått tilbake.`)}
+  const me=a.fam===0||d.fam===0;
+  if(ra>=rd){d.hp-=ra-rd+3;a.hp-=1;Lv(b.x,b.y,me,`${a.name} (${fn(a.fam)}) overfalt ${d.name} (${fn(d.fam)}) i ${CO(b.x,b.y)} og vant.`)}
+  else{a.hp-=rd-ra+3;d.hp-=1;Lv(b.x,b.y,me,`${a.name} (${fn(a.fam)}) angrep ${d.name} (${fn(d.fam)}) i ${CO(b.x,b.y)}, men ble slått tilbake.`)}
   const dead=[];
-  [a,d].forEach(g=>{if(g.hp<=0&&!g.gone){g.gone=true;dead.push(g.name);L(`${g.name} (${fn(g.fam)}) havnet i elva.`)}});
-  FX.push({k:'fight',x:b.x,y:b.y,a:a.fam,d:d.fam,an:a.name,dn:d.name,won:ra>=rd,dead,
+  [a,d].forEach(g=>{if(g.hp<=0&&!g.gone){g.gone=true;dead.push(g.name);Lv(b.x,b.y,me,`${g.name} (${fn(g.fam)}) havnet i elva.`)}});
+  FX.push({k:'fight',seen:me||canSee(b.x,b.y),x:b.x,y:b.y,a:a.fam,d:d.fam,an:a.name,dn:d.name,won:ra>=rd,dead,
     aid:a.id,did:d.id,am:musOf(a),dm:musOf(d),abm:a.mus,dbm:d.mus,aw:a.wpn||null,dw:d.wpn||null,dieA,dieD,bon,ahp0,dhp0,ahp1:Math.max(0,a.hp),dhp1:Math.max(0,d.hp)});
 }
 function resolve(){
@@ -32,9 +33,9 @@ function resolve(){
       const prev=b.owner; b.owner=g.fam; b.sup[g.fam]=Math.max(b.sup[g.fam],1);
       if(b.bld)b.bld.forEach(x=>{x.by=-1;x.pr=[0,0,0,0]}); // ny eier må vinne bygningene på nytt
       if(prev>=0)b.sup[prev]=Math.max(0,b.sup[prev]-2);
-      L(`${g.name} tok ${CO(b.x,b.y)} (${TYPES[b.t].n}) for ${fn(g.fam)}${prev>=0?' fra '+fn(prev):''}.`);
-      if(b.hq>=0&&b.hq!==g.fam)L(`Hovedkvarteret til ${fn(b.hq)} har falt!`);
-      FX.push({k:'take',x:b.x,y:b.y,f:g.fam,prev,gn:g.name,hq:b.hq>=0&&b.hq!==g.fam?b.hq:-1});
+      Lv(b.x,b.y,g.fam===0||prev===0,`${g.name} tok ${CO(b.x,b.y)} (${TYPES[b.t].n}) for ${fn(g.fam)}${prev>=0?' fra '+fn(prev):''}.`);
+      if(b.hq>=0&&b.hq!==g.fam)Lv(b.x,b.y,g.fam===0||b.hq===0,`Hovedkvarteret til ${fn(b.hq)} har falt!`);
+      FX.push({k:'take',seen:g.fam===0||prev===0||canSee(b.x,b.y),x:b.x,y:b.y,f:g.fam,prev,gn:g.name,hq:b.hq>=0&&b.hq!==g.fam?b.hq:-1});
     }else{b.sup[g.fam]=Math.min(5,b.sup[g.fam]+1); if(g.fam===0)L(`${g.name} prøvde å ta ${CO(b.x,b.y)}, men folk holdt kjeft. Støtten øker likevel.`)}
   }
   // 3b. påvirke bygninger i egne kvartaler
@@ -47,8 +48,8 @@ function resolve(){
     bd.pr[g.fam]=Math.min(need,bd.pr[g.fam]+gain);
     if(bd.pr[g.fam]>=need){
       bd.by=g.fam; bd.pr=[0,0,0,0];
-      L(`${g.name} fikk ${BK[bd.k].n.toLowerCase()} i ${CO(b.x,b.y)} til å betale ${fn(g.fam)} (+$${BK[bd.k].v}/mnd).`);
-      FX.push({k:'infl',x:b.x,y:b.y,f:g.fam,gn:g.name,bk:bd.k});
+      Lv(b.x,b.y,g.fam===0,`${g.name} fikk ${BK[bd.k].n.toLowerCase()} i ${CO(b.x,b.y)} til å betale ${fn(g.fam)} (+$${BK[bd.k].v}/mnd).`);
+      FX.push({k:'infl',seen:g.fam===0||canSee(b.x,b.y),x:b.x,y:b.y,f:g.fam,gn:g.name,bk:bd.k});
     }else if(g.fam===0)L(`${g.name} jobbet med ${BK[bd.k].n.toLowerCase()} i ${CO(b.x,b.y)}: ${bd.pr[0]} av ${need} (+${gain}).`);
   }
   // 4. kreve inn og hvile
@@ -68,7 +69,7 @@ function resolve(){
     while(S.money[f]<0&&mine(f).length){
       const g=mine(f).sort((a,b)=>wage(b)-wage(a))[0];
       S.gangs=S.gangs.filter(o=>o!==g); S.money[f]+=wage(g);
-      L(`${g.name} fikk ikke lønn og forlot ${fn(f)}.`);
+      if(f===0)L(`${g.name} fikk ikke lønn og forlot ${fn(f)}.`);
     }
     if(S.money[f]<0)S.money[f]=0;
   }

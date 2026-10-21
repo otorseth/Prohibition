@@ -1,6 +1,7 @@
 // Visning: toppfelt, kart-ruter, sidepanel og bandekort
 /* ---------- visning ---------- */
 function render(){
+  VIS=updateSeen();
   const e=econ(0);
   document.getElementById('date').textContent=dateOf(S.turn);
   document.getElementById('stats').innerHTML=`
@@ -38,13 +39,15 @@ function renderBoard(){
   const bk=cur?[S.events.t,ui.rev,!!ui.revAll].join('|'):'', fresh=bk&&bk!==lastBang; lastBang=bk;
   let h='';
   for(const b of S.blocks){
-    const k=b.x+','+b.y, gs=gangsAt(b.x,b.y);
+    const i=b.y*N+b.x, fs=fogState(i), own=fs==='vis'?b.owner:fs==='fog'?S.mem[i]:-1;
+    const k=b.x+','+b.y, gs=fs==='vis'?gangsAt(b.x,b.y):[];
     const here=cur&&cur.x===b.x&&cur.y===b.y, ev=evAt[k];
-    const cls=['tile',b.owner<0?'free':'',ui.sel&&ui.sel[0]===b.x&&ui.sel[1]===b.y?'sel':'',can.includes(k)?'can':'',dests.has(k)?'dest':'',here?'hit':'',here&&fresh?'shake':'',need.has(b.y*N+b.x)?'need':''].join(' ');
+    const tip=fs==='unk'?`${CO(b.x,b.y)} · Ukjent område`:`${CO(b.x,b.y)} · ${TYPES[b.t].n}${own>=0?' · '+FAM[own].name:''}${fs==='fog'?' (sist sett)':''}`;
+    const cls=['tile',own<0?'free':'',fs==='fog'?'fogged':'',fs==='unk'?'unknown':'',ui.sel&&ui.sel[0]===b.x&&ui.sel[1]===b.y?'sel':'',can.includes(k)?'can':'',dests.has(k)?'dest':'',here?'hit':'',here&&fresh?'shake':'',need.has(b.y*N+b.x)?'need':''].join(' ');
     const badge=ev?`<span class="evn ${ev.includes(ui.rev)?'cur':''}">${here?ui.rev+1:ev[0]+1}${ev.length>1?'+':''}</span>`:'';
     const bang=here&&fresh?`<span class="bang">${cur.k==='fight'?'PANG!':cur.k==='infl'?'$$$':'TATT!'}</span>`:'';
-    h+=`<button class="${cls}" data-x="${b.x}" data-y="${b.y}" style="${b.owner>=0?'--fc:'+FAM[b.owner].c+';':''}${here?'--hc:'+evColor(cur):''}"
-      title="${CO(b.x,b.y)} · ${TYPES[b.t].n}${b.owner>=0?' · '+FAM[b.owner].name:''}" aria-label="${CO(b.x,b.y)} ${TYPES[b.t].n}${b.owner>=0?', eid av '+FAM[b.owner].name:''}">
+    h+=`<button class="${cls}" data-x="${b.x}" data-y="${b.y}" style="${own>=0?'--fc:'+FAM[own].c+';':''}${here?'--hc:'+evColor(cur):''}"
+      title="${tip}" aria-label="${tip}">
       <span class="co">${CO(b.x,b.y)}</span>${need.has(b.y*N+b.x)?'<span class="ask" aria-label="Bande uten ordre">?</span>':''}${b.hq>=0?`<span class="hq" style="--fc:${FAM[b.hq].c}">★</span>`:''}
       <span class="pips">${gs.map(g=>`<i class="pip" style="--pc:${FAM[g.fam].c}"></i>`).join('')}</span>${badge}${bang}</button>`;
   }
@@ -91,6 +94,16 @@ function renderPane(){
     const [x,y]=ui.sel||[0,0], b=blk(x,y), T=TYPES[b.t], gs=gangsAt(x,y);
     const mvs=movers();
     if(mvs.length)h+=`<div class="banner"><span>Velg et nabokvartal for ${mvs.length>1?mvs.length+' bander':mvs[0].name}.</span><button class="btn" data-a="cancel">Avbryt</button></div>`;
+    const fs=fogState(y*N+x);
+    if(fs==='unk'){
+      h+=`<h2>${CO(x,y)} <small>${street(x,y)}</small></h2><p class="note">Ukjent område. Flytt en bande hit eller til et nabokvartal for å se hva som er her.</p>`;
+    }else if(fs==='fog'){
+      const mo=S.mem[y*N+x];
+      h+=`<h2>${CO(x,y)} <small>${street(x,y)}</small></h2>
+        <div class="meta"><div><small>Type</small>${T.n}</div><div><small>Sist kjente eier</small>${mo>=0?fn(mo):'Ingen'}</div><div><small>Motstand</small>${T.res}</div></div>
+        ${b.bld?`<h3>Bygninger</h3><div class="blds">${b.bld.map(x=>`<div class="bld"><span><b>${BK[x.k].n}</b><br><span class="note">${CATN[BK[x.k].c]}</span></span><span class="bv">+$${BK[x.k].v}/mnd</span><span class="chip">Ukjent</span></div>`).join('')}</div>`:''}
+        <p class="note">Du ser ikke dette kvartalet nå. Opplysningene er fra sist du hadde folk i nærheten, og fiendebander vises ikke.</p>`;
+    }else{
     h+=`<h2>${CO(x,y)} <small>${street(x,y)}</small></h2>
       <div class="meta"><div><small>Type</small>${T.n}</div><div><small>Eier</small>${b.owner>=0?fn(b.owner):'Ingen'}</div>
       <div><small>Inntekt</small>$${blockInc(b,b.owner>=0?b.owner:0)}/mnd</div><div><small>Motstand</small>${T.res}</div></div>
@@ -113,6 +126,7 @@ function renderPane(){
     }
     h+=own.length?own.map(g=>gangCard(g,own.length>1)).join(''):`<p class="note">Ingen av dine bander står her.</p>`;
     if(oth.length)h+=`<h3>Andre bander her</h3>`+oth.map(g=>`<div class="row"><span>${g.name} · ${fn(g.fam)}</span><span class="note">Muskler ${musTxt(g)}${g.wpn?' · '+WEAP[g.wpn].n:''} · Innfl. ${g.inf} · Helse ${g.hp}</span></div>`).join('');
+    }
   }
   if(ui.tab==='bander'){
     const gs=mine(0);
@@ -127,7 +141,7 @@ function renderPane(){
       <button class="btn" data-a="hire" data-id="${g.id}" ${!hm||S.money[0]<g.cost?'disabled':''}>Lei for $${g.cost}</button></div>`).join('');
   }
   if(ui.tab==='hend'){
-    const all=(S.events&&S.events.list)||[], l=evList();
+    const all=evAll(), l=evList();
     h+=`<h2>Hendelser <small>${S.events?dateOf(S.events.t):''}</small></h2>
       <div class="orders"><button data-a="revf" data-v="0" class="${!ui.revAll?'on':''}">Mine (${all.filter(evMine).length})</button><button data-a="revf" data-v="1" class="${ui.revAll?'on':''}">Alle (${all.length})</button></div>`;
     h+=l.length?l.map((e,i)=>`<button class="evrow ${i===ui.rev?'on':''}" data-a="ev" data-i="${i}"><span class="evnum">${i+1}</span><span><b>${evLabel(e)} · ${CO(e.x,e.y)}</b><br><span class="note">${evText(e)}</span></span></button>`).join('')

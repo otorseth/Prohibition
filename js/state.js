@@ -7,6 +7,24 @@ function gangsAt(x,y){return S.gangs.filter(g=>g.x===x&&g.y===y)}
 function owned(f){return S.blocks.filter(b=>b.owner===f).length}
 function mine(f){return S.gangs.filter(g=>g.fam===f)}
 function nbrs(x,y){return [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]].map(([a,b])=>[x+a,y+b]).filter(([a,b])=>a>=0&&b>=0&&a<N&&b<N).map(([a,b])=>blk(a,b))}
+// Tåke over kartet: du ser kvartaler med egne bander eller egne kvartaler, pluss alle naboer.
+let VIS=null;
+function visSet(f=0){
+  const v=new Set(), add=(x,y)=>{for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const a=x+dx,b=y+dy;if(a>=0&&b>=0&&a<N&&b<N)v.add(b*N+a)}};
+  S.gangs.forEach(g=>{if(g.fam===f&&!g.gone)add(g.x,g.y)});
+  S.blocks.forEach(b=>{if(b.owner===f)add(b.x,b.y)});
+  return v;
+}
+function canSee(x,y){return visSet().has(y*N+x)}
+// Husker hva du har sett: seen = utforsket, mem = sist kjente eier
+function updateSeen(){
+  if(!S.seen)S.seen=Array(N*N).fill(0);
+  if(!S.mem)S.mem=Array(N*N).fill(-1);
+  const v=visSet(); v.forEach(i=>{S.seen[i]=1;S.mem[i]=S.blocks[i].owner}); return v;
+}
+function fogState(i){return VIS&&!VIS.has(i)?(S.seen&&S.seen[i]?'fog':'unk'):'vis'}
+// Loggfører bare det du er involvert i eller kan se
+function Lv(x,y,mineInvolved,t){if(mineInvolved||canSee(x,y))L(t)}
 function L(t){S.log.push({t:S.turn,x:t}); if(S.log.length>150)S.log.shift()}
 
 function makeGang(){
@@ -16,7 +34,7 @@ function makeGang(){
 }
 
 function newGame(){
-  S={v:4,turn:1,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
+  S={v:5,turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
   const bag=[...Array(30).fill('bolig'),...Array(18).fill('komm'),...Array(14).fill('ind')];
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     let t=pick(bag);
@@ -57,7 +75,7 @@ function hire(f,id){
   if(gangsAt(h.x,h.y).filter(o=>o.fam===f).length>=MAXB)return false;
   S.money[f]-=g.cost; g.fam=f; g.x=h.x; g.y=h.y; g.order='none';
   S.gangs.push(g); S.pool.splice(i,1);
-  L(`${fn(f)} leide inn ${g.name}.`);
+  if(f===0)L(`${fn(f)} leide inn ${g.name}.`);
   return true;
 }
 function takeChance(g,b){

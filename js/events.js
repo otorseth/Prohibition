@@ -1,7 +1,8 @@
 // Hendelser fra forrige runde og hendelsesfeltet nederst
 /* ---------- hendelser fra forrige runde ---------- */
 function evMine(e){return e.k==='fight'?(e.a===0||e.d===0):e.k==='infl'?e.f===0:(e.f===0||e.prev===0||e.hq===0)}
-function evList(){const l=(S.events&&S.events.list)||[];return ui.revAll?l:l.filter(evMine)}
+function evAll(){return ((S.events&&S.events.list)||[]).filter(e=>evMine(e)||e.seen!==false)}
+function evList(){const l=evAll();return ui.revAll?l:l.filter(evMine)}
 function evLabel(e){return e.k==='fight'?'Kamp':e.k==='infl'?'Påvirkning':'Overtakelse'}
 function evColor(e){return FAM[e.k==='fight'?e.a:e.f].c}
 function evText(e){
@@ -22,7 +23,7 @@ function goEv(i){
 }
 // Hendelseslisten ligger fast nederst på skjermen og stenger ikke for resten av spillet.
 function renderRev(){
-  const dock=document.getElementById('dock'), all=(S.events&&S.events.list)||[], l=evList();
+  const dock=document.getElementById('dock'), all=evAll(), l=evList();
   if(!all.length){dock.hidden=true;updateStage(null);document.body.style.paddingBottom='';return}
   dock.hidden=false;
   dock.classList.toggle('min',!!ui.dockMin);
