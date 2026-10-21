@@ -28,6 +28,10 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - Hold tallverdier (priser, styrke, inntekt) i `data.js`.
 - Test etter endringer: `node --check js/*.js`, og spill noen runder i en hodeløs nettleser (Playwright/Chromium er installert) uten feil i konsollen.
 
+## Wiki
+`wiki/` inneholder spillerveiledning og regler (markdown, forside `wiki/README.md`).
+Når regler eller tall endres, oppdater tilhørende wiki-side i samme commit.
+
 ## Publisere spillet
 Spillet publiseres som artifact med `tools/lag-artifact.py <sidefil>` og disse filene ved siden av:
 `css/style.css`, alle `js/*.js` og `musikk.mp3`.
