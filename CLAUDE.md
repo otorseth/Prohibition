@@ -29,7 +29,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - Test etter endringer: `node --check js/*.js`, og spill noen runder i en hodeløs nettleser (Playwright/Chromium er installert) uten feil i konsollen.
 
 ## Wiki
-`wiki/` inneholder spillerveiledning og regler (markdown, forside `wiki/README.md`).
+`wiki/` inneholder spillerveiledning og regler (markdown, forside `wiki/README.md`). En GitHub-jobb (`.github/workflows/wiki.yml` + `tools/synk-wiki.py`) kopierer den automatisk til Wiki-fanen ved push til `main`.
 Når regler eller tall endres, oppdater tilhørende wiki-side i samme commit.
 
 ## Publisere spillet
