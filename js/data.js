@@ -30,13 +30,17 @@ const WEAP={
   tom:{n:'«Lange Tom»',t:'Repetergevær',p:90,m:4,d:'rifle'},
   tommy:{n:'«Tommy-gun»',t:'Maskinpistol',p:140,m:6,d:'tommy'}
 };
+// Økonomijustering: våpen 50 % dyrere og lønn 100 % høyere enn grunnverdien.
+const PRIS={vapen:1.5, lonn:2};
+const wPrice=id=>Math.round(WEAP[id].p*PRIS.vapen);
+const wage=g=>Math.ceil(g.up*PRIS.lonn);
 const musOf=g=>g.mus+(g.wpn?WEAP[g.wpn].m:0);
 const musTxt=g=>g.wpn?`${musOf(g)} (${g.mus}+${WEAP[g.wpn].m})`:`${g.mus}`;
 function buyWeapon(f,g,id){
   const W=WEAP[id], b=blk(g.x,g.y);
-  if(!W||g.wpn===id||b.owner!==f||S.money[f]<W.p)return false;
-  S.money[f]-=W.p; g.wpn=id;
-  if(f===0)L(`${g.name} fikk levert ${W.n} (${W.t.toLowerCase()}, +${W.m} muskler) for $${W.p}.`);
+  if(!W||g.wpn===id||b.owner!==f||S.money[f]<wPrice(id))return false;
+  S.money[f]-=wPrice(id); g.wpn=id;
+  if(f===0)L(`${g.name} fikk levert ${W.n} (${W.t.toLowerCase()}, +${W.m} muskler) for $${wPrice(id)}.`);
   return true;
 }
 function genBld(t,must){

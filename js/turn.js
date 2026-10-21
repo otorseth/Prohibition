@@ -66,8 +66,8 @@ function resolve(){
     if(S.dead[f])continue;
     S.money[f]+=econ(f).net;
     while(S.money[f]<0&&mine(f).length){
-      const g=mine(f).sort((a,b)=>b.up-a.up)[0];
-      S.gangs=S.gangs.filter(o=>o!==g); S.money[f]+=g.up;
+      const g=mine(f).sort((a,b)=>wage(b)-wage(a))[0];
+      S.gangs=S.gangs.filter(o=>o!==g); S.money[f]+=wage(g);
       L(`${g.name} fikk ikke lønn og forlot ${fn(f)}.`);
     }
     if(S.money[f]<0)S.money[f]=0;

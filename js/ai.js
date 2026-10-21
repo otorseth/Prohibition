@@ -12,7 +12,7 @@ function aiTurn(f){
   for(const g of mine(f).sort((a,z)=>z.mus-a.mus)){
     if(buys<=0)break;
     const cur=g.wpn?WEAP[g.wpn].m:0;
-    const opt=Object.keys(WEAP).filter(k=>WEAP[k].m>cur&&S.money[f]-WEAP[k].p>=30).sort((a,z)=>WEAP[z].m-WEAP[a].m||WEAP[a].p-WEAP[z].p)[0];
+    const opt=Object.keys(WEAP).filter(k=>WEAP[k].m>cur&&S.money[f]-wPrice(k)>=30).sort((a,z)=>WEAP[z].m-WEAP[a].m||wPrice(a)-wPrice(z))[0];
     if(opt&&buyWeapon(f,g,opt))buys--;
   }
   for(const g of mine(f)){

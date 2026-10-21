@@ -68,6 +68,6 @@ function takeChance(g,b){
 }
 function econ(f){
   let inc=0; S.blocks.forEach(b=>{if(b.owner===f)inc+=blockInc(b,f)});
-  const up=mine(f).reduce((s,g)=>s+g.up,0);
+  const up=mine(f).reduce((s,g)=>s+wage(g),0);
   return {inc,up,net:inc-up};
 }

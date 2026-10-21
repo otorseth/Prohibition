@@ -62,8 +62,8 @@ function picked(g){return !(ui.unpick||[]).includes(g.id)}
 function groupSel(){const [x,y]=ui.sel||[0,0];return gangsAt(x,y).filter(g=>g.fam===0&&picked(g))}
 function shopList(g){
   if(blk(g.x,g.y).owner!==0)return `<p class="note shopnote">Våpen leveres bare i kvartaler du eier. Flytt banden dit først.</p>`;
-  return `<div class="shop">${Object.entries(WEAP).map(([k,W])=>`<button data-a="buy" data-id="${g.id}" data-w="${k}" ${g.wpn===k||S.money[0]<W.p?'disabled':''}>
-    <span><b>${W.n}</b> <span class="note">${W.t}</span></span><span class="sm">+${W.m}</span><span class="sp">${g.wpn===k?'Har':'$'+W.p}</span></button>`).join('')}
+  return `<div class="shop">${Object.entries(WEAP).map(([k,W])=>`<button data-a="buy" data-id="${g.id}" data-w="${k}" ${g.wpn===k||S.money[0]<wPrice(k)?'disabled':''}>
+    <span><b>${W.n}</b> <span class="note">${W.t}</span></span><span class="sm">+${W.m}</span><span class="sp">${g.wpn===k?'Har':'$'+wPrice(k)}</span></button>`).join('')}
     ${g.wpn?`<p class="note shopnote">Et nytt våpen erstatter ${WEAP[g.wpn].n}. Du får ingenting tilbake for det gamle.</p>`:''}</div>`;
 }
 function gangCard(g,group){
@@ -71,7 +71,7 @@ function gangCard(g,group){
   const tc=Math.round(takeChance(g,b)*100);
   const btn=(o,label,dis)=>`<button data-a="order" data-id="${g.id}" data-o="${o}" class="${g.order===o?'on':''}" ${dis?'disabled':''}>${label}</button>`;
   return `<div class="gang ${g.order==='none'?'need':''}" style="--c:var(--f0)">
-    <div class="gh"><b>${g.name}${g.order==='none'?' <span class="need-txt">?</span>':''}</b><span>Muskler ${musTxt(g)} · Innflytelse ${g.inf} · Lønn $${g.up}</span></div>
+    <div class="gh"><b>${g.name}${g.order==='none'?' <span class="need-txt">?</span>':''}</b><span>Muskler ${musTxt(g)} · Innflytelse ${g.inf} · Lønn $${wage(g)}</span></div>
     <div class="wrow"><span class="note">Våpen: ${g.wpn?`<b class="wn">${WEAP[g.wpn].n}</b> ${WEAP[g.wpn].t.toLowerCase()}, +${WEAP[g.wpn].m}`:'ingen'}</span><button class="linkb" data-a="shop" data-id="${g.id}">${ui.shop===g.id?'Lukk våpenhandleren':'Kjøp våpen'}</button></div>
     ${ui.shop===g.id?shopList(g):''}
     ${group?`<label class="pick"><input type="checkbox" id="pick-${g.id}" data-a="pick" data-id="${g.id}" ${picked(g)?'checked':''}> Med i gruppeordre</label>`:''}
@@ -123,7 +123,7 @@ function renderPane(){
   if(ui.tab==='leie'){
     const hm=home(0);
     h+=`<h2>Leiemarkedet</h2><p class="note">${hm?`Nye bander møter opp i ${CO(hm.x,hm.y)}. Lønn trekkes hver måned.`:'Du eier ingen kvartaler og kan ikke ta imot nye folk.'} Rivalene leier fra samme marked.</p>`;
-    h+=S.pool.map(g=>`<div class="row"><span class="brow"><img class="ava" src="${portrait(g)}" alt="" style="--c:var(--line)"><span><b>${g.name}</b><br><span class="note">Muskler ${g.mus} · Innflytelse ${g.inf} · Lønn $${g.up}/mnd</span></span></span>
+    h+=S.pool.map(g=>`<div class="row"><span class="brow"><img class="ava" src="${portrait(g)}" alt="" style="--c:var(--line)"><span><b>${g.name}</b><br><span class="note">Muskler ${g.mus} · Innflytelse ${g.inf} · Lønn $${wage(g)}/mnd</span></span></span>
       <button class="btn" data-a="hire" data-id="${g.id}" ${!hm||S.money[0]<g.cost?'disabled':''}>Lei for $${g.cost}</button></div>`).join('');
   }
   if(ui.tab==='hend'){
