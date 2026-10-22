@@ -94,14 +94,15 @@ function hitTimes(w){
   if(w==='bat')return [380];
   return [80,330];
 }
-function fightSfx(e){
+function fightSfx(b){
   if(sfxStage){try{sfxStage.disconnect()}catch(x){}sfxStage=null}
   if(!MUS.sfx||!sfxInit())return;
   const {c,out}=SFX; if(c.state==='suspended')c.resume();
   const d=c.createGain(); d.connect(out); sfxStage=d;
   const now=c.currentTime+.02;
-  const A={mus:e.am,w:e.aw}, D={mus:e.dm,w:e.dw};
-  [[wpnOf(A),.7],[wpnOf(D),1.4]].forEach(([w,start])=>{
+  // b.cues: [starttid i ms, våpentype] for hvert angrep i slaget
+  b.cues.forEach(([T,w])=>{
+    const start=T/1000;
     if(w==='bat')whoosh(d,now+start+.25);
     if(w==='fists')whoosh(d,now+start+.15);
     hitTimes(w).forEach(ms=>SOUND[w](d,now+start+ms/1000));

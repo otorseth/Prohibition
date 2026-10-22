@@ -193,7 +193,9 @@ function drawFigure(c,L,w,P,o,rim){
   return out;
 }
 
-/* ---------- kampscene: bevegelser ---------- */
+/* ---------- kampscene: slag med flere bander ---------- */
+// Alle kamper i samme kvartal samme tur vises som ett slag. Hver kamp (utveksling) får sitt eget tidsvindu.
+const EX_START=700, EX_LEN=1500, EX_COUNTER=700;
 // Grunnpositurer per våpentype (hender i forhold til skulderen, våpenvinkel i radianer)
 function readyPose(w,aim){
   if(MELEE(w)) return w==='fists'
@@ -202,136 +204,169 @@ function readyPose(w,aim){
   if(LONG(w)) return {fH:[16,14],bH:[0,0],twoHand:18,wAng:aim?0:.45,lean:aim?.05:0,crouch:aim?.08:.02};
   return aim?{fH:[42,-1],bH:[-6,38],wAng:0,lean:.02,crouch:.05}:{fH:[24,22],bH:[-6,38],wAng:.9,lean:0,crouch:0};
 }
-// Regner ut positur og plassering for én figur (A = angriper, D = forsvarer) på tidspunkt t (ms)
-function figureState(role,e,t,w,ground){
-  const isA=role==='A', face=isA?1:-1, X0=isA?232:408, xStart=isA?-70:710;
-  const myT=isA?700:1400, opT=isA?1400:700;
-  const hp0=isA?e.ahp0:e.dhp0, hp1=isA?e.ahp1:e.dhp1, dmg=hp0-hp1, dead=hp1<=0;
-  const oppW=wpnOf(isA?{mus:e.dm,w:e.dw}:{mus:e.am,w:e.aw});
-  const seed=isA?e.aid:e.did;
+const BATTLES=new Map();
+// Bygger slaget som hendelsen e hører til: deltakere, sider, plasser og tidslinje
+function buildBattle(e){
+  const list=((S.events&&S.events.list)||[]).filter(o=>o.k==='fight'&&o.aid!=null&&o.x===e.x&&o.y===e.y);
+  const ex=list.includes(e)?list:[e];
+  const key=(S.events?S.events.t:0)+'|'+e.x+','+e.y+'|'+ex.length+'|'+(ex[0].aid||0);
+  if(BATTLES.has(key))return BATTLES.get(key);
+  const F=new Map();
+  const add=(id,fam,mus,bm,w,name,hp)=>{if(!F.has(id))F.set(id,{id,fam,mus,bm,w,name,hp0:hp,acts:[],reacts:[],hpCh:[],deathT:null,L:null})};
+  ex.forEach(o=>{add(o.aid,o.a,o.am,o.abm,o.aw,o.an,o.ahp0);add(o.did,o.d,o.dm,o.dbm,o.dw,o.dn,o.dhp0)});
+  const fams=[...new Set([...F.values()].map(f=>f.fam))];
+  const leftFam=fams.includes(0)?0:ex[0].a;
+  const L=[...F.values()].filter(f=>f.fam===leftFam), R=[...F.values()].filter(f=>f.fam!==leftFam);
+  // plasser: første rad nærmest midten, de neste litt bakover og lenger ut
+  const place=(arr,side)=>arr.forEach((f,i)=>{f.side=side;f.face=side==='L'?1:-1;f.slot=i;
+    f.x=side==='L'?232-i*58:408+i*58; f.depth=i%2?1:0; f.L=looks(f); f.wt=wpnOf({mus:f.mus,w:f.w})});
+  place(L,'L'); place(R,'R');
+  ex.forEach((o,k)=>{
+    const T=EX_START+k*EX_LEN, a=F.get(o.aid), d=F.get(o.did);
+    a.acts.push({T,target:d.id}); d.reacts.push({T,from:a.id,dmg:o.dhp0-o.dhp1});
+    d.acts.push({T:T+EX_COUNTER,target:a.id}); a.reacts.push({T:T+EX_COUNTER,from:d.id,dmg:o.ahp0-o.ahp1});
+    d.hpCh.push({T:T+100,from:o.dhp0,to:o.dhp1}); a.hpCh.push({T:T+EX_COUNTER+100,from:o.ahp0,to:o.ahp1});
+    if(o.dhp1<=0)d.deathT=T+EX_COUNTER-100; if(o.ahp1<=0)a.deathT=T+EX_LEN-150;
+  });
+  // en bande som er død, slår ikke tilbake
+  F.forEach(f=>{if(f.deathT!=null)f.acts=f.acts.filter(a=>a.T<f.deathT)});
+  const b={key,e,ex,F,list:[...F.values()],type:blk(e.x,e.y).t,end:EX_START+ex.length*EX_LEN+1100,leftFam};
+  b.cues=[];F.forEach(f=>f.acts.forEach(a=>b.cues.push([a.T,f.wt])));
+  BATTLES.set(key,b); if(BATTLES.size>40)BATTLES.delete(BATTLES.keys().next().value);
+  return b;
+}
+function hpAt(f,t){let h=f.hp0;f.hpCh.forEach(c=>{if(t>=c.T)h=lerp(c.from,c.to,cl01((t-c.T)/450))});return h}
+// Positur og plassering for én deltaker på tidspunkt t (ms)
+function fighterState(f,b,t,ground){
+  const w=f.wt, face=f.face, xStart=f.side==='L'?-70-f.slot*40:710+f.slot*40, enter=650+f.slot*90;
+  const tgtX=id=>b.F.get(id).x;
   const xAt=tt=>{
-    let x=tt<650?lerp(xStart,X0,easeOut(cl01(tt/650))):X0;
-    const m=tt-myT;
-    if(MELEE(w)&&m>0&&m<600)x+=face*Math.sin(m/600*Math.PI)*(w==='fists'?118:104);
-    if(LONG(w)||!MELEE(w))hitTimes(w).forEach(ts=>{if(m>ts)x-=face*pulse(m-ts)*(w==='shotgun'?6:w==='rifle'?4:2)}); // rekyl
-    const om=tt-opT;
-    if(om>0&&dmg>1)hitTimes(oppW).forEach(ts=>{if(om>ts)x-=face*Math.min(1,(om-ts)/140)*(8+dmg*.6)/hitTimes(oppW).length*1.6}); // slått bakover
+    let x=tt<enter?lerp(xStart,f.x,easeOut(cl01(tt/enter))):f.x;
+    f.acts.forEach(a=>{const m=tt-a.T;
+      if(MELEE(w)&&m>0&&m<600)x+=face*Math.sin(m/600*Math.PI)*Math.max(20,Math.abs(tgtX(a.target)-f.x)-56);
+      if(!MELEE(w))hitTimes(w).forEach(ts=>{if(m>ts)x-=face*pulse(m-ts)*(w==='shotgun'?6:w==='rifle'?4:2)})});
+    f.reacts.forEach(r=>{const om=tt-r.T, ow=b.F.get(r.from).wt;
+      if(om>0&&r.dmg>1)hitTimes(ow).forEach(ts=>{if(om>ts)x-=face*Math.min(1,(om-ts)/140)*(8+r.dmg*.6)/hitTimes(ow).length*1.6})});
     return x;
   };
   const x=xAt(t), speed=Math.abs(x-xAt(t-40));
-  const aim=t>620;
-  const P={...readyPose(w,aim),head:0,feet:null};
-  // pust og vektforskyvning
-  const br=Math.sin(t*.0035+seed);
-  P.lean+=br*.015; P.crouch+=(br+1)*.015;
-  // egen handling
-  const m=t-myT; let flash=false;
-  if(m>=0&&m<650){
-    if(w==='fists'){
-      hitTimes(w).forEach((ts,i)=>{const p=pulse(m-ts);if(i%2){P.bH=[P.bH[0]+30*p,P.bH[1]-4*p]}else{P.fH=[P.fH[0]+28*p,P.fH[1]-2*p]};P.lean+=.14*p});
-    }else if(w==='bat'){
-      const s=easeIO(cl01((m-290)/110)), back=cl01((m-480)/160);
-      P.wAng=lerp(-2.2,.6,s)-back*.8; P.fH=[lerp(2,30,s),lerp(-8,10,s)]; P.lean+=.25*s-.15*back;
-    }else{
-      hitTimes(w).forEach(ts=>{const p=pulse(m-ts)*(w==='shotgun'?1.6:w==='rifle'?1.3:w==='tommy'?.45:.9);
-        P.wAng-=p*.35; P.fH=[P.fH[0]-p*3,P.fH[1]-p*4]; P.lean-=p*.06; if(m>=ts&&m-ts<45)flash=true});
-    }
-  }
-  // reaksjon på motstanderens handling
-  const om=t-opT; let hitNow=0;
-  if(om>=0&&om<700){
-    if(dmg>1){hitTimes(oppW).forEach(ts=>{const p=pulse(om-ts);hitNow=Math.max(hitNow,om>=ts&&om-ts<60?1:0);P.lean-=.32*p;P.head-=.35*p;P.crouch+=.12*p;P.wAng+=.5*p})}
-    else{const d=Math.sin(cl01(om/600)*Math.PI);P.crouch+=.38*d;P.lean+=.18*d} // dukker unna
-  }
-  // etter kampen: død eller senke våpenet
+  const dead=f.deathT!=null&&t>f.deathT;
+  const P={...readyPose(w,t>enter-30),head:0,feet:null};
+  const br=Math.sin(t*.0035+f.id); P.lean+=br*.015; P.crouch+=(br+1)*.015;
+  let flash=false;
+  f.acts.forEach(a=>{const m=t-a.T; if(m<0||m>=650)return;
+    if(w==='fists'){hitTimes(w).forEach((ts,i)=>{const p=pulse(m-ts);if(i%2)P.bH=[P.bH[0]+30*p,P.bH[1]-4*p];else P.fH=[P.fH[0]+28*p,P.fH[1]-2*p];P.lean+=.14*p})}
+    else if(w==='bat'){const s=easeIO(cl01((m-290)/110)),back=cl01((m-480)/160);P.wAng=lerp(-2.2,.6,s)-back*.8;P.fH=[lerp(2,30,s),lerp(-8,10,s)];P.lean+=.25*s-.15*back}
+    else hitTimes(w).forEach(ts=>{const p=pulse(m-ts)*(w==='shotgun'?1.6:w==='rifle'?1.3:w==='tommy'?.45:.9);
+      P.wAng-=p*.35;P.fH=[P.fH[0]-p*3,P.fH[1]-p*4];P.lean-=p*.06;if(m>=ts&&m-ts<45)flash=true});
+  });
+  f.reacts.forEach(r=>{const om=t-r.T; if(om<0||om>=700)return; const ow=b.F.get(r.from).wt;
+    if(r.dmg>1)hitTimes(ow).forEach(ts=>{const p=pulse(om-ts);P.lean-=.32*p;P.head-=.35*p;P.crouch+=.12*p;P.wAng+=.5*p});
+    else{const d=Math.sin(cl01(om/600)*Math.PI);P.crouch+=.38*d;P.lean+=.18*d}});
   let fall=0;
-  if(dead&&t>2050){const k=cl01((t-2050)/650);P.crouch+=Math.min(1,k*2.2)*.5;P.lean-=.2*k;P.head-=.3*k;P.wAng=lerp(P.wAng,1.4,k);fall=easeIO(cl01((k-.25)/.75))}
-  else if(t>2350){const k=easeOut(cl01((t-2350)/500)),r=readyPose(w,false);P.wAng=lerp(P.wAng,r.wAng,k);P.fH=[lerp(P.fH[0],r.fH[0],k),lerp(P.fH[1],r.fH[1],k)];if(hp1<=8){P.crouch+=.15*k;P.lean-=.05*k}}
-  // bein: skritt når figuren flytter seg, ellers stødig stilling
+  if(dead){const k=cl01((t-f.deathT)/650);P.crouch+=Math.min(1,k*2.2)*.5;P.lean-=.2*k;P.head-=.3*k;P.wAng=lerp(P.wAng,1.4,k);fall=easeIO(cl01((k-.25)/.75))}
+  else{const last=Math.max(0,...f.acts.map(a=>a.T+650),...f.reacts.map(r=>r.T+700));
+    if(t>last+300&&t>b.end-1000){const k=easeOut(cl01((t-Math.max(last+300,b.end-1000))/500)),r=readyPose(w,false);
+      P.wAng=lerp(P.wAng,r.wAng,k);P.fH=[lerp(P.fH[0],r.fH[0],k),lerp(P.fH[1],r.fH[1],k)];if(hpAt(f,t)<=8){P.crouch+=.15*k;P.lean-=.05*k}}}
   const stride=cl01(speed/5), ph=x*.11*face, wide=MELEE(w)?11:13;
   P.feet=[[lerp(wide,12*Math.sin(ph)+3,stride),-Math.max(0,Math.cos(ph))*8*stride],[lerp(-wide+2,-12*Math.sin(ph)-3,stride),-Math.max(0,-Math.cos(ph))*8*stride]];
   if(stride>.2)P.crouch+=Math.abs(Math.cos(ph*2))*.04;
-  return {P,o:{x,ground,face,fall},flash,hitNow,dead,dmg};
+  return {P,o:{x,ground:ground-f.depth*7,face,fall},flash,dead};
 }
-
-/* ---------- kampscene: effekter og oppsett ---------- */
+function battleHud(c,b,t){
+  const sides=[b.list.filter(f=>f.side==='L'),b.list.filter(f=>f.side==='R')];
+  const rows=Math.max(sides[0].length,sides[1].length), big=rows===1;
+  c.fillStyle='rgba(8,6,5,.55)'; c.fillRect(0,0,640,big?78:16+rows*20);
+  if(big){stageHud(c,sides[0][0].name,sides[0][0].fam,hpAt(sides[0][0],t),true);if(sides[1][0])stageHud(c,sides[1][0].name,sides[1][0].fam,hpAt(sides[1][0],t),false);return 78}
+  sides.forEach((arr,si)=>arr.forEach((f,i)=>{
+    const left=si===0, y=14+i*20, hp=hpAt(f,t), w=110, bx=left?16:624-w, dead=f.deathT!=null&&t>f.deathT+300;
+    c.globalAlpha=dead?.45:1; c.textAlign=left?'left':'right';
+    c.font="700 12px 'Archivo Narrow',sans-serif"; c.fillStyle=FAMHEX[f.fam];
+    c.fillText(f.name+(dead?' ✝':''),left?bx+w+10:bx-10,y+4);
+    c.fillStyle='#2a231c'; c.fillRect(bx,y-4,w,6);
+    c.fillStyle=hp<=8?'#c4554a':'#86ab6d'; c.fillRect(left?bx:bx+w-w*Math.max(0,hp)/MAXHP,y-4,w*Math.max(0,hp)/MAXHP,6);
+    c.globalAlpha=1;
+  }));
+  return 16+rows*20;
+}
 function drawFight(c,e,t){
-  const type=blk(e.x,e.y).t;
-  const A={id:e.aid,fam:e.a,mus:e.am,bm:e.abm,w:e.aw}, D={id:e.did,fam:e.d,mus:e.dm,bm:e.dbm,w:e.dw};
-  const wA=wpnOf(A), wD=wpnOf(D), LA=looks(A), LD=looks(D);
-  // kamera: langsom zoom og rist ved skudd og slag
-  const shots=[...hitTimes(wA).map(ts=>[700+ts,wA]),...hitTimes(wD).map(ts=>[1400+ts,wD])];
-  let shake=0; shots.forEach(([T,w])=>{if(t>=T)shake+=Math.exp(-(t-T)/90)*(w==='shotgun'?4.5:w==='rifle'?3.5:MELEE(w)?2.5:w==='tommy'?1.1:1.8)});
-  const zoom=1+.06*easeIO(cl01((t-500)/2400));
+  const b=buildBattle(e);
+  let shake=0; b.cues.forEach(([T,w])=>hitTimes(w).forEach(ts=>{const tt=T+ts;if(t>=tt)shake+=Math.exp(-(t-tt)/90)*(w==='shotgun'?4.5:w==='rifle'?3.5:MELEE(w)?2.5:w==='tommy'?1.1:1.8)}));
+  const zoom=1+.06*easeIO(cl01((t-500)/(b.end-500)));
   c.save(); c.fillStyle='#0b0908'; c.fillRect(0,0,640,270);
   c.translate(320+Math.sin(t*.9)*shake,150+Math.cos(t*1.3)*shake); c.scale(zoom,zoom); c.translate(-320,-150);
-  const ground=sceneBg(c,type);
-  const sA=figureState('A',e,t,wA,ground), sD=figureState('D',e,t,wD,ground);
-  // skygger på bakken
-  [sA,sD].forEach(s=>{c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(s.o.x+(s.o.fall?-s.o.face*40*s.o.fall:0),ground+1,24+30*s.o.fall,4,0,0,Math.PI*2);c.fill()});
-  const rimCol='rgba(240,222,190,.55)';
-  drawFigure(c,LD,wD,sD.P,sD.o,rimCol); const pD=drawFigure(c,LD,wD,sD.P,sD.o);
-  drawFigure(c,LA,wA,sA.P,sA.o,rimCol); const pA=drawFigure(c,LA,wA,sA.P,sA.o);
-  // partikler: røyk, tomhylser, treff
-  const R=rng(e.aid*31+e.did*17+(e.dhp0||0));
-  const particles=(T,w,shooter,target,face,targetDmg)=>{
+  const ground=sceneBg(c,b.type);
+  const st=new Map(b.list.map(f=>[f.id,fighterState(f,b,t,ground)]));
+  // skygger, så figurene bakerst først
+  b.list.forEach(f=>{const s=st.get(f.id);c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(s.o.x-s.o.face*40*s.o.fall,s.o.ground+1,24+30*s.o.fall,4,0,0,Math.PI*2);c.fill()});
+  const pos=new Map(), rimCol='rgba(240,222,190,.55)';
+  [...b.list].sort((p,q)=>q.depth-p.depth||q.slot-p.slot).forEach(f=>{ // bakerste rad først
+    const s=st.get(f.id); drawFigure(c,f.L,f.wt,s.P,s.o,rimCol); pos.set(f.id,drawFigure(c,f.L,f.wt,s.P,s.o));
+  });
+  // partikler for hver utveksling
+  const R=rng(b.ex[0].aid*31+b.ex[0].did*17);
+  const particles=(T,w,sh,tg,face,dmg)=>{
     const a=t-T; if(a<0)return;
     if(!MELEE(w)){
-      // røyk fra munningen
       for(let i=0;i<3;i++){const aa=a-i*40;if(aa<0||aa>1300)continue;const r=5+aa*.018;
-        c.fillStyle=`rgba(205,198,186,${.2*(1-aa/1300)})`;c.beginPath();c.arc(shooter.muzzle[0]+face*(6+aa*.012)+i*3,shooter.muzzle[1]-aa*.022-i*2,r,0,Math.PI*2);c.fill()}
-      // tomhylse
-      if(w!=='revolver'&&w!=='derringer'){const vx=-face*(.045+R()*.03),vy=-.13-R()*.04,g=.0006;let tt=Math.min(a,(-(vy)+Math.sqrt(vy*vy+2*g*(ground-shooter.hand[1])))/g);
-        const hx=shooter.hand[0]+vx*tt, hy=Math.min(ground-1,shooter.hand[1]+vy*tt+.5*g*tt*tt);c.fillStyle='#d9b36a';c.save();c.translate(hx,hy);c.rotate(a*.03);c.fillRect(-1.5,-.8,3,1.6);c.restore()}
+        c.fillStyle=`rgba(205,198,186,${.2*(1-aa/1300)})`;c.beginPath();c.arc(sh.muzzle[0]+face*(6+aa*.012)+i*3,sh.muzzle[1]-aa*.022-i*2,r,0,Math.PI*2);c.fill()}
+      if(w!=='revolver'&&w!=='derringer'){const vx=-face*(.045+R()*.03),vy=-.13-R()*.04,g=.0006;const tt=Math.min(a,(-(vy)+Math.sqrt(vy*vy+2*g*Math.max(1,ground-sh.hand[1])))/g);
+        const hx=sh.hand[0]+vx*tt, hy=Math.min(ground-1,sh.hand[1]+vy*tt+.5*g*tt*tt);c.fillStyle='#d9b36a';c.save();c.translate(hx,hy);c.rotate(a*.03);c.fillRect(-1.5,-.8,3,1.6);c.restore()}
     }
-    // treff: blod når det sitter, gnister når det glipper
-    if(a<650){for(let i=0;i<7;i++){const vx=face*(.04+R()*.12),vy=-.12+R()*.16,g=.0005,px=target.chest[0]+vx*a,py=target.chest[1]+vy*a+.5*g*a*a;
-      if(targetDmg>1){c.fillStyle=`rgba(110,14,10,${.85*(1-a/650)})`;c.beginPath();c.arc(px,py,1.6+R()*1.4,0,Math.PI*2);c.fill()}
-      else if(!MELEE(w)&&a<220){c.fillStyle=`rgba(255,230,170,${1-a/220})`;c.fillRect(target.chest[0]+face*14+vx*a*1.5,target.chest[1]-10+vy*a*1.5,2,2)}}}
+    if(a<650)for(let i=0;i<7;i++){const vx=face*(.04+R()*.12),vy=-.12+R()*.16,g=.0005,px=tg.chest[0]+vx*a,py=tg.chest[1]+vy*a+.5*g*a*a;
+      if(dmg>1){c.fillStyle=`rgba(110,14,10,${.85*(1-a/650)})`;c.beginPath();c.arc(px,py,1.6+R()*1.4,0,Math.PI*2);c.fill()}
+      else if(!MELEE(w)&&a<220){c.fillStyle=`rgba(255,230,170,${1-a/220})`;c.fillRect(tg.chest[0]+face*14+vx*a*1.5,tg.chest[1]-10+vy*a*1.5,2,2)}}
   };
-  hitTimes(wA).forEach(ts=>particles(700+ts,wA,pA,pD,1,e.dhp0-e.dhp1));
-  hitTimes(wD).forEach(ts=>particles(1400+ts,wD,pD,pA,-1,e.ahp0-e.ahp1));
+  b.list.forEach(f=>f.acts.forEach(a=>{const tg=b.F.get(a.target), r=tg.reacts.find(x=>x.T===a.T&&x.from===f.id);
+    hitTimes(f.wt).forEach(ts=>particles(a.T+ts,f.wt,pos.get(f.id),pos.get(tg.id),f.face,r?r.dmg:0))}));
   // munningsflammer lyser opp scenen
-  [[sA,pA,wA,pD],[sD,pD,wD,pA]].forEach(([s,p,w,tg])=>{
-    if(!s.flash)return;
+  b.list.forEach(f=>{const s=st.get(f.id),p=pos.get(f.id); if(!s.flash)return;
+    const act=f.acts.find(a=>t>=a.T&&t<a.T+650), tg=act&&pos.get(act.target);
     c.save(); c.globalCompositeOperation='lighter';
     const g=c.createRadialGradient(p.muzzle[0],p.muzzle[1],2,p.muzzle[0],p.muzzle[1],190);
-    g.addColorStop(0,'rgba(255,200,120,.45)'); g.addColorStop(1,'rgba(255,200,120,0)'); c.fillStyle=g; c.fillRect(0,0,640,270);
-    c.restore();
-    const big=w==='shotgun'?1.7:w==='rifle'?1.3:1;
+    g.addColorStop(0,'rgba(255,200,120,.45)'); g.addColorStop(1,'rgba(255,200,120,0)'); c.fillStyle=g; c.fillRect(0,0,640,270); c.restore();
+    const big=f.wt==='shotgun'?1.7:f.wt==='rifle'?1.3:1;
     sStar(c,p.muzzle[0],p.muzzle[1],11*big,4*big,'#ffe2a0'); sCirc(c,p.muzzle[0],p.muzzle[1],3.5*big,'#fff8e8');
-    c.strokeStyle='rgba(255,226,160,.5)'; c.lineWidth=1.2; sLine(c,p.muzzle[0],p.muzzle[1],tg.chest[0]+Math.sin(t)*6,tg.chest[1]+Math.cos(t*1.7)*10);
+    if(tg){c.strokeStyle='rgba(255,226,160,.5)';c.lineWidth=1.2;sLine(c,p.muzzle[0],p.muzzle[1],tg.chest[0]+Math.sin(t)*6,tg.chest[1]+Math.cos(t*1.7)*10)}
   });
-  // regn
   c.strokeStyle='rgba(210,215,225,.13)'; c.lineWidth=1; c.beginPath();
   for(let i=0;i<90;i++){const x=((i*97+t*.35)%720)-40, y=((i*61+t*.95)%320)-30; c.moveTo(x,y); c.lineTo(x-3,y+11)}
   c.stroke();
   c.restore();
-  // vignett
   const v=c.createRadialGradient(320,150,120,320,150,380); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.6)');
   c.fillStyle=v; c.fillRect(0,0,640,270);
-  // tall, helse og resultat
-  const float=(t0,p,dmg)=>{if(dmg<=0||t<t0)return;const k=cl01((t-t0)/900);if(k>=1)return;
-    c.globalAlpha=1-k;c.fillStyle='#ff7a6a';c.font="700 24px 'Archivo Narrow',sans-serif";c.textAlign='center';c.fillText('-'+dmg,p.head[0],p.head[1]-24-k*26);c.globalAlpha=1};
-  float(850,pD,e.dhp0-e.dhp1); float(1550,pA,e.ahp0-e.ahp1);
-  c.fillStyle='rgba(8,6,5,.55)'; c.fillRect(0,0,640,78);
-  stageHud(c,e.an,e.a,lerp(e.ahp0,e.ahp1,cl01((t-1500)/450)),true);
-  stageHud(c,e.dn,e.d,lerp(e.dhp0,e.dhp1,cl01((t-800)/450)),false);
-  if(t>600){
+  // skadetall over den som blir truffet
+  b.list.forEach(f=>f.reacts.forEach(r=>{const t0=r.T+150; if(r.dmg<=0||t<t0)return; const k=cl01((t-t0)/900); if(k>=1)return; const p=pos.get(f.id);
+    c.globalAlpha=1-k;c.fillStyle='#ff7a6a';c.font="700 24px 'Archivo Narrow',sans-serif";c.textAlign='center';c.fillText('-'+r.dmg,p.head[0],p.head[1]-24-k*26);c.globalAlpha=1}));
+  const hudH=battleHud(c,b,t);
+  // terningkast for utvekslingen som pågår
+  const k=Math.floor((t-EX_START)/EX_LEN), o=b.ex[clamp(k,0,b.ex.length-1)];
+  if(t>600&&t<b.end-900){
     c.globalAlpha=cl01((t-600)/250); c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#b8aa94';
-    c.textAlign='left'; c.fillText(`Muskler ${e.am}${e.aw?' ('+WEAP[e.aw].n+')':''} + kast ${e.dieA} = ${e.am+e.dieA}`,16,70);
-    c.textAlign='right'; c.fillText(`Muskler ${e.dm}${e.dw?' ('+WEAP[e.dw].n+')':''} + kast ${e.dieD}${e.bon?' + bonus '+e.bon:''} = ${e.dm+e.dieD+e.bon}`,624,70);
+    if(b.ex.length===1){
+      c.textAlign='left'; c.fillText(`Muskler ${o.am}${o.aw?' ('+WEAP[o.aw].n+')':''} + kast ${o.dieA} = ${o.am+o.dieA}`,16,70);
+      c.textAlign='right'; c.fillText(`Muskler ${o.dm}${o.dw?' ('+WEAP[o.dw].n+')':''} + kast ${o.dieD}${o.bon?' + bonus '+o.bon:''} = ${o.dm+o.dieD+o.bon}`,624,70);
+    }else{
+      c.fillStyle='rgba(8,6,5,.6)'; c.fillRect(0,244,640,26); c.fillStyle='#d8ccb6'; c.textAlign='center';
+      c.fillText(`Kamp ${clamp(k,0,b.ex.length-1)+1} av ${b.ex.length}: ${o.an} angriper ${o.dn} · ${o.am+o.dieA} mot ${o.dm+o.dieD+o.bon}`,320,261);
+    }
     c.globalAlpha=1;
   }
-  if(t>2000){
-    c.fillStyle=`rgba(8,6,5,${.6*cl01((t-2000)/300)})`; c.fillRect(0,236,640,34);
-    c.globalAlpha=cl01((t-2000)/300); c.textAlign='center';
-    c.font="17px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f';
-    c.fillText(e.won?`${e.an} vant kampen`:`${e.dn} slo angrepet tilbake`,320,252);
-    if(e.dead.length&&t>2600){c.globalAlpha=cl01((t-2600)/300);c.font="700 12px 'Archivo Narrow',sans-serif";c.fillStyle='#ff7a6a';c.fillText(`${e.dead.join(' og ')} havnet i elva`,320,266)}
+  const tEnd=b.end-1100;
+  if(t>tEnd+300){
+    const kk=cl01((t-tEnd-300)/300), dead=b.list.filter(f=>f.deathT!=null);
+    c.fillStyle=`rgba(8,6,5,${.6*kk})`; c.fillRect(0,236,640,34);
+    c.globalAlpha=kk; c.textAlign='center'; c.font="17px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f';
+    let txt;
+    if(b.ex.length===1)txt=o.won?`${o.an} vant kampen`:`${o.dn} slo angrepet tilbake`;
+    else{const dl=dead.filter(f=>f.side==='L').length, dr=dead.filter(f=>f.side==='R').length;
+      txt=dl===dr?`Slaget i ${CO(e.x,e.y)} endte uavgjort`:`${dl<dr?FAM[b.leftFam].name:'Motstanderne'} vant slaget i ${CO(e.x,e.y)}`}
+    c.fillText(txt,320,252);
+    if(dead.length&&t>tEnd+700){c.globalAlpha=cl01((t-tEnd-700)/300);c.font="700 12px 'Archivo Narrow',sans-serif";c.fillStyle='#ff7a6a';c.fillText(`${dead.map(f=>f.name).join(', ')} havnet i elva`,320,266)}
     c.globalAlpha=1;
   }
 }
+function fightEnd(e){return buildBattle(e).end}
 function stageCtx(id='stageCv'){
   const cv=document.getElementById(id), W=cv.clientWidth||600, dpr=window.devicePixelRatio||1;
   cv.width=Math.round(W*dpr); cv.height=Math.round(W*270/640*dpr);
@@ -360,7 +395,8 @@ function drawStill(e){
 let bigQueue=[], bigIdx=0, bigTimer=0;
 let FIGHT_POPUP=true;
 try{FIGHT_POPUP=localStorage.getItem('forbudstid-kamppopup')!=='av'}catch(e){}
-function myFights(){return evAll().filter(e=>e.k==='fight'&&e.aid!=null&&(e.a===0||e.d===0))}
+// Mine slag: én hendelse per kvartal der familien min var med i en kamp
+function myFights(){const seen=new Set();return evAll().filter(e=>{if(e.k!=='fight'||e.aid==null||(e.a!==0&&e.d!==0))return false;const k=e.x+','+e.y;if(seen.has(k))return false;seen.add(k);return true})}
 function openFightQueue(list,i=0){
   list=(list||[]).filter(e=>e&&e.k==='fight'&&e.aid!=null);
   if(!list.length)return;
@@ -370,33 +406,34 @@ function openFightQueue(list,i=0){
 }
 function openBigStage(e){
   if(!e||e.k!=='fight')return;
-  const l=myFights(), i=l.indexOf(e);
+  const l=myFights(), i=l.findIndex(o=>o.x===e.x&&o.y===e.y);
   openFightQueue(i>=0?l:[e],Math.max(0,i));
 }
 function playBig(i){
   clearTimeout(bigTimer); cancelAnimationFrame(bigRaf);
   bigIdx=clamp(i,0,bigQueue.length-1); const e=bigQueue[bigIdx], n=bigQueue.length;
-  document.getElementById('bigLabel').textContent=n>1?`Kamp ${bigIdx+1} av ${n} · ${CO(e.x,e.y)}`:`Kamp i ${CO(e.x,e.y)}`;
+  const slag=buildBattle(e).ex.length>1?'Slag':'Kamp';
+  document.getElementById('bigLabel').textContent=n>1?`${slag} ${bigIdx+1} av ${n} · ${CO(e.x,e.y)}`:`${slag} i ${CO(e.x,e.y)}`;
   document.getElementById('bigPrev').disabled=bigIdx===0;
   document.getElementById('bigNext').disabled=bigIdx===n-1;
   // hold hendelsesfeltet i takt med kampen som vises
   const ri=evList().indexOf(e); if(ri>=0&&ui.rev!==ri){ui.rev=ri;render()}
-  const c=stageCtx('stageBigCv'), END=3300, still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
+  const c=stageCtx('stageBigCv'), END=fightEnd(e), still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
   const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t);
     if(t<END)bigRaf=requestAnimationFrame(loop);
     else if(bigIdx<n-1)bigTimer=setTimeout(()=>playBig(bigIdx+1),900); // neste kamp starter av seg selv
   };
   bigRaf=requestAnimationFrame(loop);
-  if(!still)fightSfx(e);
+  if(!still)fightSfx(buildBattle(e));
 }
 function closeBigStage(){clearTimeout(bigTimer);cancelAnimationFrame(bigRaf);document.getElementById('bigStage').hidden=true}
 function startStage(e){
   cancelAnimationFrame(stageRaf);
   const c=stageCtx();
-  const END=3300, still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
+  const END=fightEnd(e), still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
   const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t); if(t<END)stageRaf=requestAnimationFrame(loop)};
   stageRaf=requestAnimationFrame(loop);
-  if(!still)fightSfx(e);
+  if(!still)fightSfx(buildBattle(e));
 }
 function updateStage(e){
   const ok=!!(e&&e.k==='fight'&&e.aid!=null);
