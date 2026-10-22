@@ -12,6 +12,7 @@
 - Hvert kvartal vises ovenfra med sine bygninger. Eide kvartaler har ramme og tone i familiens farge.
 - Fargede prikker nederst til venstre er bander. **?** betyr bande uten ordre. ★ er hovedkvarter.
 - Under flytting markeres nabokvartalene du kan flytte til.
+- **Grafikk: Noir / Klassisk** under kartet bytter mellom bildene av kvartalene og den enklere tegnede grafikken. Valget huskes.
 
 ## Sidepanelet
 | Fane | Innhold |

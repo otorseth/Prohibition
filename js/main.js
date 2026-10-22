@@ -60,6 +60,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){ui.dockMin=true;render()}
 });
 document.getElementById('endBtn').onclick=endTurn;
+document.getElementById('legend').addEventListener('click',e=>{if(e.target.closest('[data-a="gfx"]'))setGfx(GFX==='noir'?'klassisk':'noir')});
 
 
 document.getElementById('stats').addEventListener('click',e=>{if(e.target.closest('#needBtn'))nextNeed()});

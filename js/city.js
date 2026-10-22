@@ -8,7 +8,7 @@ function drawCity(){
   if(tiles.length<2)return;
   const W=cv.clientWidth, H=cv.clientHeight;
   const fog=S.blocks.map((b,i)=>fogState(i));
-  const key=W+'x'+H+'|'+S.blocks.map((b,i)=>b.t+fog[i]+(b.bld&&fog[i]==='vis'?b.bld.map(x=>x.k+x.by).join(''):'')).join(',');
+  const key=GFX+Object.keys(TILE_IMG).length+W+'x'+H+'|'+S.blocks.map((b,i)=>b.t+fog[i]+(b.bld&&fog[i]==='vis'?b.bld.map(x=>x.k+x.by).join(''):'')).join(',');
   if(!W||key===cityKey)return; cityKey=key;
   const dpr=window.devicePixelRatio||1; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0);
@@ -37,8 +37,34 @@ function drawCity(){
     }
   });
 }
+// Noir-grafikk: ett Midjourney-bilde per kvartalstype. «Klassisk» er den kodetegnede grafikken.
+const TILE_SRC={bolig:'img/tiles/bolig.jpg',komm:'img/tiles/komm.jpg',ind:'img/tiles/ind.jpg',havn:'img/tiles/havn.jpg',politi:'img/tiles/politi.jpg',hq:'img/tiles/hq.jpg'};
+const TILE_IMG={};
+let GFX='noir';
+try{GFX=localStorage.getItem('forbudstid-grafikk')||'noir'}catch(e){}
+for(const [k,src] of Object.entries(TILE_SRC)){
+  const im=new Image(); im.onload=()=>{TILE_IMG[k]=im;cityKey='';drawCity()}; im.src=src;
+}
+function setGfx(v){GFX=v;try{localStorage.setItem('forbudstid-grafikk',v)}catch(e){}cityKey='';render()}
+// Prikker som viser hvem bygningene betaler, på samme tre tomter som i klassisk grafikk
+function inflMarkers(c,b,x,y,s){
+  const m=s*.07, X=x+m, Y=y+m, S2=s-2*m, g=S2*.07, hw=(S2-g)/2;
+  const P=[[X,Y,hw,hw],[X+hw+g,Y,hw,hw],[X,Y+hw+g,S2,hw]], rr=Math.max(2.5,s*.05);
+  b.bld.forEach((bd,i)=>{if(bd.by<0)return;const [px,py,pw]=P[i];
+    c.fillStyle='#0c0a09';c.beginPath();c.arc(px+pw-rr-1,py+rr+1,rr+1.2,0,Math.PI*2);c.fill();
+    c.fillStyle=FAMHEX[bd.by];c.beginPath();c.arc(px+pw-rr-1,py+rr+1,rr,0,Math.PI*2);c.fill()});
+}
 function drawBlock(c,b,x,y,s,seeNow=true){
   const R=rng((b.x+1)*73856093^(b.y+1)*19349663^b.t.length*83492791);
+  const im=GFX==='noir'&&TILE_IMG[b.t];
+  if(im){
+    // speilvend bolig, butikk og industri tilfeldig så like kvartaler ikke ser helt like ut
+    c.save();
+    if(BKCAT(b.t)&&R()<.5){c.translate(x+s,y);c.scale(-1,1);c.drawImage(im,0,0,s,s)}else c.drawImage(im,x,y,s,s);
+    c.restore();
+    if(b.bld&&seeNow)inflMarkers(c,b,x,y,s);
+    return;
+  }
   const rnd=(a,z)=>a+R()*(z-a);
   const fr=(X,Y,w,h,col)=>{c.fillStyle=col;c.fillRect(X,Y,w,h)};
   const o=Math.max(1,s*.03);

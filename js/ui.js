@@ -55,7 +55,7 @@ function renderBoard(){
 }
 function renderLegend(){
   document.getElementById('legend').innerHTML=FAM.map((f,i)=>`<span class="${S.dead[i]?'dead':''}"><i style="--c:${f.c}"></i>${f.name}: ${owned(i)} kvt.</span>`).join('')+
-    `<span class="note">Klikk på et kvartal for å se type, eier og inntekt.</span>`;
+    `<span class="note">Klikk på et kvartal for å se type, eier og inntekt.</span><button class="linkb" data-a="gfx">Grafikk: ${GFX==='noir'?'Noir':'Klassisk'} (bytt)</button>`;
 }
 function supBars(b){
   return FAM.map((f,i)=>S.dead[i]?'':`<span>${f.name}</span><span class="bar">${[1,2,3,4,5].map(n=>`<i class="${b.sup[i]>=n?'on':''}" style="--c:${f.c}"></i>`).join('')}</span>`).join('');
