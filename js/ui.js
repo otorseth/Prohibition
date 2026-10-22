@@ -101,7 +101,7 @@ function renderPane(){
       const mo=S.mem[y*N+x];
       h+=`<h2>${CO(x,y)} <small>${street(x,y)}</small></h2>
         <div class="meta"><div><small>Type</small>${T.n}</div><div><small>Sist kjente eier</small>${mo>=0?fn(mo):'Ingen'}</div><div><small>Motstand</small>${T.res}</div></div>
-        ${b.bld?`<h3>Bygninger</h3><div class="blds">${b.bld.map(x=>`<div class="bld"><span><b>${BK[x.k].n}</b><br><span class="note">${CATN[BK[x.k].c]}</span></span><span class="bv">+$${BK[x.k].v}/mnd</span><span class="chip">Ukjent</span></div>`).join('')}</div>`:''}
+        ${b.bld?`<h3>Bygninger</h3><div class="blds">${b.bld.map(x=>`<div class="bld"><span class="brow"><img class="ava" src="img/bld/${x.k}.jpg" alt="" style="--c:var(--line)"><span><b>${BK[x.k].n}</b><br><span class="note">${CATN[BK[x.k].c]}</span></span></span><span class="bv">+$${BK[x.k].v}/mnd</span><span class="chip">Ukjent</span></div>`).join('')}</div>`:''}
         <p class="note">Du ser ikke dette kvartalet nå. Opplysningene er fra sist du hadde folk i nærheten, og fiendebander vises ikke.</p>`;
     }else{
     h+=`<h2>${CO(x,y)} <small>${street(x,y)}</small></h2>
@@ -110,7 +110,7 @@ function renderPane(){
       <h3>Lokal støtte</h3><div class="sup">${supBars(b)}</div>`;
     if(b.bld){
       h+=`<h3>Bygninger</h3><div class="blds">`+b.bld.map(x=>{const K=BK[x.k];
-        return `<div class="bld"><span><b>${K.n}</b><br><span class="note">${CATN[K.c]} · motstand ${K.res}</span></span>
+        return `<div class="bld"><span class="brow"><img class="ava" src="img/bld/${x.k}.jpg" alt="" style="--c:${x.by>=0?FAM[x.by].c:'var(--line)'}"><span><b>${K.n}</b><br><span class="note">${CATN[K.c]} · motstand ${K.res}</span></span></span>
           <span class="bv">+$${K.v}/mnd</span><span class="chip ${x.by>=0?'on':''}" style="${x.by>=0?'--c:'+FAM[x.by].c:''}">${x.by===0?'Betaler deg':x.by>0?'Betaler '+FAM[x.by].name:'Ikke påvirket'}</span>
           ${x.by!==0&&b.owner===0?`<div class="prog" title="Fremdrift ${inflProg(x,0)} av ${inflNeed(x)}"><i style="width:${inflProg(x,0)/inflNeed(x)*100}%"></i><span>Påvirkning ${inflProg(x,0)} av ${inflNeed(x)}</span></div>`:''}</div>`}).join('')+`</div>`;
       if(b.owner!==0)h+=`<p class="note">Ta kontroll over kvartalet før bandene dine kan påvirke bygningene.</p>`;

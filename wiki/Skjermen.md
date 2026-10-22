@@ -17,7 +17,7 @@
 ## Sidepanelet
 | Fane | Innhold |
 |---|---|
-| Kvartal | Valgt kvartal: type, eier, inntekt, støtte, bygninger og dine bander med ordreknapper |
+| Kvartal | Valgt kvartal: type, eier, inntekt, støtte, bygninger (med bilde av hver) og dine bander med ordreknapper |
 | Bander | Alle dine bander med portrett, plassering og ordre |
 | Rekrutter | Leiemarkedet |
 | Hendelser | Liste over hendelser forrige runde |

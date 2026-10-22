@@ -20,6 +20,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
   - `audio.js` musikk og lydeffekter (Web Audio)
   - `main.js` klikk-håndtering og oppstart – må lastes sist
 - `img/tiles/` – Noir-bilder av kvartalene (ett per type, laget i Midjourney, 320×320 JPG)
+- `img/bld/` – Noir-portretter av hver bygningstype, filnavn = nøkkelen i `BK` (192×192 JPG)
 - `musikk.mp3` – bakgrunnsmusikk
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
 
@@ -35,7 +36,7 @@ Når regler eller tall endres, oppdater tilhørende wiki-side i samme commit.
 
 ## Publisere spillet
 Spillet publiseres som artifact med `tools/lag-artifact.py <sidefil>` og disse filene ved siden av:
-`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg` og `musikk.mp3`.
+`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg` og `musikk.mp3`.
 
 ## Git
 Hver endring committes med en kort norsk beskrivelse og pushes til `main` på GitHub (`otorseth/Prohibition`).
