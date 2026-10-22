@@ -40,3 +40,6 @@ Spillet publiseres som artifact med `tools/lag-artifact.py <sidefil>` og disse f
 
 ## Git
 Hver endring committes med en kort norsk beskrivelse og pushes til `main` på GitHub (`otorseth/Prohibition`).
+
+## Dele spillet som zip
+`python3 tools/lag-zip.py <utmappe>` lager `Forbudstid.zip` med én samlet HTML-fil, `img/` og `musikk.mp3`.
