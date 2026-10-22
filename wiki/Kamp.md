@@ -26,5 +26,8 @@ flere ganger i samme runde.
 - Bander med *Hel* eller uten ordre får 6 helse tilbake etter kampene samme runde.
 
 ## Kampscenen
-Kamper du er med i, vises som en kort animasjon i hendelsesfeltet nederst. Figurene bruker våpenet sitt
-(eller knyttnever uten våpen), og hvert våpen har sin egen lyd.
+Kamper du er med i, vises som en kort animasjon i hendelsesfeltet nederst.
+- Bakgrunnen viser kvartalet kampen skjer i: bakgård, handlegate, fabrikk, kai, politistasjon eller herskapshus.
+- Bandene går inn, sikter og skyter med rekyl, slår med knyttnever eller balltre, blir truffet og vakler, dukker unna – og faller om de dør.
+- Munningsflammer lyser opp scenen, med kruttrøyk, tomhylser, blod og gnister, kamerarist og regn.
+- Hvert våpen har sin egen lyd.
