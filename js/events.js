@@ -38,6 +38,7 @@ function renderRev(){
   document.getElementById('revNext').disabled=!e||ui.rev===l.length-1;
   const fight=!!(e&&e.k==='fight'&&e.aid!=null);
   const rp=document.getElementById('stageReplay'); rp.hidden=!!ui.dockMin; rp.classList.toggle('inv',!fight);
+  const bg=document.getElementById('stageBig'); bg.hidden=!!ui.dockMin; bg.classList.toggle('inv',!fight);
   if(ui.dockMin)updateStage(null);
   else if(fight)updateStage(e);
   else{updateStage(null);drawStill(e)}

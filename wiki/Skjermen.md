@@ -26,4 +26,4 @@
 ## Hendelsesfeltet
 Etter hver tur vises hendelsene fra forrige runde nederst på skjermen: kamper (med animasjon og lyd),
 overtakelser og påvirkninger. Bla med **Forrige/Neste** eller piltastene. **Mine/Alle** filtrerer.
-**Skjul** (eller Esc) krymper feltet. Du kan spille videre mens feltet er åpent.
+**Stor visning** (eller klikk på scenen) spiller kampen av i stort format. **Skjul** (eller Esc) krymper feltet. Du kan spille videre mens feltet er åpent.

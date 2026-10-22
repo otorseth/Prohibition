@@ -53,7 +53,13 @@ function setFilter(all){ui.revAll=all;ui.rev=evList().length?0:null;ui.dockMin=f
 document.getElementById('revFilter').addEventListener('click',e=>{const b=e.target.closest('[data-a="revf"]');if(b)setFilter(b.dataset.v==='1')});
 document.getElementById('dockMin').onclick=()=>{ui.dockMin=!ui.dockMin;render()};
 document.getElementById('stageReplay').onclick=()=>{const e=evList()[ui.rev];if(e)startStage(e)};
+document.getElementById('stageBig').onclick=()=>openBigStage(evList()[ui.rev]);
+document.getElementById('stageCv').addEventListener('click',()=>openBigStage(evList()[ui.rev]));
+document.getElementById('bigReplay').onclick=()=>openBigStage(evList()[ui.rev]);
+document.getElementById('bigClose').onclick=closeBigStage;
+document.getElementById('bigStage').addEventListener('click',e=>{if(e.target.id==='bigStage')closeBigStage()});
 document.addEventListener('keydown',e=>{
+  if(!document.getElementById('bigStage').hidden){if(e.key==='Escape')closeBigStage();return}
   if(ui.rev==null||ui.dockMin||e.target.closest('input,textarea'))return;
   if(e.key==='ArrowRight'&&ui.rev<evList().length-1){e.preventDefault();goEv(ui.rev+1)}
   if(e.key==='ArrowLeft'&&ui.rev>0){e.preventDefault();goEv(ui.rev-1)}

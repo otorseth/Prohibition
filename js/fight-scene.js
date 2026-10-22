@@ -1,7 +1,7 @@
 // Kampscenen, gangsterfigurer og portretter
 /* ---------- kampscene ---------- */
 const SKIN=['#e0b48c','#c99a6e','#a87650','#f0c8a0','#7a5236'], HATS=['#1d1c1c','#3a3530','#4a4238','#262a30','#5a5048'];
-let stageKey='', stageRaf=0;
+let stageKey='', stageRaf=0, bigRaf=0;
 function shade(hex,k){const n=parseInt(hex.slice(1),16),f=v=>Math.min(255,Math.round(v*k));return `rgb(${f(n>>16&255)},${f(n>>8&255)},${f(n&255)})`}
 function sLine(c,a,b,x,y){c.beginPath();c.moveTo(a,b);c.lineTo(x,y);c.stroke()}
 function sCirc(c,x,y,r,col){c.fillStyle=col;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill()}
@@ -332,8 +332,8 @@ function drawFight(c,e,t){
     c.globalAlpha=1;
   }
 }
-function stageCtx(){
-  const cv=document.getElementById('stageCv'), W=cv.clientWidth||600, dpr=window.devicePixelRatio||1;
+function stageCtx(id='stageCv'){
+  const cv=document.getElementById(id), W=cv.clientWidth||600, dpr=window.devicePixelRatio||1;
   cv.width=Math.round(W*dpr); cv.height=Math.round(W*270/640*dpr);
   const c=cv.getContext('2d'); c.setTransform(dpr*W/640,0,0,dpr*W/640,0,0);
   return c;
@@ -355,6 +355,17 @@ function drawStill(e){
     c.font="28px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f'; c.fillText(e?'Kamp':'En rolig måned',320,140);
   }
 }
+// Stor visning: samme kamp på et stort lerret over spillet
+function openBigStage(e){
+  if(!e||e.k!=='fight'||e.aid==null)return;
+  document.getElementById('bigStage').hidden=false;
+  cancelAnimationFrame(bigRaf);
+  const c=stageCtx('stageBigCv'), END=3300, still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
+  const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t); if(t<END)bigRaf=requestAnimationFrame(loop)};
+  bigRaf=requestAnimationFrame(loop);
+  if(!still)fightSfx(e);
+}
+function closeBigStage(){cancelAnimationFrame(bigRaf);document.getElementById('bigStage').hidden=true}
 function startStage(e){
   cancelAnimationFrame(stageRaf);
   const c=stageCtx();

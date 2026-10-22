@@ -118,7 +118,11 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .dock-nav{display:flex;gap:6px;flex-wrap:wrap}
 .dock-nav .btn{padding:5px 10px;font-size:14px}
 .dock-body{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:16px;align-items:center}
-#stageReplay.inv{visibility:hidden}
+#stageReplay.inv,#stageBig.inv{visibility:hidden}
+.stagebox canvas{cursor:zoom-in}
+.bigwrap{width:min(1180px,94vw);display:flex;flex-direction:column;gap:10px}
+#stageBigCv{display:block;width:100%;max-width:100%;aspect-ratio:640/270;border:1px solid var(--brass);box-shadow:0 20px 60px #000}
+.bignav{display:flex;gap:8px;justify-content:flex-end}
 .dock.min .dock-body,.dock.min #revFilter{display:none}
 .stagebox{border:1px solid var(--line);background:#0f0d0c;min-width:0}
 .stagebox canvas{display:block;width:100%;max-width:100%;aspect-ratio:640/270}

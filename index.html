@@ -46,6 +46,7 @@
         <button class="btn" id="revPrev" aria-label="Forrige hendelse">← Forrige</button>
         <button class="btn" id="revNext" aria-label="Neste hendelse">Neste →</button>
         <button class="btn" id="stageReplay">Spill av igjen</button>
+        <button class="btn" id="stageBig">Stor visning</button>
         <button class="btn" id="dockMin">Skjul</button>
       </div>
     </div>
@@ -75,6 +76,13 @@
   </div>
 </div>
 
+
+<div class="ov" id="bigStage" hidden>
+  <div class="bigwrap">
+    <canvas id="stageBigCv" aria-label="Kampscene i stor visning"></canvas>
+    <div class="bignav"><button class="btn" id="bigReplay">Spill av igjen</button><button class="btn main" id="bigClose">Lukk</button></div>
+  </div>
+</div>
 
 <div class="ov" id="over" hidden>
   <div class="card"><h2 id="overTitle"></h2><p id="overText"></p><button class="btn main" id="overNew">Nytt spill</button></div>
