@@ -80,7 +80,12 @@
 <div class="ov" id="bigStage" hidden>
   <div class="bigwrap">
     <canvas id="stageBigCv" aria-label="Kampscene i stor visning"></canvas>
-    <div class="bignav"><button class="btn" id="bigReplay">Spill av igjen</button><button class="btn main" id="bigClose">Lukk</button></div>
+    <div class="bignav">
+      <span id="bigLabel"></span>
+      <label class="pick" for="bigAuto"><input type="checkbox" id="bigAuto" checked> Vis mine kamper automatisk etter hver tur</label>
+      <button class="btn" id="bigPrev">← Forrige</button><button class="btn" id="bigNext">Neste →</button>
+      <button class="btn" id="bigReplay">Spill av igjen</button><button class="btn main" id="bigClose">Lukk</button>
+    </div>
   </div>
 </div>
 

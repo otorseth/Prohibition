@@ -26,4 +26,6 @@
 ## Hendelsesfeltet
 Etter hver tur vises hendelsene fra forrige runde nederst på skjermen: kamper (med animasjon og lyd),
 overtakelser og påvirkninger. Bla med **Forrige/Neste** eller piltastene. **Mine/Alle** filtrerer.
-**Stor visning** (eller klikk på scenen) spiller kampen av i stort format. **Skjul** (eller Esc) krymper feltet. Du kan spille videre mens feltet er åpent.
+Kamper der din familie er med, spilles automatisk av i stort format etter hver tur, én etter én.
+Bla med **Forrige/Neste** eller piltastene, og lukk med **Lukk** eller Esc. Avkrysningen *Vis mine kamper automatisk*
+slår dette av eller på. **Stor visning** (eller klikk på scenen) spiller av en kamp på nytt i stort format. **Skjul** (eller Esc) krymper feltet. Du kan spille videre mens feltet er åpent.

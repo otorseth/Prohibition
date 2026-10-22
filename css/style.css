@@ -122,7 +122,9 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .stagebox canvas{cursor:zoom-in}
 .bigwrap{width:min(1180px,94vw);display:flex;flex-direction:column;gap:10px}
 #stageBigCv{display:block;width:100%;max-width:100%;aspect-ratio:640/270;border:1px solid var(--brass);box-shadow:0 20px 60px #000}
-.bignav{display:flex;gap:8px;justify-content:flex-end}
+.bignav{display:flex;gap:8px 10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:8px 12px}
+#bigLabel{font-family:var(--display);color:var(--brass);font-size:18px;margin-right:auto}
+.bignav .pick{margin-right:8px}
 .dock.min .dock-body,.dock.min #revFilter{display:none}
 .stagebox{border:1px solid var(--line);background:#0f0d0c;min-width:0}
 .stagebox canvas{display:block;width:100%;max-width:100%;aspect-ratio:640/270}

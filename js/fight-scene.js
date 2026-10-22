@@ -355,17 +355,41 @@ function drawStill(e){
     c.font="28px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f'; c.fillText(e?'Kamp':'En rolig måned',320,140);
   }
 }
-// Stor visning: samme kamp på et stort lerret over spillet
+// Stor visning: kamper spilles av på et stort lerret over spillet.
+// Etter hver tur vises dine kamper automatisk, én etter én (kan slås av).
+let bigQueue=[], bigIdx=0, bigTimer=0;
+let FIGHT_POPUP=true;
+try{FIGHT_POPUP=localStorage.getItem('forbudstid-kamppopup')!=='av'}catch(e){}
+function myFights(){return evAll().filter(e=>e.k==='fight'&&e.aid!=null&&(e.a===0||e.d===0))}
+function openFightQueue(list,i=0){
+  list=(list||[]).filter(e=>e&&e.k==='fight'&&e.aid!=null);
+  if(!list.length)return;
+  bigQueue=list; document.getElementById('bigStage').hidden=false;
+  document.getElementById('bigAuto').checked=FIGHT_POPUP;
+  playBig(i);
+}
 function openBigStage(e){
-  if(!e||e.k!=='fight'||e.aid==null)return;
-  document.getElementById('bigStage').hidden=false;
-  cancelAnimationFrame(bigRaf);
+  if(!e||e.k!=='fight')return;
+  const l=myFights(), i=l.indexOf(e);
+  openFightQueue(i>=0?l:[e],Math.max(0,i));
+}
+function playBig(i){
+  clearTimeout(bigTimer); cancelAnimationFrame(bigRaf);
+  bigIdx=clamp(i,0,bigQueue.length-1); const e=bigQueue[bigIdx], n=bigQueue.length;
+  document.getElementById('bigLabel').textContent=n>1?`Kamp ${bigIdx+1} av ${n} · ${CO(e.x,e.y)}`:`Kamp i ${CO(e.x,e.y)}`;
+  document.getElementById('bigPrev').disabled=bigIdx===0;
+  document.getElementById('bigNext').disabled=bigIdx===n-1;
+  // hold hendelsesfeltet i takt med kampen som vises
+  const ri=evList().indexOf(e); if(ri>=0&&ui.rev!==ri){ui.rev=ri;render()}
   const c=stageCtx('stageBigCv'), END=3300, still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
-  const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t); if(t<END)bigRaf=requestAnimationFrame(loop)};
+  const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t);
+    if(t<END)bigRaf=requestAnimationFrame(loop);
+    else if(bigIdx<n-1)bigTimer=setTimeout(()=>playBig(bigIdx+1),900); // neste kamp starter av seg selv
+  };
   bigRaf=requestAnimationFrame(loop);
   if(!still)fightSfx(e);
 }
-function closeBigStage(){cancelAnimationFrame(bigRaf);document.getElementById('bigStage').hidden=true}
+function closeBigStage(){clearTimeout(bigTimer);cancelAnimationFrame(bigRaf);document.getElementById('bigStage').hidden=true}
 function startStage(e){
   cancelAnimationFrame(stageRaf);
   const c=stageCtx();

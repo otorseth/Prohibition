@@ -55,11 +55,19 @@ document.getElementById('dockMin').onclick=()=>{ui.dockMin=!ui.dockMin;render()}
 document.getElementById('stageReplay').onclick=()=>{const e=evList()[ui.rev];if(e)startStage(e)};
 document.getElementById('stageBig').onclick=()=>openBigStage(evList()[ui.rev]);
 document.getElementById('stageCv').addEventListener('click',()=>openBigStage(evList()[ui.rev]));
-document.getElementById('bigReplay').onclick=()=>openBigStage(evList()[ui.rev]);
+document.getElementById('bigReplay').onclick=()=>playBig(bigIdx);
+document.getElementById('bigPrev').onclick=()=>playBig(bigIdx-1);
+document.getElementById('bigNext').onclick=()=>playBig(bigIdx+1);
+document.getElementById('bigAuto').addEventListener('change',e=>{FIGHT_POPUP=e.target.checked;try{localStorage.setItem('forbudstid-kamppopup',FIGHT_POPUP?'på':'av')}catch(x){}});
 document.getElementById('bigClose').onclick=closeBigStage;
 document.getElementById('bigStage').addEventListener('click',e=>{if(e.target.id==='bigStage')closeBigStage()});
 document.addEventListener('keydown',e=>{
-  if(!document.getElementById('bigStage').hidden){if(e.key==='Escape')closeBigStage();return}
+  if(!document.getElementById('bigStage').hidden){
+    if(e.key==='Escape')closeBigStage();
+    if(e.key==='ArrowRight'&&bigIdx<bigQueue.length-1)playBig(bigIdx+1);
+    if(e.key==='ArrowLeft'&&bigIdx>0)playBig(bigIdx-1);
+    return;
+  }
   if(ui.rev==null||ui.dockMin||e.target.closest('input,textarea'))return;
   if(e.key==='ArrowRight'&&ui.rev<evList().length-1){e.preventDefault();goEv(ui.rev+1)}
   if(e.key==='ArrowLeft'&&ui.rev>0){e.preventDefault();goEv(ui.rev-1)}
