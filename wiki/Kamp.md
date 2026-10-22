@@ -29,6 +29,8 @@ flere ganger i samme runde.
 Kamper du er med i, vises som en kort animasjon i hendelsesfeltet nederst, og spilles automatisk av i stor visning etter turen.
 - Alle kamper i samme kvartal samme runde vises som **ett slag**: alle bandene som deltar, står i scenen samtidig
   (din familie til venstre), og kampene spilles av etter hverandre. De som faller, blir liggende.
+- Er tre eller fire familier med, står hver familie i sin egen gruppe: din til venstre, hovedmotstanderen til høyre og de andre
+  bak i midten. Bandene snur seg mot den de angriper eller blir angrepet av.
 - Bakgrunnen viser kvartalet kampen skjer i: bakgård, handlegate, fabrikk, kai, politistasjon eller herskapshus.
 - Bandene går inn, sikter og skyter med rekyl, slår med knyttnever eller balltre, blir truffet og vakler, dukker unna – og faller om de dør.
 - Munningsflammer lyser opp scenen, med kruttrøyk, tomhylser, blod og gnister, kamerarist og regn.

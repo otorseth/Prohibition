@@ -131,7 +131,8 @@ function looks(G){
 // Tegner én figur. P = positur, o = plassering. rim = farge for lyskanten (tegnes først, litt større).
 function drawFigure(c,L,w,P,o,rim){
   const out={};
-  c.save(); c.translate(o.x,o.ground); c.scale(o.face*FIG_SCALE,FIG_SCALE);
+  const sc=FIG_SCALE*(o.s||1);
+  c.save(); c.translate(o.x,o.ground); c.scale(o.face*sc,sc);
   if(o.fall)c.rotate(-o.fall*1.42);
   if(rim)c.translate(0,-1.6);
   const W=n=>n+(rim?2.6:0), col=x=>rim||x;
@@ -186,7 +187,7 @@ function drawFigure(c,L,w,P,o,rim){
   blob(hF[0],hF[1],w==='fists'?5.5:4.2,L.skin);
   c.restore();
   // posisjoner i scenen (til effekter)
-  const toW=(x,y)=>[o.x+x*o.face*FIG_SCALE,o.ground+y*FIG_SCALE];
+  const toW=(x,y)=>[o.x+x*o.face*sc,o.ground+y*sc];
   const m=MUZ[w]||[0,0];
   out.muzzle=toW(hF[0]+Math.cos(P.wAng)*m[0]-Math.sin(P.wAng)*m[1],hF[1]+Math.sin(P.wAng)*m[0]+Math.cos(P.wAng)*m[1]);
   out.hand=toW(hF[0],hF[1]); out.chest=toW(...at(30)); out.head=toW(...at(66));
@@ -214,13 +215,24 @@ function buildBattle(e){
   const F=new Map();
   const add=(id,fam,mus,bm,w,name,hp)=>{if(!F.has(id))F.set(id,{id,fam,mus,bm,w,name,hp0:hp,acts:[],reacts:[],hpCh:[],deathT:null,L:null})};
   ex.forEach(o=>{add(o.aid,o.a,o.am,o.abm,o.aw,o.an,o.ahp0);add(o.did,o.d,o.dm,o.dbm,o.dw,o.dn,o.dhp0)});
-  const fams=[...new Set([...F.values()].map(f=>f.fam))];
+  const all=[...F.values()], fams=[...new Set(all.map(f=>f.fam))];
   const leftFam=fams.includes(0)?0:ex[0].a;
-  const L=[...F.values()].filter(f=>f.fam===leftFam), R=[...F.values()].filter(f=>f.fam!==leftFam);
+  // familiene ordnes: venstre, hovedmotstanderen til høyre, så tredje og fjerde familie bak i midten
+  const vs=fm=>ex.filter(o=>(o.a===leftFam&&o.d===fm)||(o.d===leftFam&&o.a===fm)).length;
+  const cnt=fm=>all.filter(f=>f.fam===fm).length;
+  const order=[leftFam,...fams.filter(x=>x!==leftFam).sort((p,q)=>vs(q)-vs(p)||cnt(q)-cnt(p))];
+  const LAY={1:[[232,-1,0]],2:[[232,-1,0],[408,1,0]],3:[[178,-1,0],[462,1,0],[320,0,1]],4:[[160,-1,0],[480,1,0],[268,0,1],[372,0,1]]}[order.length];
+  const gap=order.length>2?46:58;
+  order.forEach((fm,gi)=>{const [ax,dir,back]=LAY[gi];
+    all.filter(f=>f.fam===fm).forEach((f,i)=>{
+      f.group=gi; f.slot=i; f.back=!!back; f.s=back?.86:1; f.depth=back?2:i%2;
+      f.x=dir===0?ax+(i%2?1:-1)*Math.ceil(i/2)*44-(i?0:0):ax+dir*i*gap;
+      f.side=f.x<320?'L':'R'; f.L=looks(f); f.wt=wpnOf({mus:f.mus,w:f.w});
+    })});
+  // standard retning: mot nærmeste fiende
+  all.forEach(f=>{let best=null;all.forEach(o=>{if(o.fam!==f.fam&&(best==null||Math.abs(o.x-f.x)<Math.abs(best-f.x)))best=o.x});
+    f.face=best==null?(f.side==='L'?1:-1):(best>=f.x?1:-1)});
   // plasser: første rad nærmest midten, de neste litt bakover og lenger ut
-  const place=(arr,side)=>arr.forEach((f,i)=>{f.side=side;f.face=side==='L'?1:-1;f.slot=i;
-    f.x=side==='L'?232-i*58:408+i*58; f.depth=i%2?1:0; f.L=looks(f); f.wt=wpnOf({mus:f.mus,w:f.w})});
-  place(L,'L'); place(R,'R');
   ex.forEach((o,k)=>{
     const T=EX_START+k*EX_LEN, a=F.get(o.aid), d=F.get(o.did);
     a.acts.push({T,target:d.id}); d.reacts.push({T,from:a.id,dmg:o.dhp0-o.dhp1});
@@ -238,15 +250,19 @@ function buildBattle(e){
 function hpAt(f,t){let h=f.hp0;f.hpCh.forEach(c=>{if(t>=c.T)h=lerp(c.from,c.to,cl01((t-c.T)/450))});return h}
 // Positur og plassering for én deltaker på tidspunkt t (ms)
 function fighterState(f,b,t,ground){
-  const w=f.wt, face=f.face, xStart=f.side==='L'?-70-f.slot*40:710+f.slot*40, enter=650+f.slot*90;
-  const tgtX=id=>b.F.get(id).x;
+  const w=f.wt, xStart=f.x<320?-70-f.slot*40:710+f.slot*40, enter=650+f.slot*90+(f.back?150:0);
+  const tgtX=id=>b.F.get(id).x, dirTo=id=>tgtX(id)>=f.x?1:-1;
+  // figuren snur seg mot den den angriper, eller mot den som angriper den
+  let face=f.face;
+  f.acts.forEach(a=>{if(t>=a.T-150&&t<a.T+650)face=dirTo(a.target)});
+  f.reacts.forEach(r=>{if(t>=r.T-100&&t<r.T+700&&!f.acts.some(a=>t>=a.T-150&&t<a.T+650))face=dirTo(r.from)});
   const xAt=tt=>{
     let x=tt<enter?lerp(xStart,f.x,easeOut(cl01(tt/enter))):f.x;
-    f.acts.forEach(a=>{const m=tt-a.T;
-      if(MELEE(w)&&m>0&&m<600)x+=face*Math.sin(m/600*Math.PI)*Math.max(20,Math.abs(tgtX(a.target)-f.x)-56);
-      if(!MELEE(w))hitTimes(w).forEach(ts=>{if(m>ts)x-=face*pulse(m-ts)*(w==='shotgun'?6:w==='rifle'?4:2)})});
-    f.reacts.forEach(r=>{const om=tt-r.T, ow=b.F.get(r.from).wt;
-      if(om>0&&r.dmg>1)hitTimes(ow).forEach(ts=>{if(om>ts)x-=face*Math.min(1,(om-ts)/140)*(8+r.dmg*.6)/hitTimes(ow).length*1.6})});
+    f.acts.forEach(a=>{const m=tt-a.T, d=dirTo(a.target);
+      if(MELEE(w)&&m>0&&m<600)x+=d*Math.sin(m/600*Math.PI)*Math.max(20,Math.abs(tgtX(a.target)-f.x)-56);
+      if(!MELEE(w))hitTimes(w).forEach(ts=>{if(m>ts)x-=d*pulse(m-ts)*(w==='shotgun'?6:w==='rifle'?4:2)})});
+    f.reacts.forEach(r=>{const om=tt-r.T, ow=b.F.get(r.from).wt, d=dirTo(r.from);
+      if(om>0&&r.dmg>1)hitTimes(ow).forEach(ts=>{if(om>ts)x-=d*Math.min(1,(om-ts)/140)*(8+r.dmg*.6)/hitTimes(ow).length*1.6})});
     return x;
   };
   const x=xAt(t), speed=Math.abs(x-xAt(t-40));
@@ -271,10 +287,11 @@ function fighterState(f,b,t,ground){
   const stride=cl01(speed/5), ph=x*.11*face, wide=MELEE(w)?11:13;
   P.feet=[[lerp(wide,12*Math.sin(ph)+3,stride),-Math.max(0,Math.cos(ph))*8*stride],[lerp(-wide+2,-12*Math.sin(ph)-3,stride),-Math.max(0,-Math.cos(ph))*8*stride]];
   if(stride>.2)P.crouch+=Math.abs(Math.cos(ph*2))*.04;
-  return {P,o:{x,ground:ground-f.depth*7,face,fall},flash,dead};
+  return {P,o:{x,ground:ground-f.depth*7,face,fall,s:f.s},flash,dead};
 }
 function battleHud(c,b,t){
-  const sides=[b.list.filter(f=>f.side==='L'),b.list.filter(f=>f.side==='R')];
+  const byGroup=(p,q)=>p.group-q.group||p.slot-q.slot;
+  const sides=[b.list.filter(f=>f.side==='L').sort(byGroup),b.list.filter(f=>f.side==='R').sort(byGroup)];
   const rows=Math.max(sides[0].length,sides[1].length), big=rows===1;
   c.fillStyle='rgba(8,6,5,.55)'; c.fillRect(0,0,640,big?78:16+rows*20);
   if(big){stageHud(c,sides[0][0].name,sides[0][0].fam,hpAt(sides[0][0],t),true);if(sides[1][0])stageHud(c,sides[1][0].name,sides[1][0].fam,hpAt(sides[1][0],t),false);return 78}
@@ -301,7 +318,9 @@ function drawFight(c,e,t){
   b.list.forEach(f=>{const s=st.get(f.id);c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(s.o.x-s.o.face*40*s.o.fall,s.o.ground+1,24+30*s.o.fall,4,0,0,Math.PI*2);c.fill()});
   const pos=new Map(), rimCol='rgba(240,222,190,.55)';
   [...b.list].sort((p,q)=>q.depth-p.depth||q.slot-p.slot).forEach(f=>{ // bakerste rad først
+    if(f.back){c.save();c.globalAlpha=.92}
     const s=st.get(f.id); drawFigure(c,f.L,f.wt,s.P,s.o,rimCol); pos.set(f.id,drawFigure(c,f.L,f.wt,s.P,s.o));
+    if(f.back)c.restore();
   });
   // partikler for hver utveksling
   const R=rng(b.ex[0].aid*31+b.ex[0].did*17);
@@ -318,7 +337,7 @@ function drawFight(c,e,t){
       else if(!MELEE(w)&&a<220){c.fillStyle=`rgba(255,230,170,${1-a/220})`;c.fillRect(tg.chest[0]+face*14+vx*a*1.5,tg.chest[1]-10+vy*a*1.5,2,2)}}
   };
   b.list.forEach(f=>f.acts.forEach(a=>{const tg=b.F.get(a.target), r=tg.reacts.find(x=>x.T===a.T&&x.from===f.id);
-    hitTimes(f.wt).forEach(ts=>particles(a.T+ts,f.wt,pos.get(f.id),pos.get(tg.id),f.face,r?r.dmg:0))}));
+    hitTimes(f.wt).forEach(ts=>particles(a.T+ts,f.wt,pos.get(f.id),pos.get(tg.id),tg.x>=f.x?1:-1,r?r.dmg:0))}));
   // munningsflammer lyser opp scenen
   b.list.forEach(f=>{const s=st.get(f.id),p=pos.get(f.id); if(!s.flash)return;
     const act=f.acts.find(a=>t>=a.T&&t<a.T+650), tg=act&&pos.get(act.target);
@@ -359,8 +378,11 @@ function drawFight(c,e,t){
     c.globalAlpha=kk; c.textAlign='center'; c.font="17px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f';
     let txt;
     if(b.ex.length===1)txt=o.won?`${o.an} vant kampen`:`${o.dn} slo angrepet tilbake`;
-    else{const dl=dead.filter(f=>f.side==='L').length, dr=dead.filter(f=>f.side==='R').length;
-      txt=dl===dr?`Slaget i ${CO(e.x,e.y)} endte uavgjort`:`${dl<dr?FAM[b.leftFam].name:'Motstanderne'} vant slaget i ${CO(e.x,e.y)}`}
+    else{
+      const fams=[...new Set(b.list.map(f=>f.fam))], loss=fm=>dead.filter(f=>f.fam===fm).length;
+      if(fams.length>2){txt=dead.length?`Tap i ${CO(e.x,e.y)}: `+fams.map(fm=>`${FAM[fm].name} ${loss(fm)}`).join(' · '):`Slaget i ${CO(e.x,e.y)} endte uten døde`}
+      else{const dl=loss(b.leftFam), dr=dead.length-dl;
+        txt=dl===dr?`Slaget i ${CO(e.x,e.y)} endte uavgjort`:`${dl<dr?FAM[b.leftFam].name:FAM[fams.find(x=>x!==b.leftFam)].name} vant slaget i ${CO(e.x,e.y)}`}}
     c.fillText(txt,320,252);
     if(dead.length&&t>tEnd+700){c.globalAlpha=cl01((t-tEnd-700)/300);c.font="700 12px 'Archivo Narrow',sans-serif";c.fillStyle='#ff7a6a';c.fillText(`${dead.map(f=>f.name).join(', ')} havnet i elva`,320,266)}
     c.globalAlpha=1;
