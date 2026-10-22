@@ -34,7 +34,7 @@ function makeGang(){
 }
 
 function newGame(){
-  S={v:5,turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
+  S={v:5,ledStart:60,turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
   const bag=[...Array(30).fill('bolig'),...Array(18).fill('komm'),...Array(14).fill('ind')];
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     let t=pick(bag);
@@ -74,6 +74,7 @@ function hire(f,id){
   if(!h||S.money[f]<g.cost)return false;
   if(gangsAt(h.x,h.y).filter(o=>o.fam===f).length>=MAXB)return false;
   S.money[f]-=g.cost; g.fam=f; g.x=h.x; g.y=h.y; g.order='none';
+  if(f===0)ledgerAdd('hire',g.cost);
   S.gangs.push(g); S.pool.splice(i,1);
   if(f===0)L(`${fn(f)} leide inn ${g.name}.`);
   return true;
@@ -84,6 +85,20 @@ function takeChance(g,b){
   else c+=0.1;
   return clamp(c,0.05,0.9);
 }
+// Forventet innkreving neste tur fra bander med ordren «Kreve inn»
+function extortForecast(f){
+  let v=0; mine(f).forEach(g=>{if(g.order!=='extort')return;const b=blk(g.x,g.y);
+    if(b.owner===f)v+=TYPES[b.t].inc+g.inf; else if(b.owner>=0)v+=Math.min(S.money[b.owner],TYPES[b.t].inc+g.inf)});
+  return v;
+}
+// Hvilke bander stikker hvis kassen ikke dekker lønna (de dyreste går først)
+function desertForecast(f){
+  const e=econ(f); let m=S.money[f]+e.net+extortForecast(f); const gone=[];
+  mine(f).slice().sort((a,b)=>wage(b)-wage(a)).forEach(g=>{if(m<0){gone.push(g);m+=wage(g)}});
+  return gone;
+}
+// Regnskap for spillerens måned: utgifter i planleggingen + det som skjer i turoppgjøret
+function ledgerAdd(k,v){if(!S.led)S.led={};S.led[k]=(S.led[k]||0)+v}
 function econ(f){
   let inc=0; S.blocks.forEach(b=>{if(b.owner===f)inc+=blockInc(b,f)});
   const up=mine(f).reduce((s,g)=>s+wage(g),0);

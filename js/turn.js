@@ -56,8 +56,9 @@ function resolve(){
   for(const g of S.gangs){
     const b=blk(g.x,g.y);
     if(g.order==='extort'){
-      if(b.owner===g.fam){const v=TYPES[b.t].inc+g.inf;S.money[g.fam]+=v;b.sup[g.fam]=Math.max(0,b.sup[g.fam]-1);if(g.fam===0)L(`${g.name} krevde inn $${v} i ${CO(b.x,b.y)}.`)}
-      else if(b.owner>=0){const v=Math.min(S.money[b.owner],TYPES[b.t].inc+g.inf);S.money[b.owner]-=v;S.money[g.fam]+=v;b.sup[b.owner]=Math.max(0,b.sup[b.owner]-1);
+      if(b.owner===g.fam){const v=TYPES[b.t].inc+g.inf;S.money[g.fam]+=v;if(g.fam===0)ledgerAdd('extort',v);b.sup[g.fam]=Math.max(0,b.sup[g.fam]-1);if(g.fam===0)L(`${g.name} krevde inn $${v} i ${CO(b.x,b.y)}.`)}
+      else if(b.owner>=0){const v=Math.min(S.money[b.owner],TYPES[b.t].inc+g.inf);S.money[b.owner]-=v;S.money[g.fam]+=v;
+        if(g.fam===0)ledgerAdd('extort',v); if(b.owner===0)ledgerAdd('stolen',v);b.sup[b.owner]=Math.max(0,b.sup[b.owner]-1);
         if(g.fam===0||b.owner===0)L(`${g.name} (${fn(g.fam)}) presset $${v} ut av ${fn(b.owner)} i ${CO(b.x,b.y)}.`)}
     }
     if(g.order==='hold'||g.order==='none')g.hp=Math.min(MAXHP,g.hp+6);
@@ -65,11 +66,14 @@ function resolve(){
   // 5. økonomi og støtte
   for(let f=0;f<4;f++){
     if(S.dead[f])continue;
-    S.money[f]+=econ(f).net;
+    const ec=econ(f);
+    S.money[f]+=ec.net;
+    if(f===0){ledgerAdd('income',ec.inc);ledgerAdd('wages',ec.up)}
+    // går kassen i minus, stikker den dyreste banden uten lønn, til kassen er i balanse
     while(S.money[f]<0&&mine(f).length){
       const g=mine(f).sort((a,b)=>wage(b)-wage(a))[0];
       S.gangs=S.gangs.filter(o=>o!==g); S.money[f]+=wage(g);
-      if(f===0)L(`${g.name} fikk ikke lønn og forlot ${fn(f)}.`);
+      if(f===0){ledgerAdd('unpaid',wage(g));(S.led.left=S.led.left||[]).push(g.name);L(`${g.name} fikk ikke lønn og forlot ${fn(f)}.`)}
     }
     if(S.money[f]<0)S.money[f]=0;
   }
@@ -104,6 +108,9 @@ function endTurn(){
   for(let f=1;f<4;f++)aiTurn(f);
   resolve();
   S.events={t:S.turn,list:FX};
+  // lagre regnskapet for måneden og start et nytt
+  S.ledger={t:S.turn,start:S.ledStart??S.money[0],end:S.money[0],...(S.led||{})};
+  S.led={}; S.ledStart=S.money[0];
   S.turn++;
   if(!S.over)L(`— ${dateOf(S.turn)} begynner —`);
   ui.rev=evList().length?0:null; ui.dockMin=false;

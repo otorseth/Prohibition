@@ -11,5 +11,6 @@ function migrate(){
     S.blocks.forEach(b=>{const m=MAP[b.t];if(m){b.t=m[0];b.bld=genBld(m[0],m[1])}});
     S.v=4;save();
   }
+  if(S.ledStart==null)S.ledStart=S.money[0];
   if(S.v<5){S.seen=null;S.mem=null;S.v=5;save()} // tåke: fylles ut ved første visning
 }

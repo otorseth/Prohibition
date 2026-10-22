@@ -77,7 +77,7 @@ document.getElementById('endBtn').onclick=endTurn;
 document.getElementById('legend').addEventListener('click',e=>{if(e.target.closest('[data-a="gfx"]'))setGfx(GFX==='noir'?'klassisk':'noir')});
 
 
-document.getElementById('stats').addEventListener('click',e=>{if(e.target.closest('#needBtn'))nextNeed()});
+document.getElementById('stats').addEventListener('click',e=>{if(e.target.closest('#needBtn'))nextNeed();if(e.target.closest('[data-a="ledger"]')){ui.tab='logg';render()}});
 
 document.getElementById('rulesBtn').onclick=()=>document.getElementById('rules').hidden=false;
 document.getElementById('rulesClose').onclick=()=>document.getElementById('rules').hidden=true;

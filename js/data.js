@@ -40,6 +40,7 @@ function buyWeapon(f,g,id){
   const W=WEAP[id], b=blk(g.x,g.y);
   if(!W||g.wpn===id||b.owner!==f||S.money[f]<wPrice(id))return false;
   S.money[f]-=wPrice(id); g.wpn=id;
+  if(f===0)ledgerAdd('weapons',wPrice(id));
   if(f===0)L(`${g.name} fikk levert ${W.n} (${W.t.toLowerCase()}, +${W.m} muskler) for $${wPrice(id)}.`);
   return true;
 }

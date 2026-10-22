@@ -2,11 +2,12 @@
 /* ---------- visning ---------- */
 function render(){
   VIS=updateSeen();
-  const e=econ(0);
+  const e=econ(0), ext=extortForecast(0), net=e.net+ext, gone=desertForecast(0);
   document.getElementById('date').textContent=dateOf(S.turn);
   document.getElementById('stats').innerHTML=`
-    <div class="stat"><small>Kasse</small><b>$${S.money[0]}</b></div>
-    <div class="stat"><small>Netto per måned</small><b style="color:${e.net<0?'var(--blood)':'var(--ok)'}">${e.net>=0?'+':''}$${e.net}</b></div>
+    <button class="stat statbtn" data-a="ledger" title="Se regnskapet"><small>Kasse</small><b>$${S.money[0]}</b></button>
+    <button class="stat statbtn" data-a="ledger" title="Inntekt $${e.inc} + innkreving $${ext} − lønn $${e.up}"><small>Forventet netto</small><b style="color:${net<0?'var(--blood)':'var(--ok)'}">${net>=0?'+':''}$${net}</b></button>
+    ${gone.length?`<button class="stat statbtn warn" data-a="ledger" title="Kassen dekker ikke lønna"><small>⚠ Lønna dekkes ikke</small><b>${gone.length} ${gone.length>1?'bander stikker':'bande stikker'}</b></button>`:''}
     <div class="stat"><small>Kvartaler</small><b>${owned(0)} / 64</b></div>
     <div class="stat"><small>Bander</small><b>${mine(0).length}</b></div>
     <button class="stat needbtn ${needTiles().length?'on':''}" id="needBtn" title="Gå til neste rute med bander uten ordre"><small>Uten ordre</small><b>${mine(0).filter(g=>g.order==='none').length}${needTiles().length?' →':''}</b></button>`;
@@ -16,6 +17,20 @@ function render(){
   const ov=document.getElementById('over');
   if(S.over){ov.hidden=false;document.getElementById('overTitle').textContent=S.over.win?'Byen er din':'Spillet er over';document.getElementById('overText').textContent=S.over.text}
   else ov.hidden=true;
+}
+// Regnskap: forrige måned og prognose for neste
+function ledgerHtml(){
+  const e=econ(0), ext=extortForecast(0), gone=desertForecast(0), L=S.ledger;
+  const row=(t,v,cls='')=>`<div class="lrow ${cls}"><span>${t}</span><b>${v>=0?'+':'−'}$${Math.abs(v)}</b></div>`;
+  let h=`<div class="ledger"><h3>Neste måned (prognose)</h3>`+row('Inntekt fra kvartaler og bygninger',e.inc)+row('Innkreving',ext)+row('Lønn',-e.up)+
+    row('Forventet netto',e.inc+ext-e.up,'sum');
+  if(gone.length)h+=`<p class="lwarn">⚠ Kassen ($${S.money[0]}) dekker ikke lønna. Disse vil stikke uten lønn: ${gone.map(g=>`<b>${g.name}</b> ($${wage(g)})`).join(', ')}.</p>`;
+  if(L){h+=`<h3>Regnskap for ${dateOf(L.t)}</h3>`+`<div class="lrow"><span>Kasse ved start</span><b>$${L.start}</b></div>`;
+    if(L.hire)h+=row('Innleie av bander',-L.hire); if(L.weapons)h+=row('Våpen',-L.weapons);
+    h+=row('Inntekt fra kvartaler og bygninger',L.income||0); if(L.extort)h+=row('Innkreving',L.extort); if(L.stolen)h+=row('Presset ut av rivaler',-L.stolen);
+    h+=row('Lønn',-(L.wages||0)); if(L.unpaid)h+=row(`Lønn som ikke ble betalt (${L.left.join(', ')} stakk)`,L.unpaid,'unpaid');
+    h+=`<div class="lrow sum"><span>Kasse ved slutt</span><b>$${L.end}</b></div>`}
+  return h+`</div>`;
 }
 function needTiles(){
   const s=new Set(mine(0).filter(g=>g.order==='none').map(g=>g.y*N+g.x));
@@ -149,7 +164,7 @@ function renderPane(){
     h+=`<p class="note">Bla med pilene, piltastene eller ved å klikke på et nummer i kartet.</p>`;
   }
   if(ui.tab==='logg'){
-    h+=`<h2>Rapport</h2><div class="log">`;
+    h+=`<h2>Rapport</h2>`+ledgerHtml()+`<div class="log">`;
     let cur=null;
     for(const l of S.log.slice().reverse()){
       if(l.t!==cur){cur=l.t;h+=`<h4>${dateOf(l.t)}</h4>`}
