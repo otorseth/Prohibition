@@ -1,5 +1,18 @@
 // Visning: toppfelt, kart-ruter, sidepanel og bandekort
 /* ---------- visning ---------- */
+// Spilltypens mål i toppfeltet. Advarer når en rival nærmer seg seier.
+function goalStat(){
+  const M=S.mode||'dominans', r=[1,2,3].filter(f=>!S.dead[f]);
+  let v='',tip=MODES[M].d,warn=false;
+  if(M==='dominans'){v=`${owned(0)} / ${WIN} kvartaler`;const b=r.sort((a,z)=>owned(z)-owned(a))[0];if(b!==undefined&&owned(b)>=WIN-8){warn=true;tip+=` ${FAM[b].name} eier ${owned(b)}.`}}
+  if(M==='kapitalist'){const b=r.sort((a,z)=>S.money[z]-S.money[a])[0], lead=b===undefined||S.money[0]>=S.money[b];
+    v=`Mnd ${Math.min(S.turn,KAP_TURNS)}/${KAP_TURNS} · ${lead?'du leder':FAM[b].name}`;warn=!lead&&S.turn>=KAP_TURNS-5;
+    tip+=` Kassene nå: du $${S.money[0]}, `+r.map(f=>`${FAM[f].name} $${S.money[f]}`).join(', ')+'.'}
+  if(M==='sniken'){v=`${hqOwned(0)} / 4 hovedkvarter`;const b=r.find(f=>hqOwned(f)>=3);if(b!==undefined){warn=true;tip+=` ${FAM[b].name} har ${hqOwned(b)}.`}}
+  if(M==='sentrum'){const h=S.hold||[0,0,0,0];v=h[0]?`Holdt ${h[0]}/${SENTRUM_TURNS} mnd`:`${centreOwned(0)} / 4 ruter`;
+    const b=r.find(f=>h[f]>0);if(b!==undefined){warn=true;v=`${FAM[b].name} ${h[b]}/${SENTRUM_TURNS}`;tip+=` ${FAM[b].name} holder sentrum nå.`}}
+  return `<div class="stat goal ${warn?'warn':''}" title="${tip.replace(/"/g,'&quot;')}"><small>Mål: ${MODES[M].n}</small><b>${v}</b></div>`;
+}
 function render(){
   VIS=updateSeen();
   const e=econ(0), ext=extortForecast(0), net=e.net+ext, gone=desertForecast(0);
@@ -10,12 +23,13 @@ function render(){
     <button class="stat statbtn" data-a="ledger" title="Inntekt $${e.inc} + innkreving $${ext} − lønn $${e.up}"><small>Forventet netto</small><b style="color:${net<0?'var(--blood)':'var(--ok)'}">${net>=0?'+':''}$${net}</b></button>
     ${gone.length?`<button class="stat statbtn warn" data-a="ledger" title="Kassen dekker ikke lønna"><small>⚠ Lønna dekkes ikke</small><b>${gone.length} ${gone.length>1?'bander stikker':'bande stikker'}</b></button>`:''}
     <div class="stat"><small>Kvartaler</small><b>${owned(0)} / 64</b></div>
-    <div class="stat"><small>Bander</small><b>${mine(0).length}</b></div>
+    ${goalStat()}
     <button class="stat needbtn ${needTiles().length?'on':''}" id="needBtn" title="Gå til neste rute med bander uten ordre"><small>Uten ordre</small><b>${mine(0).filter(g=>g.order==='none').length}${needTiles().length?' →':''}</b></button>`;
   renderBoard(); drawCity(); renderLegend(); renderPane();
   // sidepanelet skal gå akkurat ned til hendelsesfeltet når siden står øverst
   document.documentElement.style.setProperty('--sideTop',document.querySelector('.side').offsetTop+'px');
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
+  document.querySelector('#tabs [data-tab="bander"]').textContent=`Bander (${mine(0).length})`;
   document.getElementById('endBtn').disabled=!!S.over;
   if(S.over&&!endingShown){endingShown=true;showEnding(S.over.win)}
 }
@@ -70,7 +84,7 @@ function renderBoard(){
     const k=b.x+','+b.y, gs=fs==='vis'?gangsAt(b.x,b.y):[];
     const here=cur&&cur.x===b.x&&cur.y===b.y, ev=evAt[k];
     const tip=fs==='unk'?`${CO(b.x,b.y)} · Ukjent område`:`${CO(b.x,b.y)} · ${TYPES[b.t].n}${own>=0?' · '+FAM[own].name:''}${fs==='fog'?' (sist sett)':''}`;
-    const cls=['tile',own<0?'free':'',fs==='fog'?'fogged':'',fs==='unk'?'unknown':'',ui.sel&&ui.sel[0]===b.x&&ui.sel[1]===b.y?'sel':'',can.includes(k)?'can':'',dests.has(k)?'dest':'',here?'hit':'',here&&fresh?'shake':'',need.has(b.y*N+b.x)?'need':''].join(' ');
+    const cls=['tile',own<0?'free':'',fs==='fog'?'fogged':'',fs==='unk'?'unknown':'',ui.sel&&ui.sel[0]===b.x&&ui.sel[1]===b.y?'sel':'',can.includes(k)?'can':'',dests.has(k)?'dest':'',here?'hit':'',here&&fresh?'shake':'',need.has(b.y*N+b.x)?'need':'',isGoal(b.x,b.y)?'goal':''].join(' ');
     const badge=ev?`<span class="evn ${ev.includes(ui.rev)?'cur':''}">${here?ui.rev+1:ev[0]+1}${ev.length>1?'+':''}</span>`:'';
     const bang=here&&fresh?`<span class="bang">${cur.k==='fight'?'PANG!':cur.k==='infl'?'$$$':'TATT!'}</span>`:'';
     h+=`<button class="${cls}" data-x="${b.x}" data-y="${b.y}" style="${own>=0?'--fc:'+FAM[own].c+';':''}${here?'--hc:'+evColor(cur):''}"

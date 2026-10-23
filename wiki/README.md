@@ -17,7 +17,7 @@ rivalene. Hver tur er én måned.
 7. [Våpen](Vapen.md) – priser og effekt
 8. [Økonomi](Okonomi.md) – inntekt, lønn og innkreving
 9. [Rivalene](Rivalene.md) – hvordan datamotstanderne spiller
-10. [Seier og tap](Seier-og-tap.md)
+10. [Seier og tap](Seier-og-tap.md) – spilltypene Dominans, Kapitalist, Sniken og Sentrum
 11. [Skjermen](Skjermen.md) – knapper, hendelsesfeltet og lyd
 
 **For den som bygger spillet**

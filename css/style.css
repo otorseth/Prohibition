@@ -31,6 +31,15 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .nickrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .nickrow span{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .nickrow b{font-family:var(--display);font-weight:400;font-size:22px;color:var(--brass)}
+.modes{border:1px solid var(--line);padding:8px 12px 10px;margin:0 0 16px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.modes legend{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+.modes label{display:grid;grid-template-columns:auto 1fr;gap:0 8px;align-items:baseline;cursor:pointer;padding:6px;border-radius:3px;border:1px solid transparent}
+.modes label:has(input:checked){border-color:var(--brass);background:color-mix(in srgb,var(--brass) 10%,transparent)}
+.modes input{accent-color:var(--brass);grid-row:1/3}
+.modes label b{color:var(--brass);font-weight:600}
+.modes label span{grid-column:2;font-size:13px;color:var(--muted);line-height:1.3}
+.modes small{grid-column:1/-1;color:var(--muted);font-size:12px}
+@media (max-width:520px){.modes{grid-template-columns:1fr}}
 .namepreview{font-family:var(--display);font-size:24px;color:var(--brass)!important;min-height:30px;text-align:center;margin:6px 0 16px!important}
 @media (max-width:520px){.namerow{grid-template-columns:1fr}}
 .stats{display:flex;flex-wrap:wrap;gap:6px 22px;flex:1}
@@ -62,6 +71,11 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .tile:hover{border-color:var(--muted)}
 .tile.sel{border-color:var(--paper);box-shadow:inset 0 0 0 1px var(--paper)}
 .tile.can{border:1px dashed var(--brass);background:color-mix(in srgb,var(--brass) 30%,transparent)}
+.tile.goal::before{content:"";position:absolute;inset:1px;border:2px solid color-mix(in srgb,var(--brass) 80%,transparent);box-shadow:0 0 10px color-mix(in srgb,var(--brass) 45%,transparent) inset;border-radius:2px;pointer-events:none;z-index:1}
+.stat.goal{padding:2px 8px;border:1px solid var(--line);border-radius:3px}
+.stat.goal b{font-size:15px;white-space:nowrap}
+.brand span{white-space:nowrap}
+.stat.goal.warn{margin:0}
 .tile.dest::after{content:"";position:absolute;inset:3px;border:1px dashed var(--brass);border-radius:2px;pointer-events:none}
 .tile .co{font-size:10px;color:var(--paper);line-height:1;align-self:flex-start;background:rgba(12,10,9,.72);padding:2px 3px;border-radius:2px}
 .tile .ty{font-size:13px;font-weight:700;letter-spacing:.06em;align-self:center;line-height:1;color:color-mix(in srgb,var(--fc,var(--paper)) 70%,var(--paper))}
@@ -241,7 +255,11 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 #vol{width:64px}
 .stats{gap:4px 12px}
 .top{flex-wrap:nowrap}
-@media (max-width:1180px){.top{flex-wrap:wrap}}
+.actions{flex-wrap:nowrap}
+.actions .music{flex-wrap:nowrap}
+.actions .btn{white-space:nowrap}
+.top .stat small{letter-spacing:.08em}
+@media (max-width:1180px){.top{flex-wrap:wrap}.actions{flex-wrap:wrap}}
 /* avslutning: video og avisforside */
 #ending{position:fixed;inset:0;z-index:40;background:#000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:16px}
 #endVid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}

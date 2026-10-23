@@ -11,7 +11,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
   - `data.js` konstanter: kvartalstyper, bygninger (`BK`), våpen (`WEAP`), familier, hjelpefunksjoner
   - `state.js` spilltilstand `S` og `ui`, nytt spill, økonomi, påvirkning, sjefens navn (`S.boss`, `bossName()`; kallenavn i `BOSSNICK` i `data.js`)
   - `ai.js` datamotstanderne
-  - `turn.js` turoppgjøret (flytt → angrep → ta kontroll → påvirk → innkreving/helbredelse → økonomi)
+  - `turn.js` turoppgjøret (flytt → angrep → ta kontroll → påvirk → innkreving/helbredelse → økonomi) og seier etter spilltype (`checkGoal`, spilltypene står i `MODES` i `data.js`, valgt type i `S.mode`)
   - `events.js` rundens hendelser: pop-up etter hver tur (listen ligger også i Rapport)
   - `save.js` lagring i `localStorage` og `migrate()` for gamle lagringer
   - `ui.js` toppfelt, kart-ruter, sidepanel, bandekort

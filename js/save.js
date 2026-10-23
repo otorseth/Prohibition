@@ -14,4 +14,5 @@ function migrate(){
   if(S.ledStart==null)S.ledStart=S.money[0];
   if(S.v<5){S.seen=null;S.mem=null;S.v=5;save()} // tåke: fylles ut ved første visning
   if(S.v<6){S.boss=null;S.v=6;save()} // sjefens navn spørres om ved neste oppstart
+  if(S.v<7){S.mode='dominans';S.hold=[0,0,0,0];S.v=7;save()} // spilltyper: gamle spill er Dominans
 }

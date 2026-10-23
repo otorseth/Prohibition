@@ -66,12 +66,12 @@ document.getElementById('stats').addEventListener('click',e=>{if(e.target.closes
 
 document.getElementById('rulesBtn').onclick=()=>document.getElementById('rules').hidden=false;
 document.getElementById('rulesClose').onclick=()=>document.getElementById('rules').hidden=true;
-document.getElementById('endNew').onclick=()=>{hideEnding();endingShown=false;newGame();askName()};
+document.getElementById('endNew').onclick=()=>{hideEnding();endingShown=false;newGame();askName(null,true)};
 document.getElementById('endMap').onclick=hideEnding;
 let confirmNew=false;
 document.getElementById('newBtn').onclick=e=>{
   if(!confirmNew){confirmNew=true;e.target.textContent='Sikker? Trykk igjen';setTimeout(()=>{confirmNew=false;e.target.textContent='Nytt spill'},3000);return}
-  confirmNew=false;e.target.textContent='Nytt spill';newGame();askName();
+  confirmNew=false;e.target.textContent='Nytt spill';newGame();askName(null,true);
 };
 
 if(window.ResizeObserver)new ResizeObserver(()=>drawCity()).observe(document.querySelector('.map'));
@@ -85,8 +85,10 @@ function nameUpd(){
   document.getElementById('nNick').textContent=`«${nameNick}»`;
   document.getElementById('nPreview').textContent=f||l?`${f||'…'} «${nameNick}» ${l||'…'}`:'';
 }
-function askName(then){
+function askName(then,mode){
   nameThen=then||null;
+  document.getElementById('nModes').hidden=!mode;
+  if(mode)document.querySelector('#nModes input[value="'+(S.mode||'dominans')+'"]').checked=true;
   const b=S.boss;
   nameNick=pick(BOSSNICK.filter(n=>!b||n!==b.nick));
   document.getElementById('nFirst').value=b?b.first:'';
@@ -101,10 +103,12 @@ document.getElementById('nameForm').onsubmit=e=>{
   const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
   const f=document.getElementById('nFirst').value.trim(), l=document.getElementById('nLast').value.trim();
   if(!f||!l)return;
-  S.boss={first:cap(f),last:cap(l),nick:nameNick}; save();
+  S.boss={first:cap(f),last:cap(l),nick:nameNick};
+  if(!document.getElementById('nModes').hidden){const m=document.querySelector('#nModes input:checked');S.mode=m?m.value:'dominans';S.hold=[0,0,0,0]}
+  save();
   document.getElementById('nameDlg').hidden=true; render();
   if(nameThen)nameThen();
 };
 
 if(load()){ui.sel=[...HQS[0]];render();if(!S.boss)askName()}
-else{newGame();askName(()=>document.getElementById('rules').hidden=false)}
+else{newGame();askName(()=>document.getElementById('rules').hidden=false,true)}

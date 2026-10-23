@@ -17,9 +17,10 @@ function statLine(){
 function paperHtml(win,photo){
   if(!photo)photo=win?'img/bg/hq.jpg':'img/bg/havn.jpg';
   const months=S.turn-1, own=owned(0), st=S.st||{};
-  const head=win?'DIN FAMILIE STYRER LAKEPORT':'FAMILIEN KNUST';
+  const rivalsGone=S.over&&/rivalene er borte/.test(S.over.text), M=S.mode||'dominans';
+  const head=win?(rivalsGone?'DIN FAMILIE STYRER LAKEPORT':{dominans:'DIN FAMILIE STYRER LAKEPORT',kapitalist:'DIN FAMILIE ER BYENS RIKESTE',sniken:'ALLE HOVEDKVARTER I DINE HENDER',sentrum:'SENTRUM ER DITT'}[M]):'FAMILIEN KNUST';
   const sub=win
-    ?(S.over&&/rivalene er borte/.test(S.over.text)?'Rossetti, O\'Dwyer og Novak er borte fra gatene':`Eier ${own} av byens 64 kvartaler – ingen tør lenger utfordre familien`)
+    ?(rivalsGone?'Rossetti, O\'Dwyer og Novak er borte fra gatene':M==='dominans'?`Eier ${own} av byens 64 kvartaler – ingen tør lenger utfordre familien`:S.over.text)
     :(S.over&&S.over.text?S.over.text:'De siste bandene er borte fra gatene');
   const story=win
     ?`${bossName()} har gjort det. Etter ${months} måneder med gatekamper, bestikkelser og blod i rennesteinen er det ingen tvil lenger om hvem som bestemmer i Lakeport. Familien vant ${st.fw||0} kamper, sendte ${st.killed||0} av rivalenes folk i elva og tok over ${st.taken||0} kvartaler. Politiet nekter å kommentere. Ordføreren er ikke å få tak i.`

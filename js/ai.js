@@ -1,5 +1,13 @@
 // Datamotstanderne
 /* ---------- datamotstandere ---------- */
+// Spilltypene: rivalene trekker mot målrutene (sentrum eller fiendens hovedkvarter)
+function goalPull(f,g,n){
+  const M=S.mode;
+  let tg=M==='sentrum'?SENTRUM.filter(([x,y])=>blk(x,y).owner!==f):M==='sniken'?HQS.filter(([x,y])=>blk(x,y).owner!==f):[];
+  if(!tg.length)return 0;
+  const d=(x,y)=>Math.min(...tg.map(([a,b])=>Math.max(Math.abs(a-x),Math.abs(b-y))));
+  return (d(g.x,g.y)-d(n.x,n.y))*2.5;
+}
 function aiTurn(f){
   if(S.dead[f])return;
   const limit=3+Math.floor(owned(f)/4);
@@ -20,6 +28,7 @@ function aiTurn(f){
     if(g.hp<=8){g.order='hold';continue}
     if(en.length){const weak=Math.min(...en.map(musOf));g.order=musOf(g)+2>=weak?'attack':'hold';continue}
     if(b.owner!==f){g.order='take';continue}
+    if((isGoal(b.x,b.y)||(S.mode==='sniken'&&b.hq>=0))&&mine(f).filter(o=>o.x===b.x&&o.y===b.y).length<=2&&Math.random()<.7){g.order=Math.random()<.5?'hold':'extort';continue}
     if(b.bld&&Math.random()<.6){
       const opts=b.bld.map((x,i)=>i).filter(i=>b.bld[i].by!==f&&!mine(f).some(o=>o!==g&&o.x===g.x&&o.y===g.y&&o.order==='infl'&&o.tgt===i));
       if(opts.length){const i=opts.sort((a,z)=>BK[b.bld[z].k].v/inflTurns(g,b,z)-BK[b.bld[a].k].v/inflTurns(g,b,a))[0];g.order='infl';g.tgt=i;continue}
@@ -29,6 +38,7 @@ function aiTurn(f){
       const T=TYPES[n.t], e=gangsAt(n.x,n.y).filter(o=>o.fam!==f).length;
       let s=T.inc+(n.bld?n.bld.reduce((a,x)=>a+BK[x.k].v,0)*.25:0)-T.res*0.8+(n.owner===-1?1.5:0)+(n.owner>=0&&n.owner!==f?1:0)-e*2.5+Math.random()*2;
       if(n.owner===f)s-=4;
+      s+=goalPull(f,g,n);
       if(s>bs){bs=s;best=n}
     }
     if(best&&bs>0){g.order='move';g.tx=best.x;g.ty=best.y}

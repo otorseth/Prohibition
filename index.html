@@ -49,7 +49,7 @@
       <li>Byen har tre hovedtyper kvartaler: <b>bolig</b> (tre boliger), <b>kommersiell</b> (tre ulike butikker) og <b>industri</b> (tre ulike bedrifter). Når du eier et kvartal, kan bandene dine <b>påvirke</b> bygningene der én og én. Påvirkning bygges opp over flere måneder: hver måned gir fremdrift lik innflytelse + lokal støtte + litt flaks, og når målet er nådd, betaler bygningen deg. Flere bander på samme bygning går raskere. Mister du kvartalet, mister du også bygningene.</li>
       <li><b>Tåke over kartet:</b> Du ser bare kvartaler der du har bander eller eier noe, og nabokvartalene rundt. Kvartaler du har sett før vises dempet med siste kjente eier. Fiendebander og rivalenes handlinger i tåka er skjult.</li>
       <li>Hvert kvartal du eier gir inntekt hver måned. Hver bande koster lønn. Går kassen tom, stikker en bande av.</li>
-      <li>Du vinner når rivalene er borte, eller når du eier 40 av 64 kvartaler.</li>
+      <li><b>Spilltype</b> velger du når du starter et nytt spill: <b>Dominans</b> (eie 40 av 64 kvartaler), <b>Kapitalist</b> (mest penger etter 40 måneder), <b>Sniken</b> (eie alle fire hovedkvarterene) eller <b>Sentrum</b> (eie D4, D5, E4 og E5 samtidig i 10 måneder på rad). Målet og hvor nær du er, står øverst. Knuser du alle rivalene, vinner du uansett.</li>
     </ul>
     <button class="btn main" id="rulesClose">Til gatene</button>
   </div>
@@ -66,6 +66,14 @@
     </div>
     <div class="nickrow"><span>Kallenavn</span><b id="nNick"></b><button type="button" class="btn" id="nReroll">Nytt kallenavn</button></div>
     <p class="namepreview" id="nPreview"></p>
+    <fieldset class="modes" id="nModes">
+      <legend>Spilltype</legend>
+      <label><input type="radio" name="mode" value="dominans" checked><b>Dominans</b><span>Eie 40 av byens 64 kvartaler.</span></label>
+      <label><input type="radio" name="mode" value="kapitalist"><b>Kapitalist</b><span>Mest penger i kassen etter 40 måneder.</span></label>
+      <label><input type="radio" name="mode" value="sniken"><b>Sniken</b><span>Ta kontroll over alle fire hovedkvarterene.</span></label>
+      <label><input type="radio" name="mode" value="sentrum"><b>Sentrum</b><span>Eie D4, D5, E4 og E5 samtidig i 10 måneder på rad.</span></label>
+      <small>Knuser du alle rivalene, vinner du uansett spilltype.</small>
+    </fieldset>
     <button class="btn main" type="submit">Ta over familien</button>
   </form>
 </div>

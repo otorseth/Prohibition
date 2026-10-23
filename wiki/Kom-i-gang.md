@@ -2,7 +2,7 @@
 
 [← Tilbake til forsiden](README.md)
 
-Før første tur skriver du inn **fornavn og etternavn**. Spillet gir deg et kallenavn som mellomnavn, for eksempel *Ole «Haien» Hansen*. Liker du det ikke, trykker du «Nytt kallenavn». Navnet står øverst til venstre og brukes i avisen når spillet er over.
+Før første tur skriver du inn **fornavn og etternavn** og velger **spilltype** (se [Seier og tap](Seier-og-tap.md)). Spillet gir deg et kallenavn som mellomnavn, for eksempel *Ole «Haien» Hansen*. Liker du det ikke, trykker du «Nytt kallenavn». Navnet står øverst til venstre og brukes i avisen når spillet er over.
 
 Du starter i hovedkvarteret ditt (★) øverst til venstre på kartet (A1) med **$60** og **to bander**.
 De tre rivalene har hvert sitt hovedkvarter i de andre hjørnene.

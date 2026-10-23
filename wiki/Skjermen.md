@@ -3,7 +3,8 @@
 [← Tilbake til forsiden](README.md)
 
 ## Øverst
-- **Kasse, netto per måned, kvartaler og bander.**
+- **Kasse, netto per måned og kvartaler.** Antall bander står på fanen «Bander».
+- **Mål:** spilltypen og hvor nær du er seier. Rød boks betyr at en rival nærmer seg seier. Hold musen over for detaljer.
 - **Uten ordre:** antall bander som mangler ordre. Trykk for å hoppe til neste rute med **?**.
 - **♪ Musikk** av/på, volum, og **Effekter** av/på (kamplyder og klikk). Valgene huskes.
 - **Regler**, **Nytt spill** (trykk to ganger for å bekrefte) og **Avslutt tur**.
@@ -18,7 +19,7 @@
 | Fane | Innhold |
 |---|---|
 | Kvartal | Valgt kvartal: type, eier, inntekt, støtte, bygninger (med bilde av hver) og dine bander med ordreknapper. |
-| Bander | Alle dine bander med portrett, plassering og ordre |
+| Bander (antall) | Alle dine bander med portrett, plassering og ordre |
 | Rekrutter | Leiemarkedet |
 | Rapport | Hendelser forrige runde (klikk for å se dem igjen), regnskap og logg over alt du har fått vite |
 

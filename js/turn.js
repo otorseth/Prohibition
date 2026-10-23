@@ -93,8 +93,36 @@ function resolve(){
   }
   if(S.dead[0])return finish(false,'Familien din er knust. Lakeport tilhører andre nå.');
   if([1,2,3].every(f=>S.dead[f]))return finish(true,'Alle rivalene er borte. Lakeport er din.');
-  if(owned(0)>=WIN)return finish(true,`Du eier ${owned(0)} kvartaler. Ingen tør lenger utfordre deg.`);
-  for(let f=1;f<4;f++)if(owned(f)>=WIN)return finish(false,`${FAM[f].name} eier ${owned(f)} kvartaler og styrer byen.`);
+  checkGoal();
+}
+// Seier etter spilltypen (se MODES i data.js)
+function checkGoal(){
+  const M=S.mode||'dominans', alive=[0,1,2,3].filter(f=>!S.dead[f]);
+  if(M==='dominans'){
+    if(owned(0)>=WIN)return finish(true,`Du eier ${owned(0)} kvartaler. Ingen tør lenger utfordre deg.`);
+    for(let f=1;f<4;f++)if(owned(f)>=WIN)return finish(false,`${FAM[f].name} eier ${owned(f)} kvartaler og styrer byen.`);
+  }
+  if(M==='sniken'){
+    for(const f of alive)if(hqOwned(f)===4)return f===0
+      ?finish(true,'Du sitter på alle fire hovedkvarterene. Rivalene har ingen steder å gjemme seg.')
+      :finish(false,`${FAM[f].name} har tatt alle fire hovedkvarterene, også ditt.`);
+  }
+  if(M==='sentrum'){
+    S.hold=S.hold||[0,0,0,0];
+    for(let f=0;f<4;f++){
+      const had=S.hold[f]; S.hold[f]=!S.dead[f]&&centreOwned(f)===4?had+1:0;
+      if(S.hold[f]&&(f===0||S.hold[f]===1||S.hold[f]>=SENTRUM_TURNS-3))L(`${fn(f)} holder sentrum (${S.hold[f]} av ${SENTRUM_TURNS} måneder).`);
+      if(had&&!S.hold[f])L(`${fn(f)} mistet grepet om sentrum.`);
+    }
+    for(const f of alive)if(S.hold[f]>=SENTRUM_TURNS)return f===0
+      ?finish(true,`Familien har holdt sentrum i ${SENTRUM_TURNS} måneder. Hele byen går gjennom dine gater.`)
+      :finish(false,`${FAM[f].name} har holdt sentrum i ${SENTRUM_TURNS} måneder og styrer byen.`);
+  }
+  if(M==='kapitalist'&&S.turn>=KAP_TURNS){
+    const best=alive.filter(f=>f>0).sort((a,b)=>S.money[b]-S.money[a])[0];
+    if(best===undefined||S.money[0]>=S.money[best])return finish(true,`Etter ${KAP_TURNS} måneder har familien $${S.money[0]} i kassen, mer enn noen annen i byen.`);
+    return finish(false,`Etter ${KAP_TURNS} måneder har ${FAM[best].name} $${S.money[best]} i kassen. Du har $${S.money[0]}.`);
+  }
 }
 function keepOrder(g){
   const b=blk(g.x,g.y);
