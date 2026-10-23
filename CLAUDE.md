@@ -26,7 +26,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `video/seier.*` og `video/tap.*` (webm + mp4) – videoer (Midjourney, uten lyd) som spilles før avisforsiden
 - `img/fig/*.png` – utklippsfigurer i kampene (Midjourney, Muybridge-stil, ser mot høyre): `gangster`, `sjef`, `frakk`, `dame`, `gutt`, `bryter`. Ledd og klippeformer står i `FIGV` i `fight-scene.js`; varianter låner bein fra `gangster`. Bakgrunn fjernet med `rembg`
 - `img/grav.jpg` – gravsteinsbildet i dødsannonsen
-- `lyd/*.mp3` – våpenlyder (ekte opptak, klippet og jevnet ut), ett per våpentype (`derringer`, `revolver`, `pistol`, `shotgun`, `rifle`, `tommy`). Syntetiske reservelyder i `SYNTH` i `audio.js`. Tommy-gun-opptaket er en hel salve, og skuddtidene står i `hitTimes`
+- `lyd/*.mp3` – våpenlyder (ekte opptak, klippet og jevnet ut), ett per våpentype (`derringer`, `revolver`, `pistol`, `shotgun`, `rifle`, `tommy`) og fire bokseslag `slag1`–`slag4` for knyttnever. Syntetiske reservelyder i `SYNTH` i `audio.js`. Tommy-gun-opptaket er en hel salve, og skuddtidene står i `hitTimes`
 - `musikk.mp3` – bakgrunnsmusikk
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
 

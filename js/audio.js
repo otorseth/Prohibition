@@ -76,7 +76,7 @@ function whoosh(dst,t){
 }
 /* Ekte opptak per våpen (lyd/*.mp3, klippet og jevnet ut). Mangler et opptak, brukes den syntetiske lyden.
    I zip-versjonen ligger opptakene inne i HTML-fila (window.LYD_DATA), fordi nettleseren ikke kan hente filer fra disk. */
-const SAMPLE_W=['derringer','revolver','pistol','shotgun','rifle','tommy'], SBUF={};
+const SAMPLE_W=['derringer','revolver','pistol','shotgun','rifle','tommy','slag1','slag2','slag3','slag4'], SBUF={};
 const LYD_SRC=w=>(window.LYD_DATA&&window.LYD_DATA[w])||('lyd/'+w+'.mp3');
 function loadSamples(){
   SAMPLE_W.forEach(w=>{if(SBUF[w])return;
@@ -103,7 +103,11 @@ const SYNTH={
 };
 // Én lyd per våpen: opptaket hvis det er lastet, ellers syntetisk. Hagla får i tillegg pumpeklikk.
 const SOUND={};
+// Knyttnever: fire ulike bokseslag (lyd/slag1–4.mp3), aldri samme slag to ganger på rad
+let lastSlag=-1;
+function slagSample(){const ok=[1,2,3,4].filter(i=>SBUF['slag'+i]&&i!==lastSlag);if(!ok.length)return null;lastSlag=ok[Math.floor(Math.random()*ok.length)];return 'slag'+lastSlag}
 Object.keys(SYNTH).forEach(w=>SOUND[w]=(d,t)=>{
+  if(w==='fists'){const k=slagSample();return k?playSample(d,t,k):SYNTH.fists(d,t)}
   if(!SBUF[w])return SYNTH[w](d,t);
   playSample(d,t,w);
   if(w==='shotgun'){burst(d,t+.75,'bandpass',3000,6,.3,.03);burst(d,t+.88,'bandpass',2400,6,.3,.04)}
