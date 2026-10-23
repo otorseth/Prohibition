@@ -268,4 +268,10 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .pstats div{display:flex;justify-content:space-between;gap:6px;font-size:13px;border-bottom:1px dotted rgba(0,0,0,.35)}
 .pstats small{font-size:12px}
 .pstats b{font-family:var(--body);font-variant-numeric:tabular-nums}
+.obit{border:3px double #1b1712;padding:12px 14px;text-align:center;margin-bottom:12px}
+.ocross{font-size:22px;line-height:1}
+.oname{font-family:var(--display);font-weight:400;font-size:clamp(20px,3vw,27px);margin:4px 0 2px;line-height:1.1;text-wrap:balance;color:#1b1712}
+.osmall{font-size:12.5px;margin:2px 0}
+.overse{font-style:italic;margin:10px 0 8px;font-size:14px}
+.osign{font-size:12px;letter-spacing:.06em;text-transform:uppercase;border-top:1px solid #1b1712;padding-top:6px;margin:6px 0 4px}
 .paperbtns{display:flex;gap:8px}

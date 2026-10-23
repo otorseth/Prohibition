@@ -18,12 +18,13 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
   - `city.js` bykartet ovenfra (canvas)
   - `fight-scene.js` kampanimasjon (bakgrunner, riggede figurer med invers kinematikk, effekter) og portretter
   - `audio.js` musikk og lydeffekter (Web Audio)
-  - `ending.js` avslutning: seiersvideo og avisforside med statistikk (`S.st`). Forhåndsvis med `#seier` eller `#tap` i adressen
+  - `ending.js` avslutning: video (seier eller tap) og avisforside med statistikk; ved tap en dødsannonse (`S.st`). Forhåndsvis med `#seier` eller `#tap` i adressen
   - `main.js` klikk-håndtering og oppstart – må lastes sist
 - `img/tiles/` – Noir-bilder av kvartalene (ett per type, laget i Midjourney, 320×320 JPG)
 - `img/bld/` – Noir-portretter av hver bygningstype, filnavn = nøkkelen i `BK` (192×192 JPG)
 - `img/bg/` – kampbakgrunner sett fra siden, én per kvartalstype (1280 bred JPG). Bakkelinjen per bilde står i `BG_GROUND` i `fight-scene.js`
-- `video/seier.webm` + `video/seier.mp4` – seiersvideo (Midjourney, uten lyd) som spilles før avisforsiden
+- `video/seier.*` og `video/tap.*` (webm + mp4) – videoer (Midjourney, uten lyd) som spilles før avisforsiden
+- `img/grav.jpg` – gravsteinsbildet i dødsannonsen
 - `musikk.mp3` – bakgrunnsmusikk
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
 
@@ -39,7 +40,7 @@ Når regler eller tall endres, oppdater tilhørende wiki-side i samme commit.
 
 ## Publisere spillet
 Spillet publiseres som artifact med `tools/lag-artifact.py <sidefil>` og disse filene ved siden av:
-`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg`, `img/bg/*.jpg`, `video/seier.webm`, `video/seier.mp4` og `musikk.mp3`.
+`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg`, `img/bg/*.jpg`, `img/grav.jpg`, `video/*.webm`, `video/*.mp4` og `musikk.mp3`.
 
 ## Git
 Hver endring committes med en kort norsk beskrivelse og pushes til `main` på GitHub (`otorseth/Prohibition`).

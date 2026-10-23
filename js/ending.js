@@ -25,14 +25,37 @@ function paperHtml(win,photo){
     ?`${bossName()} har gjort det. Etter ${months} måneder med gatekamper, bestikkelser og blod i rennesteinen er det ingen tvil lenger om hvem som bestemmer i Lakeport. Familien vant ${st.fw||0} kamper, sendte ${st.killed||0} av rivalenes folk i elva og tok over ${st.taken||0} kvartaler. Politiet nekter å kommentere. Ordføreren er ikke å få tak i.`
     :`Etter ${months} måneder er det slutt. Familien mistet ${st.lost||0} bander og har ikke lenger fotfeste i byen. På speakeasyene snakkes det om hvem som tar over restene.`;
   const date=dateOf(S.turn).toUpperCase();
-  return `<div class="pmast"><span>${date}</span><b>LAKEPORT EVENING STAR</b><span>5 CENTS</span></div>
-    <div class="prule"></div>
+  const mast=`<div class="pmast"><span>${date}</span><b>LAKEPORT EVENING STAR</b><span>5 CENTS</span></div>
+    <div class="prule"></div>`;
+  const stats=`<div class="pstats">${statLine().map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div>`;
+  if(!win){
+    // Tap: dødsannonse med gravsteinsbilde
+    return `${mast}
+    <h1 class="phead">SJEFEN ER DØD</h1>
+    <p class="psub">${sub}</p>
+    <div class="pcols">
+      <figure class="pphoto"><img src="img/grav.jpg" alt="" onerror="this.onerror=null;this.src='img/bg/havn.jpg'"><figcaption>Graven på Lakeport kirkegård. Foto: Evening Star</figcaption></figure>
+      <div class="ptext">
+        <div class="obit">
+          <div class="ocross">✝</div>
+          <p class="osmall">Vår kjære sjef og forretningsforbindelse</p>
+          <h2 class="oname">${bossName()}</h2>
+          <p class="osmall">gikk brått bort i Lakeport i ${dateOf(S.turn).toLowerCase()}</p>
+          <p class="overse">«Byen var aldri stor nok.»</p>
+          <p class="osign">Familien &middot; Gutta på hjørnet &middot; Speakeasyene i Kanalgata</p>
+          <p class="osmall">Bisettelsen skjer i stillhet. Blomster frabedes – kontanter mottas.</p>
+        </div>
+        ${stats}
+      </div>
+    </div>`;
+  }
+  return `${mast}
     <h1 class="phead">${head}</h1>
     <p class="psub">${sub}</p>
     <div class="pcols">
-      <figure class="pphoto">${photo?`<img src="${photo}" alt="">`:''}<figcaption>${win?`Sjefen over byen: ${bossShort()}. Foto: Evening Star`:'Tomme gater i Lakeport. Foto: Evening Star'}</figcaption></figure>
+      <figure class="pphoto">${photo?`<img src="${photo}" alt="">`:''}<figcaption>${`Sjefen over byen: ${bossShort()}. Foto: Evening Star`}</figcaption></figure>
       <div class="ptext"><p class="pstory">${story}</p>
-        <div class="pstats">${statLine().map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div>
+        ${stats}
       </div>
     </div>`;
 }
@@ -54,13 +77,15 @@ function showEnding(win){
   closeEvents&&closeEvents();
   const el=document.getElementById('ending'), v=document.getElementById('endVid');
   el.hidden=false; document.getElementById('paperWrap').hidden=true;
-  if(!win){v.hidden=true;showPaper(false,null);return}
+  // Seier: seiersvideo. Tap: kirkegårdsvideo. WebM først, MP4 som reserve.
+  const clip=win?'seier':'tap';
+  if(v.dataset.clip!==clip){v.dataset.clip=clip;v.innerHTML=`<source src="video/${clip}.webm" type="video/webm"><source src="video/${clip}.mp4" type="video/mp4">`;v.load()}
   v.hidden=false; document.getElementById('endSkip').hidden=false;
-  let done=false; const finish=()=>{if(done)return;done=true;const ph=videoFrame(v);v.pause();showPaper(true,ph)};
-  v.onended=finish; v.onerror=()=>{done=true;showPaper(true,null)};
+  let done=false; const finish=()=>{if(done)return;done=true;const ph=win?videoFrame(v):null;v.pause();showPaper(win,ph)};
+  v.onended=finish; v.onerror=()=>{done=true;showPaper(win,null)};
   document.getElementById('endSkip').onclick=finish;
   v.currentTime=0; const p=v.play(); if(p&&p.catch)p.catch(()=>finish());
   // Vakthund: kan nettleseren ikke spille videoen, går vi rett til avisen
-  setTimeout(()=>{if(done)return;if(v.error||v.readyState===0){done=true;showPaper(true,null)}else if(v.paused&&v.currentTime===0)finish()},2500);
+  setTimeout(()=>{if(done)return;if(v.error||v.readyState===0){done=true;showPaper(win,null)}else if(v.paused&&v.currentTime===0)finish()},2500);
 }
 function hideEnding(){const v=document.getElementById('endVid');v.pause();document.getElementById('ending').hidden=true}
