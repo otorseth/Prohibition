@@ -126,7 +126,7 @@ function drawWeapon(c,w,rim){
 // Utseende fra bandens id: samme trekk som portrettet
 function looks(G){
   const R=rng(G.id*2654435761+7), pk=a=>a[Math.floor(R()*a.length)];
-  return {skin:pk(SKIN),hat:pk(HATS),ht:Math.floor(R()*3),stache:R()<.5,cig:R()<.35,fam:FAMHEX[G.fam],bw:1+((G.bm??G.mus)-5)*.04};
+  return {skin:pk(SKIN),hat:pk(HATS),ht:Math.floor(R()*3),stache:R()<.5,cig:R()<.35,fam:FAMHEX[G.fam],bw:1+((G.bm??G.mus)-5)*.04,fv:FIG_KEYS[Math.floor(R()*FIG_KEYS.length)]};
 }
 // Tegner én figur. P = positur, o = plassering. rim = farge for lyskanten (tegnes først, litt større).
 function drawFigure(c,L,w,P,o,rim){
@@ -199,16 +199,26 @@ function drawFigure(c,L,w,P,o,rim){
 // Figuren er klippet ut av ett Midjourney-bilde (img/fig/gangster.png, sett fra siden mot høyre).
 // RIG sier hvor leddene er i bildet og hvilke former hver del klippes med (c = kapsel, p = polygon).
 // Hver del roteres og skaleres slik at leddene havner der skjelettet (ik) regner dem ut.
-const FIG_IMG=new Image(); FIG_IMG.src='img/fig/gangster.png';
 const RIG={"joints":{"neck":[100,62],"hip":[96,198],"shF":[108,94],"shB":[80,82],"hipF":[104,200],"hipB":[90,202]},"parts":{"legB1":{"a":[90,202],"b":[66,262],"shapes":[["c",90,202,66,262,21]]},"legB2":{"a":[66,262],"b":[26,300],"shapes":[["c",66,262,28,298,16],["p",[[6,282],[40,288],[36,340],[10,340],[4,318]]]]},"armB1":{"a":[80,82],"b":[56,130],"shapes":[["c",80,82,56,130,12]]},"armB2":{"a":[56,130],"b":[24,182],"shapes":[["c",56,130,38,174,10],["p",[[44,166],[30,184],[10,196],[6,186],[14,172],[34,166]]]]},"legF1":{"a":[104,200],"b":[126,262],"shapes":[["c",104,200,126,262,19]]},"legF2":{"a":[126,262],"b":[146,320],"shapes":[["c",126,262,146,318,18],["p",[[118,312],[152,316],[172,326],[172,338],[118,338]]]]},"torso":{"a":[96,198],"b":[100,62],"shapes":[["p",[[84,56],[112,56],[124,100],[132,150],[130,202],[58,202],[58,170],[64,100],[76,62]]]]},"head":{"a":[100,62],"b":[103,10],"shapes":[["p",[[72,0],[134,0],[134,40],[126,64],[86,64],[80,40],[72,40]]]]},"armF1":{"a":[108,94],"b":[124,146],"shapes":[["c",108,94,124,146,11]]},"armF2":{"a":[124,146],"b":[144,190],"shapes":[["c",124,146,134,178,10],["p",[[126,172],[140,174],[152,186],[154,202],[146,204],[134,190]]]]}}};
-const RK=.43; // skala fra bildet til scenen
+// Varianter: hver har eget bilde, ledd og deler. Delene som mangler (bein, bakre arm) lånes fra «gangster».
+// band = hattebåndet i familiens farge (x, y, bredde, høyde i bildet).
+const FIGV={gangster:{...RIG,band:[89,27,33,5]},"sjef":{"joints":{"neck":[112,68],"hip":[99,240],"shF":[106,100],"top":[111,6]},"parts":{"torso":{"a":[99,240],"b":[112,68],"shapes":[["p",[[126,50],[89,52],[74,75],[49,110],[40,140],[56,160],[21,218],[52,245],[94,252],[140,250],[144,200],[138,150],[132,100]]]]},"head":{"a":[112,68],"b":[111,6],"shapes":[["p",[[148,0],[74,0],[74,38],[86,70],[128,72],[136,40],[148,36]]]]},"armF1":{"a":[106,100],"b":[124,138],"shapes":[["c",106,100,124,138,13]]},"armF2":{"a":[124,138],"b":[179,123],"shapes":[["c",124,138,162,126,11],["p",[[154,110],[202,116],[202,130],[154,137]]]]}},"band":[85,28,46,6]},"frakk":{"joints":{"neck":[108,55],"hip":[95,215],"shF":[110,95],"top":[115,4]},"parts":{"torso":{"a":[95,215],"b":[108,55],"shapes":[["p",[[95,46],[118,50],[126,100],[130,140],[126,200],[130,260],[122,312],[30,318],[10,290],[38,170],[42,110],[68,58]]]]},"head":{"a":[108,55],"b":[115,4],"shapes":[["p",[[85,0],[152,0],[152,40],[135,62],[98,62],[95,30],[85,30]]]]},"armF1":{"a":[110,95],"b":[128,150],"shapes":[["c",110,95,128,150,13]]},"armF2":{"a":[128,150],"b":[178,168],"shapes":[["c",128,150,165,163,11],["p",[[158,152],[192,158],[194,180],[162,182]]]]}},"band":[100,24,40,6]}};
+Object.entries(FIGV).forEach(([k,v])=>{
+  v.img=new Image(); v.img.src='img/fig/'+k+'.png';
+  const J=v.joints; v.rk=.43*Math.hypot(RIG.joints.neck[0]-RIG.joints.hip[0],RIG.joints.neck[1]-RIG.joints.hip[1])/Math.hypot(J.neck[0]-J.hip[0],J.neck[1]-J.hip[1]);
+});
+const FIG_KEYS=Object.keys(FIGV);
+const FIG_IMG=FIGV.gangster.img;
+const RK=.43; // skala fra bildet til scenen for «gangster»
 const figReady=()=>FIG_IMG.complete&&FIG_IMG.naturalWidth>0;
-const rLen=n=>{const p=RIG.parts[n];return Math.hypot(p.b[0]-p.a[0],p.b[1]-p.a[1])*RK};
+const vReady=v=>v.img.complete&&v.img.naturalWidth>0;
+const rLen=(n,v=FIGV.gangster)=>{const p=v.parts[n];return Math.hypot(p.b[0]-p.a[0],p.b[1]-p.a[1])*v.rk};
 const FIG_TINT=new Map();
-function figTint(col){
-  if(!FIG_TINT.has(col)){const cv=document.createElement('canvas');cv.width=FIG_IMG.naturalWidth;cv.height=FIG_IMG.naturalHeight;
-    const x=cv.getContext('2d');x.drawImage(FIG_IMG,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,cv.width,cv.height);FIG_TINT.set(col,cv)}
-  return FIG_TINT.get(col);
+function figTint(v,col){
+  const key=v.img.src+col;
+  if(!FIG_TINT.has(key)){const cv=document.createElement('canvas');cv.width=v.img.naturalWidth;cv.height=v.img.naturalHeight;
+    const x=cv.getContext('2d');x.drawImage(v.img,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,cv.width,cv.height);FIG_TINT.set(key,cv)}
+  return FIG_TINT.get(key);
 }
 function shapePath(c,s){
   c.beginPath();
@@ -217,44 +227,50 @@ function shapePath(c,s){
   c.closePath();
 }
 // Tegner delen n slik at bildeleddene a→b havner på A→B. extra(c) tegner i bildets koordinater (f.eks. hattebånd).
-function drawPart(c,img,n,A,B,extra){
-  const p=RIG.parts[n], aS=Math.atan2(p.b[1]-p.a[1],p.b[0]-p.a[0]), aT=Math.atan2(B[1]-A[1],B[0]-A[0]);
-  c.save(); c.translate(A[0],A[1]); c.rotate(aT-aS); c.scale(RK,RK); c.translate(-p.a[0],-p.a[1]);
+function drawPart(c,img,n,A,B,extra,v=FIGV.gangster){
+  const p=v.parts[n], aS=Math.atan2(p.b[1]-p.a[1],p.b[0]-p.a[0]), aT=Math.atan2(B[1]-A[1],B[0]-A[0]);
+  c.save(); c.translate(A[0],A[1]); c.rotate(aT-aS); c.scale(v.rk,v.rk); c.translate(-p.a[0],-p.a[1]);
   p.shapes.forEach(s=>{c.save();shapePath(c,s);c.clip();c.drawImage(img,0,0);c.restore()});
   if(extra)extra(c);
   c.restore();
 }
 function drawFigureCut(c,L,w,P,o,rim){
-  const out={}, sc=FIG_SCALE*(o.s||1), J=RIG.joints;
+  const G=FIGV.gangster, V=vReady(FIGV[L.fv]||G)?(FIGV[L.fv]||G):G, J=V.joints;
+  const out={}, sc=FIG_SCALE*(o.s||1);
   c.save(); c.translate(o.x,o.ground); c.scale(o.face*sc,sc);
   if(o.fall)c.rotate(-o.fall*1.42);
   const passes=rim?[[-1.3,-1.6],[1.3,-1.6],[0,-2.4]]:[[0,0]];
-  const img=rim?figTint(rim):FIG_IMG;
+  const imgV=rim?figTint(V,rim):V.img, imgG=rim?figTint(G,rim):G.img;
   const hip=[0,-63+P.crouch*22];
   const aS=Math.atan2(J.neck[1]-J.hip[1],J.neck[0]-J.hip[0]), aT=P.lean-Math.PI/2, rot=aT-aS, cr=Math.cos(rot), sr=Math.sin(rot);
-  const T=q=>{const dx=(q[0]-J.hip[0])*RK,dy=(q[1]-J.hip[1])*RK;return [hip[0]+dx*cr-dy*sr,hip[1]+dx*sr+dy*cr]};
-  const neck=T(J.neck), shF=T(J.shF), shB=T(J.shB), hipF=T(J.hipF), hipB=T(J.hipB);
+  const T=q=>{const dx=(q[0]-J.hip[0])*V.rk,dy=(q[1]-J.hip[1])*V.rk;return [hip[0]+dx*cr-dy*sr,hip[1]+dx*sr+dy*cr]};
+  const neck=T(J.neck), shF=T(J.shF), shB=J.shB?T(J.shB):[shF[0]-5,shF[1]+2];
+  const hipF=V===G?T(J.hipF):[hip[0]+3,hip[1]+1], hipB=V===G?T(J.hipB):[hip[0]-3,hip[1]+2];
+  // bakre arm: egen hvis den finnes, ellers kopi av fremre
+  const nB1=V.parts.armB1?'armB1':'armF1', nB2=V.parts.armB2?'armB2':'armF2';
   let hF=[shF[0]+P.fH[0],shF[1]+P.fH[1]];
-  const armF=ik(shF[0],shF[1],hF[0],hF[1],rLen('armF1'),rLen('armF2'),1); hF=[armF.tx,armF.ty];
+  const armF=ik(shF[0],shF[1],hF[0],hF[1],rLen('armF1',V),rLen('armF2',V),1); hF=[armF.tx,armF.ty];
   const bT=P.twoHand?[hF[0]+Math.cos(P.wAng)*P.twoHand,hF[1]+Math.sin(P.wAng)*P.twoHand]:[shB[0]+P.bH[0],shB[1]+P.bH[1]];
-  const armB=ik(shB[0],shB[1],bT[0],bT[1],rLen('armB1'),rLen('armB2'),1);
+  const armB=ik(shB[0],shB[1],bT[0],bT[1],rLen(nB1,V),rLen(nB2,V),1);
   const legs=[0,1].map(i=>{const [fx,fy]=P.feet[i], h=i?hipB:hipF; return [h,ik(h[0],h[1],fx-2,fy-7,rLen('legF1'),rLen('legF2'),-1)]});
-  const head=[neck[0]+Math.sin(P.lean+P.head)*22,neck[1]-Math.cos(P.lean+P.head)*22];
+  const hb=V.parts.head, hl=Math.hypot(hb.b[0]-hb.a[0],hb.b[1]-hb.a[1])*V.rk;
+  const head=[neck[0]+Math.sin(P.lean+P.head)*hl,neck[1]-Math.cos(P.lean+P.head)*hl];
+  const band=V.band;
   passes.forEach(([ox,oy])=>{
     c.save(); c.translate(ox,oy);
-    drawPart(c,img,'armB1',shB,[armB.ex,armB.ey]); drawPart(c,img,'armB2',[armB.ex,armB.ey],[armB.tx,armB.ty]);
-    [1,0].forEach(i=>{const [h,k]=legs[i]; drawPart(c,img,'legF1',h,[k.ex,k.ey]); drawPart(c,img,'legF2',[k.ex,k.ey],[k.tx,k.ty])});
-    drawPart(c,img,'torso',hip,neck);
-    drawPart(c,img,'head',neck,head,rim?null:x=>{x.fillStyle=L.fam;x.globalAlpha=.85;x.fillRect(89,27,33,5)});
-    drawPart(c,img,'armF1',shF,[armF.ex,armF.ey]);
+    drawPart(c,imgV,nB1,shB,[armB.ex,armB.ey],null,V); drawPart(c,imgV,nB2,[armB.ex,armB.ey],[armB.tx,armB.ty],null,V);
+    [1,0].forEach(i=>{const [h,k]=legs[i]; drawPart(c,imgG,'legF1',h,[k.ex,k.ey]); drawPart(c,imgG,'legF2',[k.ex,k.ey],[k.tx,k.ty])});
+    drawPart(c,imgV,'torso',hip,neck,null,V);
+    drawPart(c,imgV,'head',neck,head,rim?null:x=>{x.fillStyle=L.fam;x.globalAlpha=.85;x.fillRect(band[0],band[1],band[2],band[3])},V);
+    drawPart(c,imgV,'armF1',shF,[armF.ex,armF.ey],null,V);
     if(w!=='fists'){c.save();c.translate(hF[0],hF[1]);c.rotate(P.wAng);drawWeapon(c,w,rim);c.restore()}
-    drawPart(c,img,'armF2',[armF.ex,armF.ey],hF);
+    drawPart(c,imgV,'armF2',[armF.ex,armF.ey],hF,null,V);
     c.restore();
   });
   c.restore();
   const toW=(x,y)=>[o.x+x*o.face*sc,o.ground+y*sc], m=MUZ[w]||[0,0];
   out.muzzle=toW(hF[0]+Math.cos(P.wAng)*m[0]-Math.sin(P.wAng)*m[1],hF[1]+Math.sin(P.wAng)*m[0]+Math.cos(P.wAng)*m[1]);
-  out.hand=toW(hF[0],hF[1]); out.chest=toW(...T([98,130])); out.head=toW(...head);
+  out.hand=toW(hF[0],hF[1]); out.chest=toW(...T([(J.neck[0]+J.hip[0])/2,(J.neck[1]*.6+J.hip[1]*.4)])); out.head=toW(...head);
   return out;
 }
 

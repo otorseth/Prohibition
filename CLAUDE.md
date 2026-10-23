@@ -24,7 +24,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `img/bld/` – Noir-portretter av hver bygningstype, filnavn = nøkkelen i `BK` (192×192 JPG)
 - `img/bg/` – kampbakgrunner sett fra siden, én per kvartalstype (1280 bred JPG). Bakkelinjen per bilde står i `BG_GROUND` i `fight-scene.js`
 - `video/seier.*` og `video/tap.*` (webm + mp4) – videoer (Midjourney, uten lyd) som spilles før avisforsiden
-- `img/fig/gangster.png` – utklippsfiguren i kampene (Midjourney, Muybridge-stil, speilvendt mot høyre). Ledd og klippeformer står i `RIG` i `fight-scene.js`
+- `img/fig/*.png` – utklippsfigurer i kampene (Midjourney, Muybridge-stil, ser mot høyre): `gangster`, `sjef`, `frakk`. Ledd og klippeformer står i `FIGV` i `fight-scene.js`; varianter låner bein fra `gangster`. Bakgrunn fjernet med `rembg`
 - `img/grav.jpg` – gravsteinsbildet i dødsannonsen
 - `musikk.mp3` – bakgrunnsmusikk
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
