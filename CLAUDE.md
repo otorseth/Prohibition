@@ -26,6 +26,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `video/seier.*` og `video/tap.*` (webm + mp4) – videoer (Midjourney, uten lyd) som spilles før avisforsiden
 - `img/fig/*.png` – utklippsfigurer i kampene (Midjourney, Muybridge-stil, ser mot høyre): `gangster`, `sjef`, `frakk`, `dame`, `gutt`, `bryter`. Ledd og klippeformer står i `FIGV` i `fight-scene.js`; varianter låner bein fra `gangster`. Bakgrunn fjernet med `rembg`
 - `img/grav.jpg` – gravsteinsbildet i dødsannonsen
+- `lyd/*.mp3` – våpenlyder (ekte opptak, klippet og jevnet ut), ett per våpentype (`derringer`, `revolver`, `pistol`, `shotgun`, `rifle`, `tommy`). Syntetiske reservelyder i `SYNTH` i `audio.js`. Tommy-gun-opptaket er en hel salve, og skuddtidene står i `hitTimes`
 - `musikk.mp3` – bakgrunnsmusikk
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
 
@@ -41,10 +42,10 @@ Når regler eller tall endres, oppdater tilhørende wiki-side i samme commit.
 
 ## Publisere spillet
 Spillet publiseres som artifact med `tools/lag-artifact.py <sidefil>` og disse filene ved siden av:
-`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg`, `img/bg/*.jpg`, `img/fig/*.png`, `img/grav.jpg`, `video/*.webm`, `video/*.mp4` og `musikk.mp3`.
+`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg`, `img/bg/*.jpg`, `img/fig/*.png`, `img/grav.jpg`, `video/*.webm`, `video/*.mp4`, `lyd/*.mp3` og `musikk.mp3`.
 
 ## Git
 Hver endring committes med en kort norsk beskrivelse og pushes til `main` på GitHub (`otorseth/Prohibition`).
 
 ## Dele spillet som zip
-`python3 tools/lag-zip.py <utmappe>` lager `Forbudstid.zip` med én samlet HTML-fil, `img/` og `musikk.mp3`.
+`python3 tools/lag-zip.py <utmappe>` lager `Forbudstid.zip` med én samlet HTML-fil (våpenlydene ligger inne i den), `img/`, `video/` og `musikk.mp3`.

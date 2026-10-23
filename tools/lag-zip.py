@@ -26,6 +26,10 @@ html = re.sub(
     html,
 )
 html = html.replace('<meta name="claude:viewport-fit-sides" content="cover">\n', "")
+# Våpenlydene legges inn i HTML-fila, fordi nettleseren ikke kan hente lydfiler fra disk med fetch
+import base64, json
+lyd = {f.stem: "data:audio/mpeg;base64," + base64.b64encode(f.read_bytes()).decode() for f in sorted((root / "lyd").glob("*.mp3"))}
+html = html.replace("<script>", "<script>window.LYD_DATA=" + json.dumps(lyd) + ";</script>\n<script>", 1)
 assert 'src="js/' not in html and "css/style.css" not in html
 (stage / "Forbudstid.html").write_text(html, encoding="utf-8")
 
