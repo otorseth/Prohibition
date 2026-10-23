@@ -73,8 +73,13 @@
   </div>
 </div>
 
-<div class="ov" id="over" hidden>
-  <div class="card"><h2 id="overTitle"></h2><p id="overText"></p><button class="btn main" id="overNew">Nytt spill</button></div>
+<div id="ending" hidden>
+  <video id="endVid" playsinline preload="auto" muted><source src="video/seier.webm" type="video/webm"><source src="video/seier.mp4" type="video/mp4"></video>
+  <button class="btn" id="endSkip">Hopp over ›</button>
+  <div class="paperwrap" id="paperWrap" hidden>
+    <article class="paper" id="paper"></article>
+    <div class="paperbtns"><button class="btn" id="endMap">Se kartet</button><button class="btn main" id="endNew">Nytt spill</button></div>
+  </div>
 </div>
 
 <script src="js/data.js"></script>
@@ -87,6 +92,7 @@
 <script src="js/city.js"></script>
 <script src="js/fight-scene.js"></script>
 <script src="js/audio.js"></script>
+<script src="js/ending.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

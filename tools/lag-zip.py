@@ -31,6 +31,7 @@ assert 'src="js/' not in html and "css/style.css" not in html
 
 shutil.copy(root / "musikk.mp3", stage / "musikk.mp3")
 shutil.copytree(root / "img", stage / "img")
+shutil.copytree(root / "video", stage / "video")
 (stage / "LES-MEG.txt").write_text(
     """FORBUDSTID
 ==========
@@ -39,7 +40,7 @@ Turbasert mafiastrategi i 1920-tallets Lakeport.
 Slik starter du:
 1. Pakk ut hele zip-filen (ikke åpne filene direkte inne i zip-en).
 2. Dobbeltklikk på Forbudstid.html. Spillet åpnes i nettleseren.
-3. Mappen img og filen musikk.mp3 må ligge ved siden av Forbudstid.html.
+3. Mappene img og video og filen musikk.mp3 må ligge ved siden av Forbudstid.html.
 
 Tips:
 - Musikken starter når du klikker første gang i spillet.

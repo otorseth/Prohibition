@@ -34,7 +34,8 @@ function makeGang(){
 }
 
 function newGame(){
-  S={v:5,ledStart:60,turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
+  endingShown=false;
+  S={v:5,ledStart:60,st:{},turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
   const bag=[...Array(30).fill('bolig'),...Array(18).fill('komm'),...Array(14).fill('ind')];
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     let t=pick(bag);
@@ -98,6 +99,8 @@ function desertForecast(f){
   return gone;
 }
 // Regnskap for spillerens måned: utgifter i planleggingen + det som skjer i turoppgjøret
+// Statistikk til avisforsiden på slutten
+function stat(k,v=1){if(!S.st)S.st={};S.st[k]=(S.st[k]||0)+v}
 function ledgerAdd(k,v){if(!S.led)S.led={};S.led[k]=(S.led[k]||0)+v}
 function econ(f){
   let inc=0; S.blocks.forEach(b=>{if(b.owner===f)inc+=blockInc(b,f)});

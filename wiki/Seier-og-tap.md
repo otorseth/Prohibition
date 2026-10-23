@@ -12,3 +12,8 @@
 
 En familie er knust når den verken eier kvartaler eller har bander.
 Faller hovedkvarteret ditt, møter nye bander opp i et annet kvartal du eier.
+
+## Avslutningen
+Vinner du, spilles en kort film av sjefen over byen, og så spinner forsiden av *Lakeport Evening Star* inn med
+overskriften «Din familie styrer Lakeport» og statistikk fra spillet: kvartaler, måneder, kamper vunnet, fiender i elva,
+egne bander tapt, kvartaler tatt og hvor mye familien tjente. Taper du, blir det en forside om at familien er knust.

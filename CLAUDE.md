@@ -7,7 +7,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `index.html` – markup og rekkefølgen skriptene lastes i
 - `css/style.css` – all stil (mørk art-deco, farger som CSS-variabler øverst)
 - `js/` – vanlige skript (ingen bygging/moduler). De deler globalt scope og lastes i denne rekkefølgen:
-  `data` → `state` → `ai` → `turn` → `events` → `save` → `ui` → `city` → `fight-scene` → `audio` → `main`
+  `data` → `state` → `ai` → `turn` → `events` → `save` → `ui` → `city` → `fight-scene` → `audio` → `ending` → `main`
   - `data.js` konstanter: kvartalstyper, bygninger (`BK`), våpen (`WEAP`), familier, hjelpefunksjoner
   - `state.js` spilltilstand `S` og `ui`, nytt spill, økonomi, påvirkning
   - `ai.js` datamotstanderne
@@ -18,10 +18,12 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
   - `city.js` bykartet ovenfra (canvas)
   - `fight-scene.js` kampanimasjon (bakgrunner, riggede figurer med invers kinematikk, effekter) og portretter
   - `audio.js` musikk og lydeffekter (Web Audio)
+  - `ending.js` avslutning: seiersvideo og avisforside med statistikk (`S.st`). Forhåndsvis med `#seier` eller `#tap` i adressen
   - `main.js` klikk-håndtering og oppstart – må lastes sist
 - `img/tiles/` – Noir-bilder av kvartalene (ett per type, laget i Midjourney, 320×320 JPG)
 - `img/bld/` – Noir-portretter av hver bygningstype, filnavn = nøkkelen i `BK` (192×192 JPG)
 - `img/bg/` – kampbakgrunner sett fra siden, én per kvartalstype (1280 bred JPG). Bakkelinjen per bilde står i `BG_GROUND` i `fight-scene.js`
+- `video/seier.webm` + `video/seier.mp4` – seiersvideo (Midjourney, uten lyd) som spilles før avisforsiden
 - `musikk.mp3` – bakgrunnsmusikk
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
 
@@ -37,7 +39,7 @@ Når regler eller tall endres, oppdater tilhørende wiki-side i samme commit.
 
 ## Publisere spillet
 Spillet publiseres som artifact med `tools/lag-artifact.py <sidefil>` og disse filene ved siden av:
-`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg`, `img/bg/*.jpg` og `musikk.mp3`.
+`css/style.css`, alle `js/*.js`, `img/tiles/*.jpg`, `img/bld/*.jpg`, `img/bg/*.jpg`, `video/seier.webm`, `video/seier.mp4` og `musikk.mp3`.
 
 ## Git
 Hver endring committes med en kort norsk beskrivelse og pushes til `main` på GitHub (`otorseth/Prohibition`).

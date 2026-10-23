@@ -7,8 +7,10 @@ function fight(a,d){
   const me=a.fam===0||d.fam===0;
   if(ra>=rd){d.hp-=ra-rd+3;a.hp-=1;Lv(b.x,b.y,me,`${a.name} (${fn(a.fam)}) overfalt ${d.name} (${fn(d.fam)}) i ${CO(b.x,b.y)} og vant.`)}
   else{a.hp-=rd-ra+3;d.hp-=1;Lv(b.x,b.y,me,`${a.name} (${fn(a.fam)}) angrep ${d.name} (${fn(d.fam)}) i ${CO(b.x,b.y)}, men ble slått tilbake.`)}
+  const pWon=(a.fam===0&&ra>=rd)||(d.fam===0&&ra<rd), pLost=(a.fam===0&&ra<rd)||(d.fam===0&&ra>=rd);
+  if(pWon)stat('fw'); if(pLost)stat('fl');
   const dead=[];
-  [a,d].forEach(g=>{if(g.hp<=0&&!g.gone){g.gone=true;dead.push(g.name);Lv(b.x,b.y,me,`${g.name} (${fn(g.fam)}) havnet i elva.`)}});
+  [a,d].forEach(g=>{if(g.hp<=0&&!g.gone){g.gone=true;dead.push(g.name);if(g.fam===0)stat('lost');else if(me)stat('killed');Lv(b.x,b.y,me,`${g.name} (${fn(g.fam)}) havnet i elva.`)}});
   FX.push({k:'fight',seen:me||canSee(b.x,b.y),x:b.x,y:b.y,a:a.fam,d:d.fam,an:a.name,dn:d.name,won:ra>=rd,dead,
     aid:a.id,did:d.id,am:musOf(a),dm:musOf(d),abm:a.mus,dbm:d.mus,aw:a.wpn||null,dw:d.wpn||null,dieA,dieD,bon,ahp0,dhp0,ahp1:Math.max(0,a.hp),dhp1:Math.max(0,d.hp)});
 }
@@ -32,6 +34,7 @@ function resolve(){
     if(Math.random()<takeChance(g,b)){
       const prev=b.owner; b.owner=g.fam; b.sup[g.fam]=Math.max(b.sup[g.fam],1);
       if(b.bld)b.bld.forEach(x=>{x.by=-1;x.pr=[0,0,0,0]}); // ny eier må vinne bygningene på nytt
+      if(g.fam===0)stat('taken');
       if(prev>=0)b.sup[prev]=Math.max(0,b.sup[prev]-2);
       Lv(b.x,b.y,g.fam===0||prev===0,`${g.name} tok ${CO(b.x,b.y)} (${TYPES[b.t].n}) for ${fn(g.fam)}${prev>=0?' fra '+fn(prev):''}.`);
       if(b.hq>=0&&b.hq!==g.fam)Lv(b.x,b.y,g.fam===0||b.hq===0,`Hovedkvarteret til ${fn(b.hq)} har falt!`);
@@ -68,7 +71,7 @@ function resolve(){
     if(S.dead[f])continue;
     const ec=econ(f);
     S.money[f]+=ec.net;
-    if(f===0){ledgerAdd('income',ec.inc);ledgerAdd('wages',ec.up)}
+    if(f===0){ledgerAdd('income',ec.inc);ledgerAdd('wages',ec.up);stat('earned',ec.inc+((S.led&&S.led.extort)||0))}
     // går kassen i minus, stikker den dyreste banden uten lønn, til kassen er i balanse
     while(S.money[f]<0&&mine(f).length){
       const g=mine(f).sort((a,b)=>wage(b)-wage(a))[0];

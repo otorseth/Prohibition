@@ -16,9 +16,7 @@ function render(){
   document.documentElement.style.setProperty('--sideTop',document.querySelector('.side').offsetTop+'px');
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
   document.getElementById('endBtn').disabled=!!S.over;
-  const ov=document.getElementById('over');
-  if(S.over){ov.hidden=false;document.getElementById('overTitle').textContent=S.over.win?'Byen er din':'Spillet er over';document.getElementById('overText').textContent=S.over.text}
-  else ov.hidden=true;
+  if(S.over&&!endingShown){endingShown=true;showEnding(S.over.win)}
 }
 // Hendelser forrige runde: klikk for å se dem i pop-upen igjen
 function eventsHtml(){
