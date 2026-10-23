@@ -24,7 +24,7 @@ function goEv(i){
 // Hendelseslisten ligger fast nederst på skjermen og stenger ikke for resten av spillet.
 function renderRev(){
   const dock=document.getElementById('dock'), all=evAll(), l=evList();
-  if(!all.length){dock.hidden=true;updateStage(null);document.body.style.paddingBottom='';return}
+  if(!all.length){dock.hidden=true;updateStage(null);document.body.style.paddingBottom='';document.documentElement.style.setProperty('--dockH','0px');return}
   dock.hidden=false;
   dock.classList.toggle('min',!!ui.dockMin);
   document.getElementById('dockMin').textContent=ui.dockMin?'Vis':'Skjul';
@@ -43,4 +43,5 @@ function renderRev(){
   else if(fight)updateStage(e);
   else{updateStage(null);drawStill(e)}
   document.body.style.paddingBottom=(dock.offsetHeight+16)+'px';
+  document.documentElement.style.setProperty('--dockH',dock.offsetHeight+'px');
 }

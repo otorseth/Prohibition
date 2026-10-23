@@ -9,7 +9,7 @@ document.getElementById('board').addEventListener('click',e=>{
     if(g&&nbrs(g.x,g.y).some(b=>b.x===x&&b.y===y)){ms.forEach(m=>{m.order='move';m.tx=x;m.ty=y});ui.moving=null;save();render();return}
     ui.moving=null;
   }
-  if(!ui.sel||ui.sel[0]!==x||ui.sel[1]!==y)ui.unpick=[];
+  if(!ui.sel||ui.sel[0]!==x||ui.sel[1]!==y){ui.unpick=[];ui.openGang=null}
   // Klikk på en rute med hendelser viser også den hendelsen nederst, men kvartalet velges som vanlig
   if(ui.rev!=null&&!ui.dockMin){
     const l=evList(), idx=l.map((e,j)=>j).filter(j=>l[j].x===x&&l[j].y===y);
@@ -26,6 +26,7 @@ document.getElementById('pane').addEventListener('click',e=>{
   }
   if(a==='pick'){const id=+t.dataset.id, u=ui.unpick||[];ui.unpick=u.includes(id)?u.filter(i=>i!==id):[...u,id]}
   if(a==='pickall')ui.unpick=[];
+  if(a==='opengang'){const id=+t.dataset.id;ui.openGang=ui.openGang===id?null:id}
   if(a==='shop')ui.shop=ui.shop===+t.dataset.id?null:+t.dataset.id;
   if(a==='buy'){const g=S.gangs.find(o=>o.id===+t.dataset.id);if(g&&buyWeapon(0,g,t.dataset.w))ui.shop=null}
   if(a==='gorder'){
@@ -46,6 +47,7 @@ document.getElementById('pane').addEventListener('click',e=>{
   if(a==='goto'){ui.sel=[+t.dataset.x,+t.dataset.y];ui.tab='kvartal';ui.unpick=[]}
   save(); render();
 });
+document.getElementById('pane').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.crow')){e.preventDefault();e.target.click()}});
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){ui.tab=b.dataset.tab;if(ui.tab==='hend'&&ui.rev==null&&evList().length)ui.rev=0;render()}});
 document.getElementById('revPrev').onclick=()=>{if(ui.rev>0)goEv(ui.rev-1)};
 document.getElementById('revNext').onclick=()=>{if(ui.rev<evList().length-1)goEv(ui.rev+1)};
