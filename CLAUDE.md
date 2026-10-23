@@ -12,7 +12,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
   - `state.js` spilltilstand `S` og `ui`, nytt spill, økonomi, påvirkning
   - `ai.js` datamotstanderne
   - `turn.js` turoppgjøret (flytt → angrep → ta kontroll → påvirk → innkreving/helbredelse → økonomi)
-  - `events.js` hendelsesfeltet nederst
+  - `events.js` rundens hendelser: pop-up etter hver tur (listen ligger også i Rapport)
   - `save.js` lagring i `localStorage` og `migrate()` for gamle lagringer
   - `ui.js` toppfelt, kart-ruter, sidepanel, bandekort
   - `city.js` bykartet ovenfra (canvas)
