@@ -90,20 +90,12 @@ function orderLabel(g){
   const b=blk(g.x,g.y);
   return g.order==='move'?'Flytt → '+CO(g.tx,g.ty):g.order==='extort'?'Kreve inn (fast)':g.order==='infl'&&b.bld?'Påvirk '+BK[b.bld[g.tgt].k].n.toLowerCase()+' (fast)':g.order==='take'?'Ta kontroll (fast)':g.order==='none'?'? Ingen ordre':ORD[g.order];
 }
-// Med mer enn to bander i kvartalet vises bandene som én linje; klikk åpner kortet med ordrene
-function gangRow(g,group){
-  return `<div class="gang crow ${g.order==='none'?'need':''}" data-a="opengang" data-id="${g.id}" style="--c:var(--f0)" role="button" tabindex="0" aria-expanded="false">
-    ${group?`<input type="checkbox" class="gpick" id="pick-${g.id}" data-a="pick" data-id="${g.id}" ${picked(g)?'checked':''} title="Med i gruppeordre" aria-label="Med i gruppeordre">`:''}
-    <b>${g.name}</b>
-    <span class="hpw" title="Helse ${g.hp}/${MAXHP}"><span class="hp ${g.hp<=8?'low':''}"><i style="width:${g.hp/MAXHP*100}%"></i></span>${g.hp}</span>
-    <span class="cord ${g.order==='none'?'need-txt':''}">${orderLabel(g)}</span><span class="chev">▾</span></div>`;
-}
 function gangCard(g,group){
   const b=blk(g.x,g.y), en=gangsAt(g.x,g.y).some(o=>o.fam!==0);
   const tc=Math.round(takeChance(g,b)*100);
   const btn=(o,label,dis)=>`<button data-a="order" data-id="${g.id}" data-o="${o}" class="${g.order===o?'on':''}" ${dis?'disabled':''}>${label}</button>`;
-  return `<div class="gang ${g.order==='none'?'need':''} ${ui.openGang===g.id?'open':''}" style="--c:var(--f0)">
-    <div class="gh" ${ui.openGang===g.id?`data-a="opengang" data-id="${g.id}" title="Lukk kortet"`:''}>
+  return `<div class="gang ${g.order==='none'?'need':''}" style="--c:var(--f0)">
+    <div class="gh">
       ${group?`<input type="checkbox" class="gpick" id="pick-${g.id}" data-a="pick" data-id="${g.id}" ${picked(g)?'checked':''} title="Med i gruppeordre" aria-label="Med i gruppeordre">`:''}
       <b>${g.name}${g.order==='none'?' <span class="need-txt">?</span>':''}</b>
       <span class="hpw" title="Helse ${g.hp}/${MAXHP}"><span class="hp ${g.hp<=8?'low':''}"><i style="width:${g.hp/MAXHP*100}%"></i></span>${g.hp}</span>
@@ -155,8 +147,7 @@ function renderPane(){
         <div class="orders">${gb('hold','Alle heler')}${gb('move',`Flytt ${sel.length} sammen`)}${gb('take','Alle tar kontroll',b.owner===0)}${gb('attack','Alle angriper',!en)}${gb('extort','Alle krever inn',b.owner<0)}${b.bld?gb('infl','Alle påvirker',b.owner!==0||!b.bld.some(x=>x.by!==0)):''}</div>
         </div>`;
     }
-    const compact=own.length>2;
-    h+=own.length?own.map(g=>compact&&ui.openGang!==g.id?gangRow(g,true):gangCard(g,own.length>1)).join(''):`<p class="note">Ingen av dine bander står her.</p>`;
+    h+=own.length?own.map(g=>gangCard(g,own.length>1)).join(''):`<p class="note">Ingen av dine bander står her.</p>`;
     if(oth.length)h+=`<h3>Andre bander her</h3>`+oth.map(g=>`<div class="row orow"><span>${g.name} · ${fn(g.fam)}</span><span class="note">Muskler ${musTxt(g)}${g.wpn?' · '+WEAP[g.wpn].n:''} · Innfl. ${g.inf} · Helse ${g.hp}</span></div>`).join('');
     }
   }

@@ -205,15 +205,6 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 @keyframes bang{0%{transform:scale(.3);opacity:0}15%{transform:scale(1.15);opacity:1}60%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
 
 .orow{padding:4px 0;font-size:13px}
-.crow{flex-direction:row;align-items:center;gap:8px;cursor:pointer;padding:6px 9px}
-.crow:hover{border-color:var(--muted)}
-.crow:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
-.crow b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.crow .cord{font-size:12px;color:var(--muted);white-space:nowrap}
-.crow .cord.need-txt{color:var(--brass)}
-.chev{color:var(--muted);font-size:11px}
-.gang.open .gh[data-a]{cursor:pointer}
-@media (max-width:460px){.crow .hpw .hp{width:40px}}
 /* lavere toppfelt så sidepanelet får mer plass */
 .top{padding-bottom:8px;margin-bottom:10px;gap:8px 18px}
 .brand h1{font-size:26px}
