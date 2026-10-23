@@ -60,6 +60,8 @@ const HQS=[[0,0],[7,7],[7,0],[0,7]];
 const SX=['Kanal','Mølle','Union','Marked','Lind','Smie','Bisp','Havne'];
 const FIRST=['Tommy','Sal','Benny','Frankie','Lou','Mickey','Vito','Eddie','Nicky','Joe','Dutch','Rocco','Mae','Ruby','Lola','Gus','Irish','Fat Pete'];
 const NICK=['Kniven','Lynet','Hatten','Snusen','Tannløs','Doktoren','Pianisten','Kalde','Kjeksen','Bjørnen','Presten','Revolveren','Smilet','Glasset'];
+// Kallenavn spillet gir sjefen (mellomnavn)
+const BOSSNICK=['Haien','Sigaren','Slakteren','Isbiten','Skyggen','Gribben','Bulldogen','Spøkelset','Bankieren','Gentlemannen','Stålneven','Silkehansken','Kortstokken','Diamanten','Ulven','Kobraen','Rotta','Hammeren','Jernkjeften','Tolvskuddet','Dommeren','Flaksen','Barbereren','Svartebørsen'];
 const ORD={infl:'Påvirk',none:'Ingen ordre',hold:'Hel',move:'Flytt',take:'Ta kontroll',attack:'Angrip',extort:'Kreve inn'};
 const MONTHS=['Januar','Februar','Mars','April','Mai','Juni','Juli','August','September','Oktober','November','Desember'];
 

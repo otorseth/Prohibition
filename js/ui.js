@@ -4,6 +4,7 @@ function render(){
   VIS=updateSeen();
   const e=econ(0), ext=extortForecast(0), net=e.net+ext, gone=desertForecast(0);
   document.getElementById('date').textContent=dateOf(S.turn);
+  document.getElementById('boss').textContent=S.boss?bossName():'';
   document.getElementById('stats').innerHTML=`
     <button class="stat statbtn" data-a="ledger" title="Se regnskapet"><small>Kasse</small><b>$${S.money[0]}</b></button>
     <button class="stat statbtn" data-a="ledger" title="Inntekt $${e.inc} + innkreving $${ext} − lønn $${e.up}"><small>Forventet netto</small><b style="color:${net<0?'var(--blood)':'var(--ok)'}">${net>=0?'+':''}$${net}</b></button>

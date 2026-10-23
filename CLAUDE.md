@@ -9,7 +9,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `js/` – vanlige skript (ingen bygging/moduler). De deler globalt scope og lastes i denne rekkefølgen:
   `data` → `state` → `ai` → `turn` → `events` → `save` → `ui` → `city` → `fight-scene` → `audio` → `ending` → `main`
   - `data.js` konstanter: kvartalstyper, bygninger (`BK`), våpen (`WEAP`), familier, hjelpefunksjoner
-  - `state.js` spilltilstand `S` og `ui`, nytt spill, økonomi, påvirkning
+  - `state.js` spilltilstand `S` og `ui`, nytt spill, økonomi, påvirkning, sjefens navn (`S.boss`, `bossName()`; kallenavn i `BOSSNICK` i `data.js`)
   - `ai.js` datamotstanderne
   - `turn.js` turoppgjøret (flytt → angrep → ta kontroll → påvirk → innkreving/helbredelse → økonomi)
   - `events.js` rundens hendelser: pop-up etter hver tur (listen ligger også i Rapport)

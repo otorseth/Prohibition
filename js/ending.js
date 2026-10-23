@@ -22,7 +22,7 @@ function paperHtml(win,photo){
     ?(S.over&&/rivalene er borte/.test(S.over.text)?'Rossetti, O\'Dwyer og Novak er borte fra gatene':`Eier ${own} av byens 64 kvartaler – ingen tør lenger utfordre familien`)
     :(S.over&&S.over.text?S.over.text:'De siste bandene er borte fra gatene');
   const story=win
-    ?`Etter ${months} måneder med gatekamper, bestikkelser og blod i rennesteinen er det ingen tvil lenger om hvem som bestemmer i Lakeport. Familien vant ${st.fw||0} kamper, sendte ${st.killed||0} av rivalenes folk i elva og tok over ${st.taken||0} kvartaler. Politiet nekter å kommentere. Ordføreren er ikke å få tak i.`
+    ?`${bossName()} har gjort det. Etter ${months} måneder med gatekamper, bestikkelser og blod i rennesteinen er det ingen tvil lenger om hvem som bestemmer i Lakeport. Familien vant ${st.fw||0} kamper, sendte ${st.killed||0} av rivalenes folk i elva og tok over ${st.taken||0} kvartaler. Politiet nekter å kommentere. Ordføreren er ikke å få tak i.`
     :`Etter ${months} måneder er det slutt. Familien mistet ${st.lost||0} bander og har ikke lenger fotfeste i byen. På speakeasyene snakkes det om hvem som tar over restene.`;
   const date=dateOf(S.turn).toUpperCase();
   return `<div class="pmast"><span>${date}</span><b>LAKEPORT EVENING STAR</b><span>5 CENTS</span></div>
@@ -30,7 +30,7 @@ function paperHtml(win,photo){
     <h1 class="phead">${head}</h1>
     <p class="psub">${sub}</p>
     <div class="pcols">
-      <figure class="pphoto">${photo?`<img src="${photo}" alt="">`:''}<figcaption>${win?'Sjefen over byen. Foto: Evening Star':'Tomme gater i Lakeport. Foto: Evening Star'}</figcaption></figure>
+      <figure class="pphoto">${photo?`<img src="${photo}" alt="">`:''}<figcaption>${win?`Sjefen over byen: ${bossShort()}. Foto: Evening Star`:'Tomme gater i Lakeport. Foto: Evening Star'}</figcaption></figure>
       <div class="ptext"><p class="pstory">${story}</p>
         <div class="pstats">${statLine().map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div>
       </div>

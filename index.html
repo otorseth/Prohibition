@@ -10,7 +10,7 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand"><h1>Forbudstid</h1><span>Lakeport &middot; <b id="date"></b></span></div>
+  <div class="brand"><h1>Forbudstid</h1><span>Lakeport &middot; <b id="date"></b></span><em class="boss" id="boss"></em></div>
   <div class="stats" id="stats"></div>
   <div class="actions">
     <div class="music"><button class="btn" id="musicBtn" aria-pressed="true">♪ Musikk på</button><input type="range" id="vol" min="0" max="100" value="50" aria-label="Volum på musikken"><button class="btn" id="sfxBtn" aria-pressed="true">Effekter på</button></div>
@@ -55,6 +55,20 @@
   </div>
 </div>
 
+
+<div class="ov" id="nameDlg" hidden>
+  <form class="card namecard" id="nameForm" autocomplete="off">
+    <h2>Hvem er sjefen?</h2>
+    <p>Skriv inn navnet ditt. Gatene gir deg et kallenavn.</p>
+    <div class="namerow">
+      <label>Fornavn<input id="nFirst" maxlength="16" required></label>
+      <label>Etternavn<input id="nLast" maxlength="18" required></label>
+    </div>
+    <div class="nickrow"><span>Kallenavn</span><b id="nNick"></b><button type="button" class="btn" id="nReroll">Nytt kallenavn</button></div>
+    <p class="namepreview" id="nPreview"></p>
+    <button class="btn main" type="submit">Ta over familien</button>
+  </form>
+</div>
 
 <div class="ov" id="evPop" hidden>
   <div class="bigwrap" role="dialog" aria-label="Hendelser forrige runde">

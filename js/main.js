@@ -66,16 +66,45 @@ document.getElementById('stats').addEventListener('click',e=>{if(e.target.closes
 
 document.getElementById('rulesBtn').onclick=()=>document.getElementById('rules').hidden=false;
 document.getElementById('rulesClose').onclick=()=>document.getElementById('rules').hidden=true;
-document.getElementById('endNew').onclick=()=>{hideEnding();endingShown=false;newGame()};
+document.getElementById('endNew').onclick=()=>{hideEnding();endingShown=false;newGame();askName()};
 document.getElementById('endMap').onclick=hideEnding;
 let confirmNew=false;
 document.getElementById('newBtn').onclick=e=>{
   if(!confirmNew){confirmNew=true;e.target.textContent='Sikker? Trykk igjen';setTimeout(()=>{confirmNew=false;e.target.textContent='Nytt spill'},3000);return}
-  confirmNew=false;e.target.textContent='Nytt spill';newGame();
+  confirmNew=false;e.target.textContent='Nytt spill';newGame();askName();
 };
 
 if(window.ResizeObserver)new ResizeObserver(()=>drawCity()).observe(document.querySelector('.map'));
 // forhåndsvisning av avslutningen: legg til #seier eller #tap i adressen
 if(location.hash==='#seier'||location.hash==='#tap')setTimeout(()=>showEnding(location.hash==='#seier'),300);
-if(load()){ui.sel=[...HQS[0]];render()}
-else{newGame();document.getElementById('rules').hidden=false}
+/* ---------- sjefens navn ---------- */
+let nameNick='', nameThen=null;
+function nameUpd(){
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  const f=cap(document.getElementById('nFirst').value.trim()), l=cap(document.getElementById('nLast').value.trim());
+  document.getElementById('nNick').textContent=`«${nameNick}»`;
+  document.getElementById('nPreview').textContent=f||l?`${f||'…'} «${nameNick}» ${l||'…'}`:'';
+}
+function askName(then){
+  nameThen=then||null;
+  const b=S.boss;
+  nameNick=pick(BOSSNICK.filter(n=>!b||n!==b.nick));
+  document.getElementById('nFirst').value=b?b.first:'';
+  document.getElementById('nLast').value=b?b.last:'';
+  document.getElementById('nameDlg').hidden=false;
+  nameUpd(); setTimeout(()=>document.getElementById('nFirst').focus(),50);
+}
+document.getElementById('nReroll').onclick=()=>{const old=nameNick;nameNick=pick(BOSSNICK.filter(n=>n!==old));nameUpd();tileSwish()};
+['nFirst','nLast'].forEach(id=>document.getElementById(id).addEventListener('input',nameUpd));
+document.getElementById('nameForm').onsubmit=e=>{
+  e.preventDefault();
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  const f=document.getElementById('nFirst').value.trim(), l=document.getElementById('nLast').value.trim();
+  if(!f||!l)return;
+  S.boss={first:cap(f),last:cap(l),nick:nameNick}; save();
+  document.getElementById('nameDlg').hidden=true; render();
+  if(nameThen)nameThen();
+};
+
+if(load()){ui.sel=[...HQS[0]];render();if(!S.boss)askName()}
+else{newGame();askName(()=>document.getElementById('rules').hidden=false)}

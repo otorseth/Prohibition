@@ -33,9 +33,12 @@ function makeGang(){
     cost:(mus+inf)*4+r(0,6),up:Math.ceil((mus+inf)/3)};
 }
 
+// Sjefens navn: fornavn «kallenavn» etternavn
+const bossName=()=>S.boss?`${S.boss.first} «${S.boss.nick}» ${S.boss.last}`:'Sjefen';
+const bossShort=()=>S.boss?`${S.boss.first} ${S.boss.last}`:'Sjefen';
 function newGame(){
   endingShown=false;
-  S={v:5,ledStart:60,st:{},turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
+  S={v:6,boss:null,ledStart:60,st:{},turn:1,seen:null,mem:null,nid:1,money:[60,60,60,60],blocks:[],gangs:[],pool:[],log:[],dead:[false,false,false,false],over:false};
   const bag=[...Array(30).fill('bolig'),...Array(18).fill('komm'),...Array(14).fill('ind')];
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     let t=pick(bag);

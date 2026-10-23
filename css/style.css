@@ -22,6 +22,17 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .brand{display:flex;flex-direction:column}
 .brand h1{font-family:var(--display);font-weight:400;font-size:30px;letter-spacing:.06em;color:var(--brass);margin:0;line-height:1}
 .brand span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand .boss{font-size:13px;color:var(--brass);font-style:italic;white-space:nowrap}
+.namecard p{color:var(--muted);margin:0 0 14px}
+.namerow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.namerow label{display:flex;flex-direction:column;gap:4px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.namerow input{font:inherit;font-size:17px;padding:8px 10px;background:#0006;border:1px solid var(--line);color:var(--paper);letter-spacing:0;text-transform:none}
+.namerow input:focus{outline:none;border-color:var(--brass)}
+.nickrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.nickrow span{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.nickrow b{font-family:var(--display);font-weight:400;font-size:22px;color:var(--brass)}
+.namepreview{font-family:var(--display);font-size:24px;color:var(--brass)!important;min-height:30px;text-align:center;margin:6px 0 16px!important}
+@media (max-width:520px){.namerow{grid-template-columns:1fr}}
 .stats{display:flex;flex-wrap:wrap;gap:6px 22px;flex:1}
 .stat{display:flex;flex-direction:column}
 .stat small{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
