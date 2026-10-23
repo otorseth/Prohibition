@@ -213,3 +213,21 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .stat.needbtn{padding:1px 8px}
 @media (max-width:1100px){.stats{flex-wrap:wrap}}
 .stat small{white-space:nowrap}
+/* pop-up med rundens hendelser */
+#evPop .bigwrap{width:min(1180px,94vw,calc((100dvh - 250px) * 2.37));min-width:min(560px,94vw)}
+.bighead{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:8px 12px}
+.bighead b{font-family:var(--display);font-weight:400;color:var(--brass);font-size:20px}
+.bighead small{color:var(--muted);font-variant-numeric:tabular-nums;flex:1}
+#evText{margin:0;background:var(--panel);border:1px solid var(--line);padding:8px 12px;font-size:14px;max-height:96px;overflow-y:auto}
+#evReplay.inv{visibility:hidden}
+.evbox{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);padding:10px 12px;background:var(--ink)}
+.evhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.evbox .evrow{padding:6px 8px}
+.evbox>.btn{align-self:flex-start;margin-top:4px}
+/* toppfeltet på én linje på vanlige skjermer */
+.actions{gap:6px}
+.actions .btn{padding:6px 10px}
+#vol{width:64px}
+.stats{gap:4px 12px}
+.top{flex-wrap:nowrap}
+@media (max-width:1180px){.top{flex-wrap:wrap}}

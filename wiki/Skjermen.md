@@ -20,12 +20,10 @@
 | Kvartal | Valgt kvartal: type, eier, inntekt, støtte, bygninger (med bilde av hver) og dine bander med ordreknapper. |
 | Bander | Alle dine bander med portrett, plassering og ordre |
 | Rekrutter | Leiemarkedet |
-| Hendelser | Liste over hendelser forrige runde |
-| Rapport | Logg over alt du har fått vite, måned for måned |
+| Rapport | Hendelser forrige runde (klikk for å se dem igjen), regnskap og logg over alt du har fått vite |
 
-## Hendelsesfeltet
-Etter hver tur vises hendelsene fra forrige runde nederst på skjermen: kamper (med animasjon og lyd),
-overtakelser og påvirkninger. Bla med **Forrige/Neste** eller piltastene. **Mine/Alle** filtrerer.
-Kamper der din familie er med, spilles automatisk av i stort format etter hver tur, én etter én.
-Bla med **Forrige/Neste** eller piltastene, og lukk med **Lukk** eller Esc. Avkrysningen *Vis mine kamper automatisk*
-slår dette av eller på. **Stor visning** (eller klikk på scenen) spiller av en kamp på nytt i stort format. **Skjul** (eller Esc) krymper feltet. Du kan spille videre mens feltet er åpent.
+## Hendelser etter hver tur
+Etter hver tur åpnes en pop-up med rundens hendelser: kamper og slag (med animasjon og lyd), overtakelser og påvirkninger.
+Den går videre av seg selv, og du kan bla med **Forrige/Neste** eller piltastene. **Mine/Alle** filtrerer.
+Lukk med **Lukk**, Esc eller klikk utenfor. Avkrysningen *Vis hendelser automatisk etter hver tur* slår pop-upen av eller på.
+Vil du se hendelsene igjen, finner du dem øverst under **Rapport** – klikk på en hendelse for å åpne den.

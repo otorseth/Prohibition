@@ -30,32 +30,11 @@
       <button data-tab="kvartal">Kvartal</button>
       <button data-tab="bander">Bander</button>
       <button data-tab="leie">Rekrutter</button>
-      <button data-tab="hend">Hendelser</button>
       <button data-tab="logg">Rapport</button>
     </nav>
     <div class="pane" id="pane"></div>
   </aside>
 </main>
-
-<div class="dock" id="dock" hidden role="region" aria-label="Hendelser forrige runde">
-  <div class="dock-in">
-    <div class="dock-h">
-      <div class="dock-t"><b id="revTitle"></b><small id="revCount"></small></div>
-      <div class="orders" id="revFilter"></div>
-      <div class="dock-nav">
-        <button class="btn" id="revPrev" aria-label="Forrige hendelse">← Forrige</button>
-        <button class="btn" id="revNext" aria-label="Neste hendelse">Neste →</button>
-        <button class="btn" id="stageReplay">Spill av igjen</button>
-        <button class="btn" id="stageBig">Stor visning</button>
-        <button class="btn" id="dockMin">Skjul</button>
-      </div>
-    </div>
-    <div class="dock-body" id="dockBody">
-      <div class="stagebox"><canvas id="stageCv" aria-label="Kampscene"></canvas></div>
-      <p id="revText"></p>
-    </div>
-  </div>
-</div>
 
 <div class="ov" id="rules" hidden>
   <div class="card">
@@ -77,14 +56,19 @@
 </div>
 
 
-<div class="ov" id="bigStage" hidden>
-  <div class="bigwrap">
-    <canvas id="stageBigCv" aria-label="Kampscene i stor visning"></canvas>
+<div class="ov" id="evPop" hidden>
+  <div class="bigwrap" role="dialog" aria-label="Hendelser forrige runde">
+    <div class="bighead">
+      <b id="evTitle"></b><small id="evCount"></small>
+      <div class="orders" id="evFilter"></div>
+      <button class="btn main" id="evClose">Lukk</button>
+    </div>
+    <canvas id="stageBigCv" aria-label="Hendelse"></canvas>
+    <p id="evText"></p>
     <div class="bignav">
-      <span id="bigLabel"></span>
-      <label class="pick" for="bigAuto"><input type="checkbox" id="bigAuto" checked> Vis mine kamper automatisk etter hver tur</label>
-      <button class="btn" id="bigPrev">← Forrige</button><button class="btn" id="bigNext">Neste →</button>
-      <button class="btn" id="bigReplay">Spill av igjen</button><button class="btn main" id="bigClose">Lukk</button>
+      <label class="pick" for="bigAuto"><input type="checkbox" id="bigAuto" checked> Vis hendelser automatisk etter hver tur</label>
+      <button class="btn" id="evPrev">← Forrige</button><button class="btn" id="evNext">Neste →</button>
+      <button class="btn" id="evReplay">Spill av igjen</button>
     </div>
   </div>
 </div>

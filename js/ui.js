@@ -11,7 +11,7 @@ function render(){
     <div class="stat"><small>Kvartaler</small><b>${owned(0)} / 64</b></div>
     <div class="stat"><small>Bander</small><b>${mine(0).length}</b></div>
     <button class="stat needbtn ${needTiles().length?'on':''}" id="needBtn" title="Gå til neste rute med bander uten ordre"><small>Uten ordre</small><b>${mine(0).filter(g=>g.order==='none').length}${needTiles().length?' →':''}</b></button>`;
-  renderBoard(); drawCity(); renderLegend(); renderPane(); renderRev();
+  renderBoard(); drawCity(); renderLegend(); renderPane();
   // sidepanelet skal gå akkurat ned til hendelsesfeltet når siden står øverst
   document.documentElement.style.setProperty('--sideTop',document.querySelector('.side').offsetTop+'px');
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
@@ -19,6 +19,17 @@ function render(){
   const ov=document.getElementById('over');
   if(S.over){ov.hidden=false;document.getElementById('overTitle').textContent=S.over.win?'Byen er din':'Spillet er over';document.getElementById('overText').textContent=S.over.text}
   else ov.hidden=true;
+}
+// Hendelser forrige runde: klikk for å se dem i pop-upen igjen
+function eventsHtml(){
+  if(!S.events)return '';
+  const all=evAll(), l=evList();
+  let h=`<div class="evbox"><div class="evhead"><h3>Hendelser i ${dateOf(S.events.t)}</h3>
+    <div class="orders"><button data-a="revf" data-v="0" class="${!ui.revAll?'on':''}">Mine (${all.filter(evMine).length})</button><button data-a="revf" data-v="1" class="${ui.revAll?'on':''}">Alle (${all.length})</button></div></div>`;
+  h+=l.length?l.map((e,i)=>`<button class="evrow" data-a="ev" data-i="${i}"><span class="evnum">${i+1}</span><span><b>${evLabel(e)} · ${CO(e.x,e.y)}</b><br><span class="note">${evText(e)}</span></span></button>`).join('')
+    :`<p class="note">Ingen hendelser som gjelder deg.</p>`;
+  if(l.length)h+=`<button class="btn" data-a="evall">▶ Vis alle i pop-up</button>`;
+  return h+`</div>`;
 }
 // Regnskap: forrige måned og prognose for neste
 function ledgerHtml(){
@@ -50,7 +61,7 @@ function renderBoard(){
   const mv=movers()[0]||null;
   const can=mv?nbrs(mv.x,mv.y).map(b=>b.x+','+b.y):[];
   const dests=new Set(mine(0).filter(g=>g.order==='move').map(g=>g.tx+','+g.ty));
-  const rv=ui.rev!=null&&!ui.dockMin&&S.events?evList():null, cur=rv&&rv[ui.rev], evAt={};
+  const rv=null, cur=null, evAt={};
   if(rv)rv.forEach((e,i)=>{(evAt[e.x+','+e.y]=evAt[e.x+','+e.y]||[]).push(i)});
   // «PANG!» og risting spilles bare når du blar til en ny hendelse, ikke ved hvert klikk
   const bk=cur?[S.events.t,ui.rev,!!ui.revAll].join('|'):'', fresh=bk&&bk!==lastBang; lastBang=bk;
@@ -163,16 +174,8 @@ function renderPane(){
     h+=S.pool.map(g=>`<div class="row"><span class="brow"><img class="ava" src="${portrait(g)}" alt="" style="--c:var(--line)"><span><b>${g.name}</b><br><span class="note">Muskler ${g.mus} · Innflytelse ${g.inf} · Lønn $${wage(g)}/mnd</span></span></span>
       <button class="btn" data-a="hire" data-id="${g.id}" ${!hm||S.money[0]<g.cost?'disabled':''}>Lei for $${g.cost}</button></div>`).join('');
   }
-  if(ui.tab==='hend'){
-    const all=evAll(), l=evList();
-    h+=`<h2>Hendelser <small>${S.events?dateOf(S.events.t):''}</small></h2>
-      <div class="orders"><button data-a="revf" data-v="0" class="${!ui.revAll?'on':''}">Mine (${all.filter(evMine).length})</button><button data-a="revf" data-v="1" class="${ui.revAll?'on':''}">Alle (${all.length})</button></div>`;
-    h+=l.length?l.map((e,i)=>`<button class="evrow ${i===ui.rev?'on':''}" data-a="ev" data-i="${i}"><span class="evnum">${i+1}</span><span><b>${evLabel(e)} · ${CO(e.x,e.y)}</b><br><span class="note">${evText(e)}</span></span></button>`).join('')
-      :`<p class="note">${S.events?'Ingen hendelser her forrige runde.':'Avslutt en tur for å se hva som skjedde.'}</p>`;
-    h+=`<p class="note">Bla med pilene, piltastene eller ved å klikke på et nummer i kartet.</p>`;
-  }
   if(ui.tab==='logg'){
-    h+=`<h2>Rapport</h2>`+ledgerHtml()+`<div class="log">`;
+    h+=`<h2>Rapport</h2>`+eventsHtml()+ledgerHtml()+`<div class="log">`;
     let cur=null;
     for(const l of S.log.slice().reverse()){
       if(l.t!==cur){cur=l.t;h+=`<h4>${dateOf(l.t)}</h4>`}

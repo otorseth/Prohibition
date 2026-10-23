@@ -1,4 +1,4 @@
-// Hendelser fra forrige runde og hendelsesfeltet nederst
+// Hendelser fra forrige runde: pop-up etter hver tur og listen i Rapport
 /* ---------- hendelser fra forrige runde ---------- */
 function evMine(e){return e.k==='fight'?(e.a===0||e.d===0):e.k==='infl'?e.f===0:(e.f===0||e.prev===0||e.hq===0)}
 function evAll(){return ((S.events&&S.events.list)||[]).filter(e=>evMine(e)||e.seen!==false)}
@@ -16,32 +16,41 @@ function evText(e){
   if(e.hq>=0)t+=` Hovedkvarteret til ${fn(e.hq)} har falt!`;
   return t;
 }
-function goEv(i){
-  ui.rev=i; ui.dockMin=false; render();
-  const e=evList()[i]; if(!e)return;
-  document.querySelector('.evrow.on')?.scrollIntoView({block:'nearest'});
+// Pop-up med rundens hendelser. Alle kamper i samme kvartal vises som ett slag.
+function popItems(){const seen=new Set();return evList().filter(e=>{if(e.k!=='fight'||e.aid==null)return true;const k=e.x+','+e.y;if(seen.has(k))return false;seen.add(k);return true})}
+let popIdx=0, popTimer=0, popRaf=0;
+let EVENT_POPUP=true;
+try{EVENT_POPUP=localStorage.getItem('forbudstid-kamppopup')!=='av'}catch(e){}
+// target: et tall (plass i listen) eller en hendelse
+function openEvents(target=0){
+  const l=popItems(); if(!l.length&&!S.events)return false;
+  let i=typeof target==='number'?target:0;
+  if(target&&typeof target==='object'){const j=l.findIndex(o=>o===target||(o.k==='fight'&&target.k==='fight'&&o.x===target.x&&o.y===target.y));if(j>=0)i=j}
+  document.getElementById('evPop').hidden=false;
+  document.getElementById('bigAuto').checked=EVENT_POPUP;
+  playEvent(i); return true;
 }
-// Hendelseslisten ligger fast nederst på skjermen og stenger ikke for resten av spillet.
-function renderRev(){
-  const dock=document.getElementById('dock'), all=evAll(), l=evList();
-  if(!all.length){dock.hidden=true;updateStage(null);document.body.style.paddingBottom='';document.documentElement.style.setProperty('--dockH','0px');return}
-  dock.hidden=false;
-  dock.classList.toggle('min',!!ui.dockMin);
-  document.getElementById('dockMin').textContent=ui.dockMin?'Vis':'Skjul';
-  document.getElementById('revFilter').innerHTML=`<button data-a="revf" data-v="0" class="${!ui.revAll?'on':''}">Mine (${all.filter(evMine).length})</button><button data-a="revf" data-v="1" class="${ui.revAll?'on':''}">Alle (${all.length})</button>`;
-  if(ui.rev==null&&l.length)ui.rev=0;
-  const e=l.length?l[ui.rev=clamp(ui.rev,0,l.length-1)]:null;
-  document.getElementById('revTitle').textContent=e?`${evLabel(e)} i ${CO(e.x,e.y)}`:'Forrige runde';
-  document.getElementById('revCount').textContent=(e?`${ui.rev+1} av ${l.length} · `:'')+dateOf(S.events.t);
-  document.getElementById('revText').innerHTML=e?evText(e):'Ingen hendelser som gjelder deg. Velg «Alle» for å se hva rivalene gjorde.';
-  document.getElementById('revPrev').disabled=!e||ui.rev===0;
-  document.getElementById('revNext').disabled=!e||ui.rev===l.length-1;
-  const fight=!!(e&&e.k==='fight'&&e.aid!=null);
-  const rp=document.getElementById('stageReplay'); rp.hidden=!!ui.dockMin; rp.classList.toggle('inv',!fight);
-  const bg=document.getElementById('stageBig'); bg.hidden=!!ui.dockMin; bg.classList.toggle('inv',!fight);
-  if(ui.dockMin)updateStage(null);
-  else if(fight)updateStage(e);
-  else{updateStage(null);drawStill(e)}
-  document.body.style.paddingBottom=(dock.offsetHeight+16)+'px';
-  document.documentElement.style.setProperty('--dockH',dock.offsetHeight+'px');
+function playEvent(i){
+  clearTimeout(popTimer); cancelAnimationFrame(popRaf);
+  const l=popItems(), all=evAll(), n=l.length;
+  document.getElementById('evFilter').innerHTML=`<button data-v="0" class="${!ui.revAll?'on':''}">Mine (${all.filter(evMine).length})</button><button data-v="1" class="${ui.revAll?'on':''}">Alle (${all.length})</button>`;
+  const prev=document.getElementById('evPrev'), next=document.getElementById('evNext'), rep=document.getElementById('evReplay');
+  if(!n){
+    document.getElementById('evTitle').textContent='Forrige runde'; document.getElementById('evCount').textContent=S.events?dateOf(S.events.t):'';
+    document.getElementById('evText').innerHTML='Ingen hendelser som gjelder deg. Velg «Alle» for å se hva rivalene gjorde.';
+    prev.disabled=next.disabled=true; rep.classList.add('inv'); drawStill(null,'stageBigCv'); return;
+  }
+  popIdx=clamp(i,0,n-1); const e=l[popIdx];
+  const fight=e.k==='fight'&&e.aid!=null, bt=fight?buildBattle(e):null;
+  document.getElementById('evTitle').textContent=fight?`${bt.ex.length>1?'Slag':'Kamp'} i ${CO(e.x,e.y)}`:`${evLabel(e)} i ${CO(e.x,e.y)}`;
+  document.getElementById('evCount').textContent=`${popIdx+1} av ${n} · ${dateOf(S.events.t)}`;
+  document.getElementById('evText').innerHTML=fight?bt.ex.map(evText).join('<br>'):evText(e);
+  prev.disabled=popIdx===0; next.disabled=popIdx===n-1; rep.classList.toggle('inv',!fight);
+  const auto=()=>{if(popIdx<n-1)popTimer=setTimeout(()=>playEvent(popIdx+1),fight?900:2800)}; // går videre av seg selv
+  if(!fight){drawStill(e,'stageBigCv');auto();return}
+  const c=stageCtx('stageBigCv'), END=fightEnd(e), still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
+  const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t); if(t<END)popRaf=requestAnimationFrame(loop); else auto()};
+  popRaf=requestAnimationFrame(loop);
+  if(!still)fightSfx(bt);
 }
+function closeEvents(){clearTimeout(popTimer);cancelAnimationFrame(popRaf);document.getElementById('evPop').hidden=true;if(sfxStage){try{sfxStage.disconnect()}catch(x){}sfxStage=null}}

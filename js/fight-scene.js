@@ -1,7 +1,7 @@
 // Kampscenen, gangsterfigurer og portretter
 /* ---------- kampscene ---------- */
 const SKIN=['#e0b48c','#c99a6e','#a87650','#f0c8a0','#7a5236'], HATS=['#1d1c1c','#3a3530','#4a4238','#262a30','#5a5048'];
-let stageKey='', stageRaf=0, bigRaf=0;
+
 function shade(hex,k){const n=parseInt(hex.slice(1),16),f=v=>Math.min(255,Math.round(v*k));return `rgb(${f(n>>16&255)},${f(n>>8&255)},${f(n&255)})`}
 function sLine(c,a,b,x,y){c.beginPath();c.moveTo(a,b);c.lineTo(x,y);c.stroke()}
 function sCirc(c,x,y,r,col){c.fillStyle=col;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill()}
@@ -389,15 +389,15 @@ function drawFight(c,e,t){
   }
 }
 function fightEnd(e){return buildBattle(e).end}
-function stageCtx(id='stageCv'){
+function stageCtx(id='stageBigCv'){
   const cv=document.getElementById(id), W=cv.clientWidth||600, dpr=window.devicePixelRatio||1;
   cv.width=Math.round(W*dpr); cv.height=Math.round(W*270/640*dpr);
   const c=cv.getContext('2d'); c.setTransform(dpr*W/640,0,0,dpr*W/640,0,0);
   return c;
 }
 // Stillbilde for hendelser uten kamp, så feltet beholder samme størrelse
-function drawStill(e){
-  const c=stageCtx(); sceneBg(c,e?blk(e.x,e.y).t:'bolig');
+function drawStill(e,id='stageBigCv'){
+  const c=stageCtx(id); sceneBg(c,e?blk(e.x,e.y).t:'bolig');
   c.fillStyle='rgba(10,9,8,.55)'; c.fillRect(0,0,640,270);
   c.textAlign='center';
   if(e&&e.k==='infl'){
@@ -411,56 +411,4 @@ function drawStill(e){
   }else{
     c.font="28px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f'; c.fillText(e?'Kamp':'En rolig måned',320,140);
   }
-}
-// Stor visning: kamper spilles av på et stort lerret over spillet.
-// Etter hver tur vises dine kamper automatisk, én etter én (kan slås av).
-let bigQueue=[], bigIdx=0, bigTimer=0;
-let FIGHT_POPUP=true;
-try{FIGHT_POPUP=localStorage.getItem('forbudstid-kamppopup')!=='av'}catch(e){}
-// Mine slag: én hendelse per kvartal der familien min var med i en kamp
-function myFights(){const seen=new Set();return evAll().filter(e=>{if(e.k!=='fight'||e.aid==null||(e.a!==0&&e.d!==0))return false;const k=e.x+','+e.y;if(seen.has(k))return false;seen.add(k);return true})}
-function openFightQueue(list,i=0){
-  list=(list||[]).filter(e=>e&&e.k==='fight'&&e.aid!=null);
-  if(!list.length)return;
-  bigQueue=list; document.getElementById('bigStage').hidden=false;
-  document.getElementById('bigAuto').checked=FIGHT_POPUP;
-  playBig(i);
-}
-function openBigStage(e){
-  if(!e||e.k!=='fight')return;
-  const l=myFights(), i=l.findIndex(o=>o.x===e.x&&o.y===e.y);
-  openFightQueue(i>=0?l:[e],Math.max(0,i));
-}
-function playBig(i){
-  clearTimeout(bigTimer); cancelAnimationFrame(bigRaf);
-  bigIdx=clamp(i,0,bigQueue.length-1); const e=bigQueue[bigIdx], n=bigQueue.length;
-  const slag=buildBattle(e).ex.length>1?'Slag':'Kamp';
-  document.getElementById('bigLabel').textContent=n>1?`${slag} ${bigIdx+1} av ${n} · ${CO(e.x,e.y)}`:`${slag} i ${CO(e.x,e.y)}`;
-  document.getElementById('bigPrev').disabled=bigIdx===0;
-  document.getElementById('bigNext').disabled=bigIdx===n-1;
-  // hold hendelsesfeltet i takt med kampen som vises
-  const ri=evList().indexOf(e); if(ri>=0&&ui.rev!==ri){ui.rev=ri;render()}
-  const c=stageCtx('stageBigCv'), END=fightEnd(e), still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
-  const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t);
-    if(t<END)bigRaf=requestAnimationFrame(loop);
-    else if(bigIdx<n-1)bigTimer=setTimeout(()=>playBig(bigIdx+1),900); // neste kamp starter av seg selv
-  };
-  bigRaf=requestAnimationFrame(loop);
-  if(!still)fightSfx(buildBattle(e));
-}
-function closeBigStage(){clearTimeout(bigTimer);cancelAnimationFrame(bigRaf);document.getElementById('bigStage').hidden=true}
-function startStage(e){
-  cancelAnimationFrame(stageRaf);
-  const c=stageCtx();
-  const END=fightEnd(e), still=matchMedia('(prefers-reduced-motion: reduce)').matches, t0=performance.now();
-  const loop=now=>{const t=still?END:now-t0; drawFight(c,e,t); if(t<END)stageRaf=requestAnimationFrame(loop)};
-  stageRaf=requestAnimationFrame(loop);
-  if(!still)fightSfx(buildBattle(e));
-}
-function updateStage(e){
-  const ok=!!(e&&e.k==='fight'&&e.aid!=null);
-  if(!ok){cancelAnimationFrame(stageRaf);stageKey='';return}
-  const key=[S.events.t,e.x,e.y,e.aid,e.did,e.dhp0].join('|');
-  if(key===stageKey)return; stageKey=key;
-  startStage(e);
 }

@@ -10,11 +10,6 @@ document.getElementById('board').addEventListener('click',e=>{
     ui.moving=null;
   }
   if(!ui.sel||ui.sel[0]!==x||ui.sel[1]!==y)ui.unpick=[];
-  // Klikk på en rute med hendelser viser også den hendelsen nederst, men kvartalet velges som vanlig
-  if(ui.rev!=null&&!ui.dockMin){
-    const l=evList(), idx=l.map((e,j)=>j).filter(j=>l[j].x===x&&l[j].y===y);
-    if(idx.length){const n=idx.indexOf(ui.rev);ui.rev=n>=0?idx[(n+1)%idx.length]:idx[0]}
-  }
   ui.sel=[x,y]; ui.tab='kvartal'; render();
 });
 document.getElementById('pane').addEventListener('click',e=>{
@@ -39,39 +34,28 @@ document.getElementById('pane').addEventListener('click',e=>{
     }
     else{sel.forEach(g=>{if(o==='take'&&blk(g.x,g.y).owner===0)return;g.order=o});ui.moving=null}
   }
-  if(a==='ev'){goEv(+t.dataset.i);return}
-  if(a==='revf'){setFilter(t.dataset.v==='1');return}
+  if(a==='ev'){openEvents(evList()[+t.dataset.i]);return}
+  if(a==='evall'){openEvents(0);return}
+  if(a==='revf'){ui.revAll=t.dataset.v==='1';render();return}
   if(a==='cancel')ui.moving=null;
   if(a==='hire')hire(0,+t.dataset.id);
   if(a==='goto'){ui.sel=[+t.dataset.x,+t.dataset.y];ui.tab='kvartal';ui.unpick=[]}
   save(); render();
 });
-document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){ui.tab=b.dataset.tab;if(ui.tab==='hend'&&ui.rev==null&&evList().length)ui.rev=0;render()}});
-document.getElementById('revPrev').onclick=()=>{if(ui.rev>0)goEv(ui.rev-1)};
-document.getElementById('revNext').onclick=()=>{if(ui.rev<evList().length-1)goEv(ui.rev+1)};
-function setFilter(all){ui.revAll=all;ui.rev=evList().length?0:null;ui.dockMin=false;render()}
-document.getElementById('revFilter').addEventListener('click',e=>{const b=e.target.closest('[data-a="revf"]');if(b)setFilter(b.dataset.v==='1')});
-document.getElementById('dockMin').onclick=()=>{ui.dockMin=!ui.dockMin;render()};
-document.getElementById('stageReplay').onclick=()=>{const e=evList()[ui.rev];if(e)startStage(e)};
-document.getElementById('stageBig').onclick=()=>openBigStage(evList()[ui.rev]);
-document.getElementById('stageCv').addEventListener('click',()=>openBigStage(evList()[ui.rev]));
-document.getElementById('bigReplay').onclick=()=>playBig(bigIdx);
-document.getElementById('bigPrev').onclick=()=>playBig(bigIdx-1);
-document.getElementById('bigNext').onclick=()=>playBig(bigIdx+1);
-document.getElementById('bigAuto').addEventListener('change',e=>{FIGHT_POPUP=e.target.checked;try{localStorage.setItem('forbudstid-kamppopup',FIGHT_POPUP?'på':'av')}catch(x){}});
-document.getElementById('bigClose').onclick=closeBigStage;
-document.getElementById('bigStage').addEventListener('click',e=>{if(e.target.id==='bigStage')closeBigStage()});
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){ui.tab=b.dataset.tab;render()}});
+// pop-up med rundens hendelser
+document.getElementById('evPrev').onclick=()=>playEvent(popIdx-1);
+document.getElementById('evNext').onclick=()=>playEvent(popIdx+1);
+document.getElementById('evReplay').onclick=()=>playEvent(popIdx);
+document.getElementById('evClose').onclick=closeEvents;
+document.getElementById('evFilter').addEventListener('click',e=>{const b=e.target.closest('button');if(b){ui.revAll=b.dataset.v==='1';playEvent(0);render()}});
+document.getElementById('bigAuto').addEventListener('change',e=>{EVENT_POPUP=e.target.checked;try{localStorage.setItem('forbudstid-kamppopup',EVENT_POPUP?'på':'av')}catch(x){}});
+document.getElementById('evPop').addEventListener('click',e=>{if(e.target.id==='evPop')closeEvents()});
 document.addEventListener('keydown',e=>{
-  if(!document.getElementById('bigStage').hidden){
-    if(e.key==='Escape')closeBigStage();
-    if(e.key==='ArrowRight'&&bigIdx<bigQueue.length-1)playBig(bigIdx+1);
-    if(e.key==='ArrowLeft'&&bigIdx>0)playBig(bigIdx-1);
-    return;
-  }
-  if(ui.rev==null||ui.dockMin||e.target.closest('input,textarea'))return;
-  if(e.key==='ArrowRight'&&ui.rev<evList().length-1){e.preventDefault();goEv(ui.rev+1)}
-  if(e.key==='ArrowLeft'&&ui.rev>0){e.preventDefault();goEv(ui.rev-1)}
-  if(e.key==='Escape'){ui.dockMin=true;render()}
+  if(document.getElementById('evPop').hidden)return;
+  if(e.key==='Escape')closeEvents();
+  if(e.key==='ArrowRight'&&!document.getElementById('evNext').disabled)playEvent(popIdx+1);
+  if(e.key==='ArrowLeft'&&!document.getElementById('evPrev').disabled)playEvent(popIdx-1);
 });
 document.getElementById('endBtn').onclick=endTurn;
 document.getElementById('legend').addEventListener('click',e=>{if(e.target.closest('[data-a="gfx"]'))setGfx(GFX==='noir'?'klassisk':'noir')});

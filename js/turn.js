@@ -113,7 +113,6 @@ function endTurn(){
   S.led={}; S.ledStart=S.money[0];
   S.turn++;
   if(!S.over)L(`— ${dateOf(S.turn)} begynner —`);
-  ui.rev=evList().length?0:null; ui.dockMin=false;
   save(); render();
-  if(FIGHT_POPUP&&!S.over)openFightQueue(myFights());
+  if(EVENT_POPUP&&!S.over)openEvents(0);
 }
