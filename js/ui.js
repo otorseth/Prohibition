@@ -102,7 +102,9 @@ function supBars(b){
   return FAM.map((f,i)=>S.dead[i]?'':`<span class="supf" title="${f.name}: støtte ${b.sup[i]} av 5"><span class="supn" style="color:${f.c}">${i===0?'Du':f.name}</span><span class="bar">${[1,2,3,4,5].map(n=>`<i class="${b.sup[i]>=n?'on':''}" style="--c:${f.c}"></i>`).join('')}</span></span>`).join('');
 }
 function movers(){return ui.moving?S.gangs.filter(g=>ui.moving.includes(g.id)):[]}
-function picked(g){return !(ui.unpick||[]).includes(g.id)}
+// Gruppeordre: bander på en fast oppgave (kreve inn, ta kontroll, påvirk) er ikke med før du krysser dem av
+const FIXED_ORD=['extort','take','infl'];
+function picked(g){return FIXED_ORD.includes(g.order)?(ui.pickOn||[]).includes(g.id):!(ui.unpick||[]).includes(g.id)}
 function groupSel(){const [x,y]=ui.sel||[0,0];return gangsAt(x,y).filter(g=>g.fam===0&&picked(g))}
 function shopList(g){
   if(blk(g.x,g.y).owner!==0)return `<p class="note shopnote">Våpen leveres bare i kvartaler du eier. Flytt banden dit først.</p>`;

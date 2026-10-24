@@ -9,7 +9,7 @@ document.getElementById('board').addEventListener('click',e=>{
     if(g&&nbrs(g.x,g.y).some(b=>b.x===x&&b.y===y)){ms.forEach(m=>{m.order='move';m.tx=x;m.ty=y});ui.moving=null;save();render();return}
     ui.moving=null;
   }
-  if(!ui.sel||ui.sel[0]!==x||ui.sel[1]!==y)ui.unpick=[];
+  if(!ui.sel||ui.sel[0]!==x||ui.sel[1]!==y){ui.unpick=[];ui.pickOn=[]}
   ui.sel=[x,y]; ui.tab='kvartal'; render();
 });
 document.getElementById('pane').addEventListener('click',e=>{
@@ -19,12 +19,16 @@ document.getElementById('pane').addEventListener('click',e=>{
     const g=S.gangs.find(o=>o.id===+t.dataset.id); if(!g)return;
     if(t.dataset.o==='move'){ui.moving=[g.id]}else{g.order=t.dataset.o;ui.moving=null;if(g.order==='infl')g.tgt=+t.dataset.t}
   }
-  if(a==='pick'){const id=+t.dataset.id, u=ui.unpick||[];ui.unpick=u.includes(id)?u.filter(i=>i!==id):[...u,id]}
-  if(a==='pickall')ui.unpick=[];
+  if(a==='pick'){const id=+t.dataset.id, g=S.gangs.find(o=>o.id===id), on=g&&picked(g);
+    ui.unpick=(ui.unpick||[]).filter(i=>i!==id); ui.pickOn=(ui.pickOn||[]).filter(i=>i!==id);
+    if(on)ui.unpick.push(id); else ui.pickOn.push(id)}
+  if(a==='pickall'){ui.unpick=[];const [x,y]=ui.sel||[0,0];ui.pickOn=gangsAt(x,y).filter(g=>g.fam===0).map(g=>g.id)}
   if(a==='shop')ui.shop=ui.shop===+t.dataset.id?null:+t.dataset.id;
   if(a==='buy'){const g=S.gangs.find(o=>o.id===+t.dataset.id);if(g&&buyWeapon(0,g,t.dataset.w))ui.shop=null}
   if(a==='gorder'){
     const sel=groupSel(), o=t.dataset.o;
+    // bandene du nettopp ga gruppeordre, forblir krysset av selv om ordren er fast
+    ui.pickOn=[...new Set([...(ui.pickOn||[]),...sel.map(g=>g.id)])];
     if(o==='move')ui.moving=sel.map(g=>g.id);
     else if(o==='infl'){
       // fordel bandene på bygningene som ikke betaler ennå, de letteste først
@@ -39,7 +43,7 @@ document.getElementById('pane').addEventListener('click',e=>{
   if(a==='revf'){ui.revAll=t.dataset.v==='1';render();return}
   if(a==='cancel')ui.moving=null;
   if(a==='hire')hire(0,+t.dataset.id);
-  if(a==='goto'){ui.sel=[+t.dataset.x,+t.dataset.y];ui.tab='kvartal';ui.unpick=[]}
+  if(a==='goto'){ui.sel=[+t.dataset.x,+t.dataset.y];ui.tab='kvartal';ui.unpick=[];ui.pickOn=[]}
   save(); render();
 });
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){ui.tab=b.dataset.tab;render()}});

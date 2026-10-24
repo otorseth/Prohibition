@@ -25,6 +25,8 @@ Grunnsjanse 30 % + 7 % per innflytelse + 6 % per egen støtte − 6 % per motsta
 - Sjansen er alltid mellom 5 % og 90 %.
 
 ## Gruppeordre
-Står flere av dine bander i samme kvartal, vises en **Gruppeordre**-boks. Kryss av hvilke bander som skal være med, og velg:
+Står flere av dine bander i samme kvartal, vises en **Gruppeordre**-boks. Kryss av hvilke bander som skal være med, og velg.
+Bander som er på en fast oppgave (kreve inn, ta kontroll eller påvirk), er ikke krysset av fra start, så du ikke avbryter dem ved et uhell. Kryss dem av eller trykk «Velg alle» hvis de skal være med.
+Valgene er:
 *Alle heler, Flytt sammen, Alle tar kontroll, Alle angriper, Alle krever inn* eller *Alle påvirker*
 (bandene fordeles på bygningene som ikke betaler ennå).
