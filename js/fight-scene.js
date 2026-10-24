@@ -387,6 +387,7 @@ function battleHud(c,b,t){
   return 16+rows*20;
 }
 function drawFight(c,e,t){
+  STILL=null;
   const b=buildBattle(e);
   let shake=0; b.cues.forEach(([T,w])=>hitTimes(w).forEach(ts=>{const tt=T+ts;if(t>=tt)shake+=Math.exp(-(t-tt)/90)*(w==='shotgun'?4.5:w==='rifle'?3.5:MELEE(w)?2.5:w==='tommy'?1.1:1.8)}));
   const zoom=1+.06*easeIO(cl01((t-500)/(b.end-500)));
@@ -476,14 +477,32 @@ function stageCtx(id='stageBigCv'){
   return c;
 }
 // Stillbilde for hendelser uten kamp, så feltet beholder samme størrelse
+// Bildene av virksomhetene (img/bld) til «påvirket»-meldingen
+const BLD_IMG={};
+const bldImg=k=>{if(!BLD_IMG[k]){BLD_IMG[k]=new Image();BLD_IMG[k].src='img/bld/'+k+'.jpg'}return BLD_IMG[k]};
+let STILL=null;
 function drawStill(e,id='stageBigCv'){
+  STILL={e,id};
   const c=stageCtx(id); sceneBg(c,e?blk(e.x,e.y).t:'bolig');
-  c.fillStyle='rgba(10,9,8,.55)'; c.fillRect(0,0,640,270);
+  c.fillStyle=e&&e.k==='infl'?'rgba(10,9,8,.6)':'rgba(10,9,8,.55)'; c.fillRect(0,0,640,270);
   c.textAlign='center';
   if(e&&e.k==='infl'){
-    c.font="34px Limelight, Georgia, serif"; c.fillStyle=FAMHEX[e.f]; c.fillText(BK[e.bk].n,320,130);
-    c.font="16px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1';
-    c.fillText(`${CO(e.x,e.y)} · betaler nå ${FAM[e.f].name} · +$${BK[e.bk].v}/mnd`,320,162);
+    // Fotografi av virksomheten, festet med tape i familiens farge
+    const im=bldImg(e.bk), name=BK[e.bk].n, fam=FAMHEX[e.f];
+    if(!im.complete||!im.naturalWidth)im.onload=()=>{if(STILL&&STILL.e===e)drawStill(e,id)};
+    c.save(); c.translate(170,135); c.rotate(-.06);
+    c.shadowColor='rgba(0,0,0,.7)'; c.shadowBlur=18; c.shadowOffsetY=6; c.fillStyle='#e9dfc9'; c.fillRect(-92,-100,184,206); c.shadowColor='transparent';
+    if(im.complete&&im.naturalWidth){c.filter='grayscale(1) contrast(1.15) sepia(.25)'; c.drawImage(im,-80,-88,160,160); c.filter='none'}
+    else{c.fillStyle='#2a231c'; c.fillRect(-80,-88,160,160)}
+    c.font="italic 13px Georgia,serif"; c.fillStyle='#2a221a'; c.textAlign='center'; c.fillText(`${name}, ${CO(e.x,e.y)}`,0,94);
+    c.fillStyle=fam; c.globalAlpha=.85;
+    [[-60,-.5],[60,.5]].forEach(([x,r])=>{c.save();c.translate(x,-100);c.rotate(r);c.fillRect(-26,-8,52,16);c.restore()});
+    c.restore();
+    c.textAlign='left';
+    c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#a3957d'; c.fillText('PÅVIRKET',300,92);
+    c.font="34px Limelight, Georgia, serif"; c.fillStyle=fam; c.fillText(name,300,130);
+    c.font="16px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1'; c.fillText(`${CO(e.x,e.y)} · betaler nå ${FAM[e.f].name}`,300,160);
+    c.font="bold 22px 'Archivo Narrow',sans-serif"; c.fillStyle='#8fbf7a'; c.fillText(`+$${BK[e.bk].v}/mnd`,300,192);
   }else if(e&&e.k==='take'){
     c.font="34px Limelight, Georgia, serif"; c.fillStyle=FAMHEX[e.f]; c.fillText('Overtakelse',320,130);
     c.font="16px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1';
