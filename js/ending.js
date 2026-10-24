@@ -4,27 +4,27 @@ let endingShown=false;
 function statLine(){
   const st=S.st||{};
   return [
-    ['Kvartaler', `${owned(0)} av 64`],
-    ['Måneder', `${S.turn-1}`],
-    ['Kamper vunnet', `${st.fw||0}`],
-    ['Fiender i elva', `${st.killed||0}`],
-    ['Egne bander tapt', `${st.lost||0}`],
-    ['Kvartaler tatt', `${st.taken||0}`],
-    ['Tjent totalt', `$${st.earned||0}`],
+    [t('Kvartaler'), t('{n} av 64',{n:owned(0)})],
+    [t('Måneder'), `${S.turn-1}`],
+    [t('Kamper vunnet'), `${st.fw||0}`],
+    [t('Fiender i elva'), `${st.killed||0}`],
+    [t('Egne bander tapt'), `${st.lost||0}`],
+    [t('Kvartaler tatt'), `${st.taken||0}`],
+    [t('Tjent totalt'), `$${st.earned||0}`],
   ];
 }
 // Bygger avisforsiden. photo = stillbilde fra videoen (seier), ellers et bilde fra spillet.
 function paperHtml(win,photo){
   if(!photo)photo=win?'img/bg/hq.jpg':'img/bg/havn.jpg';
   const months=S.turn-1, own=owned(0), st=S.st||{};
-  const rivalsGone=S.over&&/rivalene er borte/.test(S.over.text), M=S.mode||'dominans';
-  const head=win?(rivalsGone?'DIN FAMILIE STYRER LAKEPORT':{dominans:'DIN FAMILIE STYRER LAKEPORT',kapitalist:'DIN FAMILIE ER BYENS RIKESTE',sniken:'ALLE HOVEDKVARTER I DINE HENDER',sentrum:'SENTRUM ER DITT'}[M]):'FAMILIEN KNUST';
+  const rivalsGone=S.over&&(S.over.kind==='rivals'||/rivalene er borte/.test(S.over.text)), M=S.mode||'dominans';
+  const head=win?(rivalsGone?t('DIN FAMILIE STYRER LAKEPORT'):{dominans:t('DIN FAMILIE STYRER LAKEPORT'),kapitalist:t('DIN FAMILIE ER BYENS RIKESTE'),sniken:t('ALLE HOVEDKVARTER I DINE HENDER'),sentrum:t('SENTRUM ER DITT')}[M]):t('FAMILIEN KNUST');
   const sub=win
-    ?(rivalsGone?'Rossetti, O\'Dwyer og Novak er borte fra gatene':M==='dominans'?`Eier ${own} av byens 64 kvartaler – ingen tør lenger utfordre familien`:S.over.text)
-    :(S.over&&S.over.text?S.over.text:'De siste bandene er borte fra gatene');
+    ?(rivalsGone?t('Rossetti, O’Dwyer og Novak er borte fra gatene'):M==='dominans'?t('Eier {n} av byens 64 kvartaler – ingen tør lenger utfordre familien',{n:own}):S.over.text)
+    :(S.over&&S.over.text?S.over.text:t('De siste bandene er borte fra gatene'));
   const story=win
-    ?`${bossName()} har gjort det. Etter ${months} måneder med gatekamper, bestikkelser og blod i rennesteinen er det ingen tvil lenger om hvem som bestemmer i Lakeport. Familien vant ${st.fw||0} kamper, sendte ${st.killed||0} av rivalenes folk i elva og tok over ${st.taken||0} kvartaler. Politiet nekter å kommentere. Ordføreren er ikke å få tak i.`
-    :`Etter ${months} måneder er det slutt. Familien mistet ${st.lost||0} bander og har ikke lenger fotfeste i byen. På speakeasyene snakkes det om hvem som tar over restene.`;
+    ?t('{b} har gjort det. Etter {m} måneder med gatekamper, bestikkelser og blod i rennesteinen er det ingen tvil lenger om hvem som bestemmer i Lakeport. Familien vant {w} kamper, sendte {k} av rivalenes folk i elva og tok over {n} kvartaler. Politiet nekter å kommentere. Ordføreren er ikke å få tak i.',{b:bossName(),m:months,w:st.fw||0,k:st.killed||0,n:st.taken||0})
+    :t('Etter {m} måneder er det slutt. Familien mistet {l} bander og har ikke lenger fotfeste i byen. På speakeasyene snakkes det om hvem som tar over restene.',{m:months,l:st.lost||0});
   const date=dateOf(S.turn).toUpperCase();
   const mast=`<div class="pmast"><span>${date}</span><b>LAKEPORT EVENING STAR</b><span>5 CENTS</span></div>
     <div class="prule"></div>`;
@@ -32,19 +32,19 @@ function paperHtml(win,photo){
   if(!win){
     // Tap: dødsannonse med gravsteinsbilde
     return `${mast}
-    <h1 class="phead">SJEFEN ER DØD</h1>
+    <h1 class="phead">${t('SJEFEN ER DØD')}</h1>
     <p class="psub">${sub}</p>
     <div class="pcols">
-      <figure class="pphoto"><img src="img/grav.jpg" alt="" onerror="this.onerror=null;this.src='img/bg/havn.jpg'"><figcaption>Graven på Lakeport kirkegård. Foto: Evening Star</figcaption></figure>
+      <figure class="pphoto"><img src="img/grav.jpg" alt="" onerror="this.onerror=null;this.src='img/bg/havn.jpg'"><figcaption>${t('Graven på Lakeport kirkegård. Foto: Evening Star')}</figcaption></figure>
       <div class="ptext">
         <div class="obit">
           <div class="ocross">✝</div>
-          <p class="osmall">Vår kjære sjef og forretningsforbindelse</p>
+          <p class="osmall">${t('Vår kjære sjef og forretningsforbindelse')}</p>
           <h2 class="oname">${bossName()}</h2>
-          <p class="osmall">gikk brått bort i Lakeport i ${dateOf(S.turn).toLowerCase()}</p>
-          <p class="overse">«Byen var aldri stor nok.»</p>
-          <p class="osign">Familien &middot; Gutta på hjørnet &middot; Speakeasyene i Kanalgata</p>
-          <p class="osmall">Bisettelsen skjer i stillhet. Blomster frabedes – kontanter mottas.</p>
+          <p class="osmall">${t('gikk brått bort i Lakeport i {d}',{d:lcMonth(dateOf(S.turn))})}</p>
+          <p class="overse">${t('«Byen var aldri stor nok.»')}</p>
+          <p class="osign">${t('Familien &middot; Gutta på hjørnet &middot; Speakeasyene i Kanalgata')}</p>
+          <p class="osmall">${t('Bisettelsen skjer i stillhet. Blomster frabedes – kontanter mottas.')}</p>
         </div>
         ${stats}
       </div>
@@ -54,7 +54,7 @@ function paperHtml(win,photo){
     <h1 class="phead">${head}</h1>
     <p class="psub">${sub}</p>
     <div class="pcols">
-      <figure class="pphoto">${photo?`<img src="${photo}" alt="">`:''}<figcaption>${`Sjefen over byen: ${bossShort()}. Foto: Evening Star`}</figcaption></figure>
+      <figure class="pphoto">${photo?`<img src="${photo}" alt="">`:''}<figcaption>${t('Sjefen over byen: {b}. Foto: Evening Star',{b:bossShort()})}</figcaption></figure>
       <div class="ptext"><p class="pstory">${story}</p>
         ${stats}
       </div>

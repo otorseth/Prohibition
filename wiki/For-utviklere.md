@@ -10,6 +10,8 @@ Se også [`CLAUDE.md`](../CLAUDE.md), som AI-verktøy leser automatisk.
 |---|---|
 | `index.html` | Markup og rekkefølgen skriptene lastes i |
 | `css/style.css` | All stil |
+| `js/i18n.js` | Språk: `t()` slår opp oversettelser, språkvalg (engelsk er standard) |
+| `js/i18n-tekst.js` | Ordboken norsk → engelsk/fransk/tysk, lages av `tools/oversettelser.py` |
 | `js/data.js` | Tall og tabeller: kvartalstyper, bygninger, våpen, prisfaktorer |
 | `js/state.js` | Spilltilstanden, nytt spill, økonomi, tåke |
 | `js/ai.js` | Datamotstanderne |

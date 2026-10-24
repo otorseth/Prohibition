@@ -10,13 +10,13 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand"><h1>Forbudstid</h1><span>Lakeport &middot; <b id="date"></b></span><em class="boss" id="boss"></em></div>
+  <div class="brand"><h1 data-t>Forbudstid</h1><span>Lakeport &middot; <b id="date"></b></span><em class="boss" id="boss"></em></div>
   <div class="stats" id="stats"></div>
   <div class="actions">
-    <button class="btn" id="setBtn">Innstillinger</button>
-    <button class="btn" id="rulesBtn">Regler</button>
-    <button class="btn" id="newBtn">Nytt spill</button>
-    <button class="btn main" id="endBtn">Avslutt tur</button>
+    <button class="btn" id="setBtn" data-t>Innstillinger</button>
+    <button class="btn" id="rulesBtn" data-t>Regler</button>
+    <button class="btn" id="newBtn" data-t>Nytt spill</button>
+    <button class="btn main" id="endBtn" data-t>Avslutt tur</button>
   </div>
 </header>
 
@@ -27,10 +27,10 @@
   </section>
   <aside class="side">
     <nav class="tabs" id="tabs">
-      <button data-tab="kvartal">Kvartal</button>
-      <button data-tab="bander">Bander</button>
-      <button data-tab="leie">Rekrutter</button>
-      <button data-tab="logg">Rapport</button>
+      <button data-tab="kvartal" data-t>Kvartal</button>
+      <button data-tab="bander" data-t>Bander</button>
+      <button data-tab="leie" data-t>Rekrutter</button>
+      <button data-tab="logg" data-t>Rapport</button>
     </nav>
     <div class="pane" id="pane"></div>
   </aside>
@@ -38,61 +38,62 @@
 
 <div class="ov" id="rules" hidden>
   <div class="card">
-    <h2>Slik spiller du</h2>
-    <p>Lakeport, 1925. Brennevin er forbudt, og fire familier kjemper om byen. Hver tur er én måned.</p>
+    <h2 data-t>Slik spiller du</h2>
+    <p data-t>Lakeport, 1925. Brennevin er forbudt, og fire familier kjemper om byen. Hver tur er én måned.</p>
     <ul>
-      <li><b>Bander</b> er dine folk. Lei dem under <i>Rekrutter</i>. De møter opp ved hovedkvarteret ditt (★).</li>
-      <li>Gi hver bande én ordre per tur, og trykk <b>Avslutt tur</b>. Alle familier handler samtidig. Står flere av dine bander i samme kvartal, kan du gi dem en felles <b>gruppeordre</b>, for eksempel flytte dem sammen.</li>
-      <li><b>Flytt</b>: ett kvartal i alle retninger, også diagonalt. <b>Ta kontroll</b>: prøv å overta kvartalet. Innflytelse og lokal støtte øker sjansen. <b>Angrip</b>: slåss mot en tilfeldig fiendebande i samme kvartal. Begge sider får muskler pluss et terningkast (1–6). Forsvareren får +1 hvis den heler og +1 på eget kvartal. Taperen mister mye helse, vinneren litt. Bander har 20 i helse, så en kamp kan gå over flere runder. Ved 0 helse er banden ute. <b>Kreve inn</b>: ekstra penger, men folk liker det ikke. <b>Kreve inn</b>, <b>Ta kontroll</b> og <b>Påvirk</b> er faste ordrer: de står fra tur til tur til de lykkes, ikke lenger er mulige, eller du gir en ny ordre. <b>Hel</b>: banden hviler, får 6 helse tilbake og forsvarer seg bedre.</li>
-      <li>Ruter med bander som ikke har fått ordre, er merket med <b>?</b> på kartet. Trykk på «Uten ordre» øverst for å hoppe til neste. Får en bande ingen ordre, heler den.</li>
-      <li><b>Våpen</b> gir banden ekstra muskler. Hver bande kan bære ett våpen, og det leveres bare i kvartaler du eier. Kjøp under «Kjøp våpen» på bandekortet: «Strømpebåndet» +1, «Roscoe» +2, «Heater» +3, «Feiekosten» +4, «Lange Tom» +4 og «Tommy-gun» +6.</li>
-      <li>Byen har tre hovedtyper kvartaler: <b>bolig</b> (tre boliger), <b>kommersiell</b> (tre ulike butikker) og <b>industri</b> (tre ulike bedrifter). Når du eier et kvartal, kan bandene dine <b>påvirke</b> bygningene der én og én. Påvirkning bygges opp over flere måneder: hver måned gir fremdrift lik innflytelse + lokal støtte + litt flaks, og når målet er nådd, betaler bygningen deg. Flere bander på samme bygning går raskere. Mister du kvartalet, mister du også bygningene.</li>
-      <li><b>Tåke over kartet:</b> Du ser bare kvartaler der du har bander eller eier noe, og nabokvartalene rundt. Kvartaler du har sett før vises dempet med siste kjente eier. Fiendebander og rivalenes handlinger i tåka er skjult.</li>
-      <li>Hvert kvartal du eier gir inntekt hver måned. Hver bande koster lønn. Går kassen tom, stikker en bande av.</li>
-      <li><b>Spilltype</b> velger du når du starter et nytt spill: <b>Dominans</b> (eie 40 av 64 kvartaler), <b>Kapitalist</b> (mest penger etter 40 måneder), <b>Sniken</b> (eie alle fire hovedkvarterene) eller <b>Sentrum</b> (eie D4, D5, E4 og E5 samtidig i 10 måneder på rad). Målet og hvor nær du er, står øverst. Knuser du alle rivalene, vinner du uansett.</li>
+      <li data-t><b>Bander</b> er dine folk. Lei dem under <i>Rekrutter</i>. De møter opp ved hovedkvarteret ditt (★).</li>
+      <li data-t>Gi hver bande én ordre per tur, og trykk <b>Avslutt tur</b>. Alle familier handler samtidig. Står flere av dine bander i samme kvartal, kan du gi dem en felles <b>gruppeordre</b>, for eksempel flytte dem sammen.</li>
+      <li data-t><b>Flytt</b>: ett kvartal i alle retninger, også diagonalt. <b>Ta kontroll</b>: prøv å overta kvartalet. Innflytelse og lokal støtte øker sjansen. <b>Angrip</b>: slåss mot en tilfeldig fiendebande i samme kvartal. Begge sider får muskler pluss et terningkast (1–6). Forsvareren får +1 hvis den heler og +1 på eget kvartal. Taperen mister mye helse, vinneren litt. Bander har 20 i helse, så en kamp kan gå over flere runder. Ved 0 helse er banden ute. <b>Kreve inn</b>: ekstra penger, men folk liker det ikke. <b>Kreve inn</b>, <b>Ta kontroll</b> og <b>Påvirk</b> er faste ordrer: de står fra tur til tur til de lykkes, ikke lenger er mulige, eller du gir en ny ordre. <b>Hel</b>: banden hviler, får 6 helse tilbake og forsvarer seg bedre.</li>
+      <li data-t>Ruter med bander som ikke har fått ordre, er merket med <b>?</b> på kartet. Trykk på «Uten ordre» øverst for å hoppe til neste. Får en bande ingen ordre, heler den.</li>
+      <li data-t><b>Våpen</b> gir banden ekstra muskler. Hver bande kan bære ett våpen, og det leveres bare i kvartaler du eier. Kjøp under «Kjøp våpen» på bandekortet: «Strømpebåndet» +1, «Roscoe» +2, «Heater» +3, «Feiekosten» +4, «Lange Tom» +4 og «Tommy-gun» +6.</li>
+      <li data-t>Byen har tre hovedtyper kvartaler: <b>bolig</b> (tre boliger), <b>kommersiell</b> (tre ulike butikker) og <b>industri</b> (tre ulike bedrifter). Når du eier et kvartal, kan bandene dine <b>påvirke</b> bygningene der én og én. Påvirkning bygges opp over flere måneder: hver måned gir fremdrift lik innflytelse + lokal støtte + litt flaks, og når målet er nådd, betaler bygningen deg. Flere bander på samme bygning går raskere. Mister du kvartalet, mister du også bygningene.</li>
+      <li data-t><b>Tåke over kartet:</b> Du ser bare kvartaler der du har bander eller eier noe, og nabokvartalene rundt. Kvartaler du har sett før vises dempet med siste kjente eier. Fiendebander og rivalenes handlinger i tåka er skjult.</li>
+      <li data-t>Hvert kvartal du eier gir inntekt hver måned. Hver bande koster lønn. Går kassen tom, stikker en bande av.</li>
+      <li data-t><b>Spilltype</b> velger du når du starter et nytt spill: <b>Dominans</b> (eie 40 av 64 kvartaler), <b>Kapitalist</b> (mest penger etter 40 måneder), <b>Sniken</b> (eie alle fire hovedkvarterene) eller <b>Sentrum</b> (eie D4, D5, E4 og E5 samtidig i 10 måneder på rad). Målet og hvor nær du er, står øverst. Knuser du alle rivalene, vinner du uansett.</li>
     </ul>
-    <button class="btn main" id="rulesClose">Til gatene</button>
+    <button class="btn main" id="rulesClose" data-t>Til gatene</button>
   </div>
 </div>
 
 
 <div class="ov" id="settings" hidden>
   <div class="card setcard" role="dialog" aria-labelledby="setTitle">
-    <h2 id="setTitle">Innstillinger</h2>
-    <div class="setrow"><span>Musikk</span><div class="music"><button class="btn" id="musicBtn" aria-pressed="true">♪ Musikk på</button><input type="range" id="vol" min="0" max="100" value="50" aria-label="Volum på musikken"></div></div>
-    <div class="setrow"><span>Lydeffekter</span><button class="btn" id="sfxBtn" aria-pressed="true">Effekter på</button></div>
-    <div class="setrow"><span>Grafikk</span><div class="seg" id="gfxSeg"><button class="btn" data-g="noir">Noir</button><button class="btn" data-g="klassisk">Klassisk</button></div></div>
-    <h3>Medvirkende</h3>
+    <h2 id="setTitle" data-t>Innstillinger</h2>
+    <div class="setrow"><span data-t>Språk</span><select id="langSel" aria-label="Språk"></select></div>
+    <div class="setrow"><span data-t>Musikk</span><div class="music"><button class="btn" id="musicBtn" aria-pressed="true">♪ Musikk på</button><input type="range" id="vol" min="0" max="100" value="50" aria-label="Volum på musikken"></div></div>
+    <div class="setrow"><span data-t>Lydeffekter</span><button class="btn" id="sfxBtn" aria-pressed="true">Effekter på</button></div>
+    <div class="setrow"><span data-t>Grafikk</span><div class="seg" id="gfxSeg"><button class="btn" data-g="noir">Noir</button><button class="btn" data-g="klassisk" data-t>Klassisk</button></div></div>
+    <h3 data-t>Medvirkende</h3>
     <dl class="credits">
-      <dt>Koding</dt><dd>Claude (Anthropic)</dd>
-      <dt>Musikk</dt><dd>Suno</dd>
-      <dt>Lyder</dt><dd>Open Sounds</dd>
-      <dt>Grafikk og video</dt><dd>Midjourney</dd>
+      <dt data-t>Koding</dt><dd>Claude (Anthropic)</dd>
+      <dt data-t>Musikk</dt><dd>Suno</dd>
+      <dt data-t>Lyder</dt><dd>Open Sounds</dd>
+      <dt data-t>Grafikk og video</dt><dd>Midjourney</dd>
       <dt>Promptmaster</dt><dd>Øyvind Torseth</dd>
     </dl>
-    <button class="btn main" id="setClose">Lukk</button>
+    <button class="btn main" id="setClose" data-t>Lukk</button>
   </div>
 </div>
 
 <div class="ov" id="nameDlg" hidden>
   <form class="card namecard" id="nameForm" autocomplete="off">
-    <h2>Hvem er sjefen?</h2>
-    <p>Skriv inn navnet ditt. Gatene gir deg et kallenavn.</p>
+    <h2 data-t>Hvem er sjefen?</h2>
+    <p data-t>Skriv inn navnet ditt. Gatene gir deg et kallenavn.</p>
     <div class="namerow">
-      <label>Fornavn<input id="nFirst" maxlength="16" required></label>
-      <label>Etternavn<input id="nLast" maxlength="18" required></label>
+      <label><span data-t>Fornavn</span><input id="nFirst" maxlength="16" required></label>
+      <label><span data-t>Etternavn</span><input id="nLast" maxlength="18" required></label>
     </div>
-    <div class="nickrow"><span>Kallenavn</span><b id="nNick"></b><button type="button" class="btn" id="nReroll">Nytt kallenavn</button></div>
+    <div class="nickrow"><span data-t>Kallenavn</span><b id="nNick"></b><button type="button" class="btn" id="nReroll" data-t>Nytt kallenavn</button></div>
     <p class="namepreview" id="nPreview"></p>
     <fieldset class="modes" id="nModes">
-      <legend>Spilltype</legend>
-      <label><input type="radio" name="mode" value="dominans" checked><b>Dominans</b><span>Eie 40 av byens 64 kvartaler.</span></label>
-      <label><input type="radio" name="mode" value="kapitalist"><b>Kapitalist</b><span>Mest penger i kassen etter 40 måneder.</span></label>
-      <label><input type="radio" name="mode" value="sniken"><b>Sniken</b><span>Ta kontroll over alle fire hovedkvarterene.</span></label>
-      <label><input type="radio" name="mode" value="sentrum"><b>Sentrum</b><span>Eie D4, D5, E4 og E5 samtidig i 10 måneder på rad.</span></label>
-      <small>Knuser du alle rivalene, vinner du uansett spilltype.</small>
+      <legend data-t>Spilltype</legend>
+      <label><input type="radio" name="mode" value="dominans" checked><b data-t>Dominans</b><span data-t>Eie 40 av byens 64 kvartaler.</span></label>
+      <label><input type="radio" name="mode" value="kapitalist"><b data-t>Kapitalist</b><span data-t>Mest penger i kassen etter 40 måneder.</span></label>
+      <label><input type="radio" name="mode" value="sniken"><b data-t>Sniken</b><span data-t>Ta kontroll over alle fire hovedkvarterene.</span></label>
+      <label><input type="radio" name="mode" value="sentrum"><b data-t>Sentrum</b><span data-t>Eie D4, D5, E4 og E5 samtidig i 10 måneder på rad.</span></label>
+      <small data-t>Knuser du alle rivalene, vinner du uansett spilltype.</small>
     </fieldset>
-    <button class="btn main" type="submit">Ta over familien</button>
+    <button class="btn main" type="submit" data-t>Ta over familien</button>
   </form>
 </div>
 
@@ -101,27 +102,29 @@
     <div class="bighead">
       <b id="evTitle"></b><small id="evCount"></small>
       <div class="orders" id="evFilter"></div>
-      <button class="btn main" id="evClose">Lukk</button>
+      <button class="btn main" id="evClose" data-t>Lukk</button>
     </div>
     <canvas id="stageBigCv" aria-label="Hendelse"></canvas>
     <p id="evText"></p>
     <div class="bignav">
-      <label class="pick" for="bigAuto"><input type="checkbox" id="bigAuto" checked> Vis hendelser automatisk etter hver tur</label>
-      <button class="btn" id="evPrev">← Forrige</button><button class="btn" id="evNext">Neste →</button>
-      <button class="btn" id="evReplay">Spill av igjen</button>
+      <label class="pick" for="bigAuto"><input type="checkbox" id="bigAuto" checked> <span data-t>Vis hendelser automatisk etter hver tur</span></label>
+      <button class="btn" id="evPrev" data-t>← Forrige</button><button class="btn" id="evNext" data-t>Neste →</button>
+      <button class="btn" id="evReplay" data-t>Spill av igjen</button>
     </div>
   </div>
 </div>
 
 <div id="ending" hidden>
   <video id="endVid" playsinline preload="none" muted></video>
-  <button class="btn" id="endSkip">Hopp over ›</button>
+  <button class="btn" id="endSkip" data-t>Hopp over ›</button>
   <div class="paperwrap" id="paperWrap" hidden>
     <article class="paper" id="paper"></article>
-    <div class="paperbtns"><button class="btn" id="endMap">Se kartet</button><button class="btn main" id="endNew">Nytt spill</button></div>
+    <div class="paperbtns"><button class="btn" id="endMap" data-t>Se kartet</button><button class="btn main" id="endNew" data-t>Nytt spill</button></div>
   </div>
 </div>
 
+<script src="js/i18n-tekst.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/data.js"></script>
 <script src="js/state.js"></script>
 <script src="js/ai.js"></script>

@@ -29,13 +29,13 @@ function L(t){S.log.push({t:S.turn,x:t}); if(S.log.length>150)S.log.shift()}
 
 function makeGang(){
   const mus=r(2,8), inf=r(1,7);
-  return {id:S.nid++,name:Math.random()<FEM_SHARE?`${pick(FIRST_F)} «${pick(NICK_F)}»`:`${pick(FIRST)} «${pick(NICK)}»`,mus,inf,hp:MAXHP,fam:-1,x:0,y:0,order:'none',tx:0,ty:0,
+  return {id:S.nid++,name:Math.random()<FEM_SHARE?`${pick(FIRST_F)} ${Q(pick(NICK_F))}`:`${pick(FIRST)} ${Q(pick(NICK))}`,mus,inf,hp:MAXHP,fam:-1,x:0,y:0,order:'none',tx:0,ty:0,
     cost:(mus+inf)*4+r(0,6),up:Math.ceil((mus+inf)/3)};
 }
 
 // Sjefens navn: fornavn «kallenavn» etternavn
-const bossName=()=>S.boss?`${S.boss.first} «${S.boss.nick}» ${S.boss.last}`:'Sjefen';
-const bossShort=()=>S.boss?`${S.boss.first} ${S.boss.last}`:'Sjefen';
+const bossName=()=>S.boss?`${S.boss.first} ${Q(S.boss.nick)} ${S.boss.last}`:t('Sjefen');
+const bossShort=()=>S.boss?`${S.boss.first} ${S.boss.last}`:t('Sjefen');
 // Spilltypene: hvor nær hver familie er målet
 const hqOwned=f=>S.blocks.filter(b=>b.hq>=0&&b.owner===f).length;
 const centreOwned=f=>SENTRUM.filter(([x,y])=>blk(x,y).owner===f).length;
@@ -55,7 +55,7 @@ function newGame(){
   [[3,3],[4,4]].forEach(([x,y])=>{const b=blk(x,y);b.t='komm';b.bld=genBld('komm','kasino')});
   for(let f=0;f<4;f++)for(let i=0;i<2;i++){const g=makeGang();g.fam=f;g.x=HQS[f][0];g.y=HQS[f][1];S.gangs.push(g)}
   for(let i=0;i<5;i++)S.pool.push(makeGang());
-  L('Forbudet har gjort byen tørst. Fire familier gjør krav på Lakeport.');
+  L(t('Forbudet har gjort byen tørst. Fire familier gjør krav på Lakeport.'));
   ui={sel:[0,0],tab:'kvartal',moving:null};
   save(); render();
 }
@@ -84,7 +84,7 @@ function hire(f,id){
   S.money[f]-=g.cost; g.fam=f; g.x=h.x; g.y=h.y; g.order='none';
   if(f===0)ledgerAdd('hire',g.cost);
   S.gangs.push(g); S.pool.splice(i,1);
-  if(f===0)L(`${fn(f)} leide inn ${g.name}.`);
+  if(f===0)L(t('{f} leide inn {g}.',{f:fn(f),g:g.name}));
   return true;
 }
 function takeChance(g,b){

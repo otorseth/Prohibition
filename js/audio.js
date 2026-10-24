@@ -6,7 +6,7 @@ try{const m=JSON.parse(localStorage.getItem('forbudstid-musikk')||'null');if(m){
 function musSave(){try{localStorage.setItem('forbudstid-musikk',JSON.stringify({on:MUS.on,vol:MUS.vol,sfx:MUS.sfx}))}catch(e){}}
 function musUi(){
   const b=document.getElementById('musicBtn');
-  b.textContent=MUS.on?'♪ Musikk på':'♪ Musikk av'; b.setAttribute('aria-pressed',MUS.on);
+  b.textContent=MUS.on?'♪ '+t('Musikk på'):'♪ '+t('Musikk av'); b.setAttribute('aria-pressed',MUS.on);
   document.getElementById('vol').value=Math.round(MUS.vol*100);
 }
 async function musStart(){
@@ -145,7 +145,7 @@ function tileSwish(){
   g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.07,t+.03); g.gain.exponentialRampToValueAtTime(.0001,t+.11);
   src.connect(f); f.connect(g); g.connect(out); src.start(t,Math.random()*.5); src.stop(t+.13);
 }
-function sfxUi(){const b=document.getElementById('sfxBtn');b.textContent=MUS.sfx?'Effekter på':'Effekter av';b.setAttribute('aria-pressed',MUS.sfx)}
+function sfxUi(){const b=document.getElementById('sfxBtn');b.textContent=MUS.sfx?t('Effekter på'):t('Effekter av');b.setAttribute('aria-pressed',MUS.sfx)}
 document.getElementById('sfxBtn').onclick=()=>{MUS.sfx=!MUS.sfx;musSave();sfxUi();if(!MUS.sfx&&sfxStage){try{sfxStage.disconnect()}catch(x){}sfxStage=null}};
 sfxUi();
 musUi();

@@ -6,7 +6,7 @@
 - **Kasse, netto per måned og kvartaler.** Antall bander står på fanen «Bander».
 - **Mål:** spilltypen og hvor nær du er seier. Rød boks betyr at en rival nærmer seg seier. Hold musen over for detaljer.
 - **Uten ordre:** antall bander som mangler ordre. Trykk for å hoppe til neste rute med **?**.
-- **Innstillinger:** musikk av/på og volum, lydeffekter av/på (kamplyder og klikk) og grafikk (Noir eller Klassisk). Valgene huskes. Her står også **Medvirkende**: koding Claude (Anthropic), musikk Suno, lyder Open Sounds, grafikk og video Midjourney, promptmaster Øyvind Torseth.
+- **Innstillinger:** språk (engelsk, norsk, fransk eller tysk – engelsk er standard), musikk av/på og volum, lydeffekter av/på (kamplyder og klikk) og grafikk (Noir eller Klassisk). Valgene huskes. Her står også **Medvirkende**: koding Claude (Anthropic), musikk Suno, lyder Open Sounds, grafikk og video Midjourney, promptmaster Øyvind Torseth.
 - **Regler**, **Nytt spill** (trykk to ganger for å bekrefte) og **Avslutt tur**.
 
 ## Kartet

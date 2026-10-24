@@ -7,7 +7,9 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `index.html` – markup og rekkefølgen skriptene lastes i
 - `css/style.css` – all stil (mørk art-deco, farger som CSS-variabler øverst)
 - `js/` – vanlige skript (ingen bygging/moduler). De deler globalt scope og lastes i denne rekkefølgen:
-  `data` → `state` → `ai` → `turn` → `events` → `save` → `ui` → `city` → `fight-scene` → `audio` → `ending` → `main`
+  `i18n-tekst` → `i18n` → `data` → `state` → `ai` → `turn` → `events` → `save` → `ui` → `city` → `fight-scene` → `audio` → `ending` → `main`
+  - `i18n.js` språk: `t('norsk tekst {x}',{x})` oversetter, `L10({no,en,fr,de})` for lister, `Q()` anførselstegn, `lc()`/`lcMonth()` små bokstaver. Standardspråk engelsk, valgt i Innstillinger (`forbudstid-lang` i localStorage, siden lastes på nytt)
+  - `i18n-tekst.js` ordboken (norsk → engelsk, fransk, tysk). Lages av `tools/oversettelser.py` – rediger den, ikke js-fila
   - `data.js` konstanter: kvartalstyper, bygninger (`BK`), våpen (`WEAP`), familier, hjelpefunksjoner
   - `state.js` spilltilstand `S` og `ui`, nytt spill, økonomi, påvirkning, sjefens navn (`S.boss`, `bossName()`; kallenavn i `BOSSNICK` i `data.js`)
   - `ai.js` datamotstanderne
@@ -31,7 +33,7 @@ Eieren koder ikke selv og bygger spillet med vibekoding, så hold svar korte og 
 - `tools/lag-artifact.py` – lager sidefilen som publiseres som Claude-artifact
 
 ## Regler for endringer
-- All tekst i spillet er på norsk.
+- All tekst skrives på norsk i koden og pakkes inn i `t('...')` (i HTML: `data-t` på elementet). Legg til engelsk, fransk og tysk i `tools/oversettelser.py` og kjør den. Testen skal vise tom `I18N_MISS` på alle språk.
 - Endres formatet på lagret spill (`S`), øk `S.v` i `newGame()` og legg til et steg i `migrate()` så pågående spill fungerer videre.
 - Hold tallverdier (priser, styrke, inntekt) i `data.js`.
 - Test etter endringer: `node --check js/*.js`, og spill noen runder i en hodeløs nettleser (Playwright/Chromium er installert) uten feil i konsollen.

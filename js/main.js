@@ -64,6 +64,10 @@ document.addEventListener('keydown',e=>{
 });
 document.getElementById('endBtn').onclick=endTurn;
 /* ---------- innstillinger ---------- */
+applyI18n();
+const langSel=document.getElementById('langSel');
+langSel.innerHTML=LANGS.map(([k,n])=>`<option value="${k}" ${k===LANG?'selected':''}>${n}</option>`).join('');
+langSel.onchange=()=>setLang(langSel.value);
 function gfxUi(){document.querySelectorAll('#gfxSeg [data-g]').forEach(b=>{const on=b.dataset.g===GFX;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
 document.getElementById('setBtn').onclick=()=>{gfxUi();document.getElementById('settings').hidden=false};
 document.getElementById('setClose').onclick=()=>document.getElementById('settings').hidden=true;
@@ -80,8 +84,8 @@ document.getElementById('endNew').onclick=()=>{hideEnding();endingShown=false;ne
 document.getElementById('endMap').onclick=hideEnding;
 let confirmNew=false;
 document.getElementById('newBtn').onclick=e=>{
-  if(!confirmNew){confirmNew=true;e.target.textContent='Sikker? Trykk igjen';setTimeout(()=>{confirmNew=false;e.target.textContent='Nytt spill'},3000);return}
-  confirmNew=false;e.target.textContent='Nytt spill';newGame();askName(null,true);
+  if(!confirmNew){confirmNew=true;e.target.textContent=t('Sikker? Trykk igjen');setTimeout(()=>{confirmNew=false;e.target.textContent=t('Nytt spill')},3000);return}
+  confirmNew=false;e.target.textContent=t('Nytt spill');newGame();askName(null,true);
 };
 
 if(window.ResizeObserver)new ResizeObserver(()=>drawCity()).observe(document.querySelector('.map'));
@@ -92,8 +96,8 @@ let nameNick='', nameThen=null;
 function nameUpd(){
   const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
   const f=cap(document.getElementById('nFirst').value.trim()), l=cap(document.getElementById('nLast').value.trim());
-  document.getElementById('nNick').textContent=`«${nameNick}»`;
-  document.getElementById('nPreview').textContent=f||l?`${f||'…'} «${nameNick}» ${l||'…'}`:'';
+  document.getElementById('nNick').textContent=Q(nameNick);
+  document.getElementById('nPreview').textContent=f||l?`${f||'…'} ${Q(nameNick)} ${l||'…'}`:'';
 }
 function askName(then,mode){
   nameThen=then||null;
