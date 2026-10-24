@@ -58,8 +58,13 @@ const FAM=[
 ];
 const HQS=[[0,0],[7,7],[7,0],[0,7]];
 const SX=['Kanal','Mølle','Union','Marked','Lind','Smie','Bisp','Havne'];
-const FIRST=['Tommy','Sal','Benny','Frankie','Lou','Mickey','Vito','Eddie','Nicky','Joe','Dutch','Rocco','Mae','Ruby','Lola','Gus','Irish','Fat Pete'];
+// Bandenavn. Kvinner får egne fornavn og kallenavn, og vises som kvinner i portrett og kampscene.
+const FIRST=['Tommy','Sal','Benny','Frankie','Lou','Mickey','Vito','Eddie','Nicky','Joe','Dutch','Rocco','Gus','Irish','Fat Pete'];
+const FIRST_F=['Mae','Ruby','Lola','Bonnie','Stella','Rosie','Dottie','Velma','Hazel','Kitty'];
 const NICK=['Kniven','Lynet','Hatten','Snusen','Tannløs','Doktoren','Pianisten','Kalde','Kjeksen','Bjørnen','Presten','Revolveren','Smilet','Glasset'];
+const NICK_F=['Kniven','Lynet','Doktoren','Pianisten','Kalde','Revolveren','Smilet','Glasset','Dronningen','Enken','Perlen','Sirenen','Silken','Hjerteknuseren'];
+const FEM_SHARE=.25; // andel kvinner blant nye bander
+const isFem=name=>FIRST_F.includes(String(name||'').split(' ')[0]);
 // Spilltyper (seiersbetingelser). Å knuse alle rivalene gir alltid seier.
 const MODES={
   dominans:{n:'Dominans',d:'Eie 40 av byens 64 kvartaler.'},

@@ -29,7 +29,7 @@ function L(t){S.log.push({t:S.turn,x:t}); if(S.log.length>150)S.log.shift()}
 
 function makeGang(){
   const mus=r(2,8), inf=r(1,7);
-  return {id:S.nid++,name:`${pick(FIRST)} «${pick(NICK)}»`,mus,inf,hp:MAXHP,fam:-1,x:0,y:0,order:'none',tx:0,ty:0,
+  return {id:S.nid++,name:Math.random()<FEM_SHARE?`${pick(FIRST_F)} «${pick(NICK_F)}»`:`${pick(FIRST)} «${pick(NICK)}»`,mus,inf,hp:MAXHP,fam:-1,x:0,y:0,order:'none',tx:0,ty:0,
     cost:(mus+inf)*4+r(0,6),up:Math.ceil((mus+inf)/3)};
 }
 

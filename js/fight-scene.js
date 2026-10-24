@@ -13,14 +13,15 @@ const wpnOf=G=>G.w!==undefined?(G.w?WEAP[G.w].d:'fists'):(G.mus>=7?'tommy':G.mus
 // så hatt, hudfarge, bart og sigar er de samme som i kampscenen.
 const PORTRAITS=new Map();
 function portrait(g){
-  const key=g.id+'|'+g.fam;
+  const key=g.id+'|'+g.fam+'|'+g.name;
   if(PORTRAITS.has(key))return PORTRAITS.get(key);
   const cv=document.createElement('canvas'); cv.width=cv.height=128;
   const c=cv.getContext('2d');
   const R=rng(g.id*2654435761+7), pk=a=>a[Math.floor(R()*a.length)];
   const skin=pk(SKIN), hat=pk(HATS), ht=Math.floor(R()*3), stache=R()<.5, cig=R()<.35;
   const R2=rng(g.id*97+13), fw=.9+R2()*.18, hair=['#1b1410','#3a2a1c','#5b4330','#2a2a2a','#7a6a58'][Math.floor(R2()*5)];
-  const stub=R2()<.4, scar=R2()<.25, brow=R2()*4-2, fam=g.fam>=0?FAMHEX[g.fam]:'#8a8178';
+  const fem=isFem(g.name);
+  const stub=!fem&&R2()<.4, scar=R2()<.25, brow=R2()*4-2, fam=g.fam>=0?FAMHEX[g.fam]:'#8a8178';
   // bakgrunn med lys bakfra
   const bg=c.createRadialGradient(64,50,6,64,64,80); bg.addColorStop(0,'#4a3826'); bg.addColorStop(1,'#141110');
   c.fillStyle=bg; c.fillRect(0,0,128,128);
@@ -28,29 +29,39 @@ function portrait(g){
   // frakk, skjorte og slips
   c.fillStyle=shade(fam,.55); c.beginPath(); c.moveTo(4,128); c.quadraticCurveTo(14,98,40,94); c.lineTo(88,94); c.quadraticCurveTo(114,98,124,128); c.closePath(); c.fill();
   c.fillStyle='#d9d2c3'; c.beginPath(); c.moveTo(48,94); c.lineTo(80,94); c.lineTo(64,124); c.closePath(); c.fill();
-  c.fillStyle=shade(fam,1.1); c.beginPath(); c.moveTo(60,98); c.lineTo(68,98); c.lineTo(70,124); c.lineTo(58,124); c.closePath(); c.fill();
+  if(fem){for(let i=0;i<9;i++){const a=Math.PI*(.15+i*.0875);sCirc(c,64-Math.cos(a)*15,92+Math.sin(a)*12,2.1,'#efe8da')}} // perlekjede
+  else{c.fillStyle=shade(fam,1.1); c.beginPath(); c.moveTo(60,98); c.lineTo(68,98); c.lineTo(70,124); c.lineTo(58,124); c.closePath(); c.fill()}
   c.strokeStyle=shade(fam,.35); c.lineWidth=2; sLine(c,48,94,62,126); sLine(c,80,94,66,126);
   // hals og hode
+  if(fem){c.fillStyle=hair;c.beginPath();c.ellipse(64,62,31*fw,28,0,0,Math.PI*2);c.fill();
+    [[36,72],[92,72],[40,82],[88,82]].forEach(([x,y])=>{c.beginPath();c.arc(x,y,7,0,Math.PI*2);c.fill()})}
   c.fillStyle=skin; c.fillRect(54,78,20,18);
   c.fillStyle='rgba(0,0,0,.18)'; c.fillRect(54,78,20,6);
   c.fillStyle=skin; c.beginPath(); c.ellipse(41-6*(fw-1)*10/2,64,4,7,0,0,Math.PI*2); c.ellipse(87+6*(fw-1)*10/2,64,4,7,0,0,Math.PI*2); c.fill();
   c.beginPath(); c.ellipse(64,62,22*fw,26,0,0,Math.PI*2); c.fill();
-  c.fillStyle=hair; c.fillRect(64-22*fw,42,6,14); c.fillRect(64+22*fw-6,42,6,14);
+  c.fillStyle=hair; if(fem){c.beginPath();c.ellipse(64,47,24*fw,8,0,Math.PI,0);c.fill()}else{c.fillRect(64-22*fw,42,6,14); c.fillRect(64+22*fw-6,42,6,14)}
   if(stub){c.fillStyle='rgba(30,20,15,.18)';c.beginPath();c.ellipse(64,76,17*fw,11,0,0,Math.PI);c.fill()}
   // ansikt
   c.fillStyle='rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(64,49,23*fw,6,0,0,Math.PI*2); c.fill(); // skygge fra hattebremmen
   c.strokeStyle='#1c140f'; c.lineWidth=3; c.lineCap='round';
-  sLine(c,48,57+brow*.5,59,59-brow); sLine(c,80,57+brow*.5,69,59-brow);
+  if(fem){c.lineWidth=1.6;c.beginPath();c.moveTo(48,57);c.quadraticCurveTo(54,53,60,57);c.moveTo(80,57);c.quadraticCurveTo(74,53,68,57);c.stroke();
+    c.lineWidth=1.4;[[54,63],[74,63]].forEach(([x,y])=>{sLine(c,x-4,y-2,x-6,y-4);sLine(c,x+4,y-2,x+6,y-4);sLine(c,x,y-3,x,y-5.5)})}
+  else{sLine(c,48,57+brow*.5,59,59-brow); sLine(c,80,57+brow*.5,69,59-brow)}
   sCirc(c,54,63,2.6,'#111'); sCirc(c,74,63,2.6,'#111');
   c.strokeStyle='rgba(0,0,0,.35)'; c.lineWidth=2; c.beginPath(); c.moveTo(64,64); c.lineTo(61,74); c.lineTo(67,75); c.stroke();
-  c.strokeStyle='#4a2a22'; c.lineWidth=2; c.beginPath(); c.moveTo(56,82); c.quadraticCurveTo(64,80,72,83); c.stroke();
-  if(stache){c.fillStyle='#2a1d14';c.beginPath();c.moveTo(54,80);c.quadraticCurveTo(64,74,74,80);c.quadraticCurveTo(64,78,54,80);c.fill();c.fillRect(56,77,16,3)}
+  if(fem){c.fillStyle='#9e2b2b';c.beginPath();c.moveTo(57,81);c.quadraticCurveTo(61,78,64,80);c.quadraticCurveTo(67,78,71,81);c.quadraticCurveTo(64,86,57,81);c.fill();
+    c.fillStyle='rgba(200,80,80,.18)';c.beginPath();c.ellipse(49,72,6,4,0,0,Math.PI*2);c.ellipse(79,72,6,4,0,0,Math.PI*2);c.fill()}
+  else{c.strokeStyle='#4a2a22'; c.lineWidth=2; c.beginPath(); c.moveTo(56,82); c.quadraticCurveTo(64,80,72,83); c.stroke()}
+  if(stache&&!fem){c.fillStyle='#2a1d14';c.beginPath();c.moveTo(54,80);c.quadraticCurveTo(64,74,74,80);c.quadraticCurveTo(64,78,54,80);c.fill();c.fillRect(56,77,16,3)}
   if(scar){c.strokeStyle='rgba(150,60,55,.8)';c.lineWidth=1.6;sLine(c,74,68,82,78);sLine(c,76,71,79,70);sLine(c,78,74,81,73)}
   if(cig){c.save();c.translate(70,82);c.rotate(.18);c.fillStyle='#6b4a2e';c.fillRect(0,-2,22,5);c.fillStyle='#d9d2c3';c.fillRect(0,-2,4,5);sCirc(c,23,.5,2.6,'#ff8a3a');c.restore();
     c.fillStyle='rgba(220,220,220,.18)';c.beginPath();c.ellipse(98,70,6,10,.4,0,Math.PI*2);c.fill()}
   // hatt
   c.fillStyle=hat;
-  if(ht===0){c.beginPath();c.moveTo(42,44);c.lineTo(46,18);c.quadraticCurveTo(64,24,82,18);c.lineTo(86,44);c.closePath();c.fill();
+  if(fem){c.beginPath();c.ellipse(64,44,30*fw,22,0,Math.PI,0);c.fill();c.beginPath();c.ellipse(64,46,34*fw,7,0,0,Math.PI);c.fill();
+    c.fillStyle=fam;c.fillRect(64-30*fw,38,60*fw,5);c.beginPath();c.ellipse(86,38,5,4,.5,0,Math.PI*2);c.fill();
+    c.fillStyle='rgba(255,255,255,.08)';c.beginPath();c.arc(54,30,6,0,Math.PI*2);c.fill()}
+  else if(ht===0){c.beginPath();c.moveTo(42,44);c.lineTo(46,18);c.quadraticCurveTo(64,24,82,18);c.lineTo(86,44);c.closePath();c.fill();
     c.beginPath();c.ellipse(64,44,42,8,0,0,Math.PI*2);c.fill();c.fillStyle=fam;c.fillRect(43,35,42,6);
     c.fillStyle='rgba(255,255,255,.07)';c.fillRect(47,20,8,15)}
   else if(ht===1){c.beginPath();c.ellipse(64,40,27,17,0,Math.PI,0);c.fill();c.fillRect(37,38,54,6);c.beginPath();c.ellipse(64,46,30,6,0,0,Math.PI);c.fill();
@@ -126,7 +137,7 @@ function drawWeapon(c,w,rim){
 // Utseende fra bandens id: samme trekk som portrettet
 function looks(G){
   const R=rng(G.id*2654435761+7), pk=a=>a[Math.floor(R()*a.length)];
-  return {skin:pk(SKIN),hat:pk(HATS),ht:Math.floor(R()*3),stache:R()<.5,cig:R()<.35,fam:FAMHEX[G.fam],bw:1+((G.bm??G.mus)-5)*.04,fv:FIG_KEYS[Math.floor(R()*FIG_KEYS.length)]};
+  return {skin:pk(SKIN),hat:pk(HATS),ht:Math.floor(R()*3),stache:R()<.5,cig:R()<.35,fam:FAMHEX[G.fam],bw:1+((G.bm??G.mus)-5)*.04,fv:(k=>isFem(G.name)?'dame':k[Math.floor(R()*k.length)])(FIG_KEYS.filter(x=>x!=='dame'))};
 }
 // Tegner én figur. P = positur, o = plassering. rim = farge for lyskanten (tegnes først, litt større).
 function drawFigure(c,L,w,P,o,rim){

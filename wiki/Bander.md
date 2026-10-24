@@ -23,3 +23,8 @@ Muskler vises som for eksempel «11 (7+4)» når banden har våpen: 7 egne + 4 f
 ## Portretter
 Hver bande har et eget gangsterportrett i fanene *Bander* og *Rekrutter*. Hatt, hudfarge, bart og sigar
 er de samme som på figuren i kampscenen. Frakk, slips og hattebånd har familiens farge.
+
+## Kvinner i bandene
+Omtrent hver fjerde bande som kan leies, ledes av en kvinne (for eksempel *Mae «Perlen»* eller *Stella «Dronningen»*).
+De har egne fornavn og kallenavn, et eget portrett (cloche-hatt, bob-frisyre, perlekjede og leppestift) og vises som
+kvinne i kampscenen. Egenskapene er de samme som for alle andre bander.
