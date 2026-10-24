@@ -11,7 +11,7 @@
 
 ## Kartet
 - Hvert kvartal vises ovenfra med sine bygninger. Eide kvartaler har ramme og tone i familiens farge.
-- Fargede prikker nederst til venstre er bander. **?** betyr bande uten ordre. ★ er hovedkvarter.
+- Fargede prikker nederst til venstre er bander. Firkantene øverst er virksomhetene i kvartalet: fylt = påvirket (i familiens farge), tom = ikke påvirket. **?** betyr bande uten ordre. ★ er hovedkvarter.
 - Under flytting markeres nabokvartalene du kan flytte til.
 
 ## Sidepanelet

@@ -43,4 +43,4 @@ Boligkvartaler kan ha flere like boliger. Butikk- og industrikvartaler har allti
 Mister du kvartalet, slutter alle bygningene der å betale, og fremdriften nullstilles.
 Den nye eieren må vinne bygningene på nytt.
 
-På kartet får en bygning som betaler noen, en liten prikk i familiens farge.
+På kartet vises de tre virksomhetene i et kvartal som tre små firkanter øverst i ruten. En fylt firkant i familiens farge betyr at virksomheten er påvirket og betaler den familien. En tom firkant betyr at ingen er påvirket ennå.

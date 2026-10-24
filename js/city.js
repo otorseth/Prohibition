@@ -46,13 +46,16 @@ for(const [k,src] of Object.entries(TILE_SRC)){
   const im=new Image(); im.onload=()=>{TILE_IMG[k]=im;cityKey='';drawCity()}; im.src=src;
 }
 function setGfx(v){GFX=v;try{localStorage.setItem('forbudstid-grafikk',v)}catch(e){}cityKey='';render()}
-// Prikker som viser hvem bygningene betaler, på samme tre tomter som i klassisk grafikk
+// Virksomhetene som tre firkanter øverst i ruten: fylt med familiens farge når virksomheten er påvirket, tom ellers
 function inflMarkers(c,b,x,y,s){
-  const m=s*.07, X=x+m, Y=y+m, S2=s-2*m, g=S2*.07, hw=(S2-g)/2;
-  const P=[[X,Y,hw,hw],[X+hw+g,Y,hw,hw],[X,Y+hw+g,S2,hw]], rr=Math.max(2.5,s*.05);
-  b.bld.forEach((bd,i)=>{if(bd.by<0)return;const [px,py,pw]=P[i];
-    c.fillStyle='#0c0a09';c.beginPath();c.arc(px+pw-rr-1,py+rr+1,rr+1.2,0,Math.PI*2);c.fill();
-    c.fillStyle=FAMHEX[bd.by];c.beginPath();c.arc(px+pw-rr-1,py+rr+1,rr,0,Math.PI*2);c.fill()});
+  const q=Math.max(6,Math.round(s*.1)), g=Math.max(2,Math.round(s*.035)), w=q*3+g*2;
+  let X=Math.round(x+(s-w)/2); const Y=Math.round(y+s*.04);
+  b.bld.forEach(bd=>{
+    c.fillStyle='rgba(12,10,9,.75)'; c.fillRect(X-1.5,Y-1.5,q+3,q+3);
+    if(bd.by>=0){c.fillStyle=FAMHEX[bd.by];c.fillRect(X,Y,q,q)}
+    else{c.strokeStyle='rgba(233,223,201,.85)';c.lineWidth=1.2;c.strokeRect(X+.6,Y+.6,q-1.2,q-1.2)}
+    X+=q+g;
+  });
 }
 function drawBlock(c,b,x,y,s,seeNow=true){
   const R=rng((b.x+1)*73856093^(b.y+1)*19349663^b.t.length*83492791);
@@ -113,8 +116,8 @@ function drawBlock(c,b,x,y,s,seeNow=true){
         case 'sag':fr(px,py,pw,ph,'#3a2e22');flat(px+pw*.06,py+ph*.08,pw*.36,ph*.4,'#5a4636');for(let k=0;k<4;k++){fr(px+pw*.5,py+ph*(.14+k*.18),pw*.44,ph*.1,'#7a5a38');circ(px+pw*.94,py+ph*(.19+k*.18),ph*.05,'#a07a50')}break;
         case 'trykk':flat(px+pw*.06,py+ph*.08,pw*.88,ph*.84,'#4f4a45');[.25,.5,.75].forEach(q=>fr(px+pw*q-pw*.07,py+ph*.3,pw*.14,ph*.4,'rgba(190,205,220,.35)'));break;
       }
-      if(seeNow&&bd.by>=0){const rr=Math.max(2.5,s*.05);circ(px+pw-rr-1,py+rr+1,rr+1.2,'#0c0a09');circ(px+pw-rr-1,py+rr+1,rr,FAMHEX[bd.by])}
     });
+    if(seeNow)inflMarkers(c,b,x,y,s);
     return;
   }
   switch(b.t){
