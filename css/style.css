@@ -31,6 +31,22 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .nickrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .nickrow span{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .nickrow b{font-family:var(--display);font-weight:400;font-size:22px;color:var(--brass)}
+.setcard{max-width:460px;display:flex;flex-direction:column;gap:12px}
+.setcard h2{margin:0}
+.setcard h3{margin:10px 0 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;border-top:1px solid var(--line);padding-top:14px}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.setrow>span{font-weight:600}
+.setcard .music{flex-wrap:nowrap}
+.setcard #vol{width:110px}
+.seg{display:flex}
+.seg .btn{border-radius:0}
+.seg .btn:first-child{border-radius:3px 0 0 3px}
+.seg .btn:last-child{border-radius:0 3px 3px 0;margin-left:-1px}
+.seg .btn.on{background:var(--brass);color:var(--ink);border-color:var(--brass)}
+.credits{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0}
+.credits dt{color:var(--muted);font-size:13px;letter-spacing:.06em;text-transform:uppercase;align-self:baseline}
+.credits dd{margin:0;font-family:var(--display);color:var(--brass);font-size:19px;line-height:1.2}
+#setClose{align-self:flex-start;margin-top:6px}
 .modes{border:1px solid var(--line);padding:8px 12px 10px;margin:0 0 16px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
 .modes legend{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 4px}
 .modes label{display:grid;grid-template-columns:auto 1fr;gap:0 8px;align-items:baseline;cursor:pointer;padding:6px;border-radius:3px;border:1px solid transparent}

@@ -6,14 +6,13 @@
 - **Kasse, netto per måned og kvartaler.** Antall bander står på fanen «Bander».
 - **Mål:** spilltypen og hvor nær du er seier. Rød boks betyr at en rival nærmer seg seier. Hold musen over for detaljer.
 - **Uten ordre:** antall bander som mangler ordre. Trykk for å hoppe til neste rute med **?**.
-- **♪ Musikk** av/på, volum, og **Effekter** av/på (kamplyder og klikk). Valgene huskes.
+- **Innstillinger:** musikk av/på og volum, lydeffekter av/på (kamplyder og klikk) og grafikk (Noir eller Klassisk). Valgene huskes. Her står også **Medvirkende**: koding Claude (Anthropic), lyder Open Sounds, grafikk og video Midjourney, promptmaster Øyvind Torseth.
 - **Regler**, **Nytt spill** (trykk to ganger for å bekrefte) og **Avslutt tur**.
 
 ## Kartet
 - Hvert kvartal vises ovenfra med sine bygninger. Eide kvartaler har ramme og tone i familiens farge.
 - Fargede prikker nederst til venstre er bander. **?** betyr bande uten ordre. ★ er hovedkvarter.
 - Under flytting markeres nabokvartalene du kan flytte til.
-- **Grafikk: Noir / Klassisk** under kartet bytter mellom bildene av kvartalene og den enklere tegnede grafikken. Valget huskes.
 
 ## Sidepanelet
 | Fane | Innhold |

@@ -96,7 +96,7 @@ function renderBoard(){
 }
 function renderLegend(){
   document.getElementById('legend').innerHTML=FAM.map((f,i)=>`<span class="${S.dead[i]?'dead':''}"><i style="--c:${f.c}"></i>${f.name}: ${owned(i)} kvt.</span>`).join('')+
-    `<span class="note">Klikk på et kvartal for å se type, eier og inntekt.</span><button class="linkb" data-a="gfx">Grafikk: ${GFX==='noir'?'Noir':'Klassisk'} (bytt)</button>`;
+    `<span class="note">Klikk på et kvartal for å se type, eier og inntekt.</span>`;
 }
 function supBars(b){
   return FAM.map((f,i)=>S.dead[i]?'':`<span class="supf" title="${f.name}: støtte ${b.sup[i]} av 5"><span class="supn" style="color:${f.c}">${i===0?'Du':f.name}</span><span class="bar">${[1,2,3,4,5].map(n=>`<i class="${b.sup[i]>=n?'on':''}" style="--c:${f.c}"></i>`).join('')}</span></span>`).join('');

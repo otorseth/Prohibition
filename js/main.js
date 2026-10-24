@@ -59,7 +59,13 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'&&!document.getElementById('evPrev').disabled)playEvent(popIdx-1);
 });
 document.getElementById('endBtn').onclick=endTurn;
-document.getElementById('legend').addEventListener('click',e=>{if(e.target.closest('[data-a="gfx"]'))setGfx(GFX==='noir'?'klassisk':'noir')});
+/* ---------- innstillinger ---------- */
+function gfxUi(){document.querySelectorAll('#gfxSeg [data-g]').forEach(b=>{const on=b.dataset.g===GFX;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
+document.getElementById('setBtn').onclick=()=>{gfxUi();document.getElementById('settings').hidden=false};
+document.getElementById('setClose').onclick=()=>document.getElementById('settings').hidden=true;
+document.getElementById('settings').addEventListener('click',e=>{if(e.target.id==='settings')e.target.hidden=true});
+document.getElementById('gfxSeg').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(b){setGfx(b.dataset.g);gfxUi()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('settings').hidden)document.getElementById('settings').hidden=true});
 
 
 document.getElementById('stats').addEventListener('click',e=>{if(e.target.closest('#needBtn'))nextNeed();if(e.target.closest('[data-a="ledger"]')){ui.tab='logg';render()}});
