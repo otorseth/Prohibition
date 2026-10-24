@@ -89,7 +89,7 @@ function stageHud(c,name,fam,hp,left){
   c.font="700 16px 'Archivo Narrow',sans-serif"; c.fillStyle=FAMHEX[fam]; c.fillText(name,tx,22);
   c.fillStyle='#2a231c'; c.fillRect(x,30,w,8);
   c.fillStyle=hp<=8?'#c4554a':'#86ab6d'; c.fillRect(left?x:x+w-w*Math.max(0,hp)/MAXHP,30,w*Math.max(0,hp)/MAXHP,8);
-  c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1'; c.fillText(`${t('Helse')} ${Math.round(hp)}/${MAXHP}`,tx,54);
+  c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1'; c.fillText(`${tr('Helse')} ${Math.round(hp)}/${MAXHP}`,tx,54);
 }
 /* ---------- kampscene: bakgrunner ---------- */
 // Én bakgrunn per kvartalstype. Tallet er hvor bakken (fortauet) ligger, som andel av bildehøyden.
@@ -455,11 +455,11 @@ function drawFight(c,e,t){
   if(t>600&&t<b.end-900){
     c.globalAlpha=cl01((t-600)/250); c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#b8aa94';
     if(b.ex.length===1){
-      c.textAlign='left'; c.fillText(`${t('Muskler')} ${o.am}${o.aw?' ('+WEAP[o.aw].n+')':''} + ${t('kast')} ${o.dieA} = ${o.am+o.dieA}`,16,70);
-      c.textAlign='right'; c.fillText(`${t('Muskler')} ${o.dm}${o.dw?' ('+WEAP[o.dw].n+')':''} + ${t('kast')} ${o.dieD}${o.bon?' + '+t('bonus')+' '+o.bon:''} = ${o.dm+o.dieD+o.bon}`,624,70);
+      c.textAlign='left'; c.fillText(`${tr('Muskler')} ${o.am}${o.aw?' ('+WEAP[o.aw].n+')':''} + ${tr('kast')} ${o.dieA} = ${o.am+o.dieA}`,16,70);
+      c.textAlign='right'; c.fillText(`${tr('Muskler')} ${o.dm}${o.dw?' ('+WEAP[o.dw].n+')':''} + ${tr('kast')} ${o.dieD}${o.bon?' + '+tr('bonus')+' '+o.bon:''} = ${o.dm+o.dieD+o.bon}`,624,70);
     }else{
       c.fillStyle='rgba(8,6,5,.6)'; c.fillRect(0,244,640,26); c.fillStyle='#d8ccb6'; c.textAlign='center';
-      c.fillText(t('Kamp {i} av {n}: {a} angriper {d} · {x} mot {y}',{i:clamp(k,0,b.ex.length-1)+1,n:b.ex.length,a:o.an,d:o.dn,x:o.am+o.dieA,y:o.dm+o.dieD+o.bon}),320,261);
+      c.fillText(tr('Kamp {i} av {n}: {a} angriper {d} · {x} mot {y}',{i:clamp(k,0,b.ex.length-1)+1,n:b.ex.length,a:o.an,d:o.dn,x:o.am+o.dieA,y:o.dm+o.dieD+o.bon}),320,261);
     }
     c.globalAlpha=1;
   }
@@ -469,14 +469,14 @@ function drawFight(c,e,t){
     c.fillStyle=`rgba(8,6,5,${.6*kk})`; c.fillRect(0,236,640,34);
     c.globalAlpha=kk; c.textAlign='center'; c.font="17px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f';
     let txt;
-    if(b.ex.length===1)txt=o.won?t('{a} vant kampen',{a:o.an}):t('{d} slo angrepet tilbake',{d:o.dn});
+    if(b.ex.length===1)txt=o.won?tr('{a} vant kampen',{a:o.an}):tr('{d} slo angrepet tilbake',{d:o.dn});
     else{
       const fams=[...new Set(b.list.map(f=>f.fam))], loss=fm=>dead.filter(f=>f.fam===fm).length;
-      if(fams.length>2){txt=dead.length?t('Tap i {co}:',{co:CO(e.x,e.y)})+' '+fams.map(fm=>`${FAM[fm].name} ${loss(fm)}`).join(' · '):t('Slaget i {co} endte uten døde',{co:CO(e.x,e.y)})}
+      if(fams.length>2){txt=dead.length?tr('Tap i {co}:',{co:CO(e.x,e.y)})+' '+fams.map(fm=>`${FAM[fm].name} ${loss(fm)}`).join(' · '):tr('Slaget i {co} endte uten døde',{co:CO(e.x,e.y)})}
       else{const dl=loss(b.leftFam), dr=dead.length-dl;
-        txt=dl===dr?t('Slaget i {co} endte uavgjort',{co:CO(e.x,e.y)}):t('{f} vant slaget i {co}',{f:dl<dr?FAM[b.leftFam].name:FAM[fams.find(x=>x!==b.leftFam)].name,co:CO(e.x,e.y)})}}
+        txt=dl===dr?tr('Slaget i {co} endte uavgjort',{co:CO(e.x,e.y)}):tr('{f} vant slaget i {co}',{f:dl<dr?FAM[b.leftFam].name:FAM[fams.find(x=>x!==b.leftFam)].name,co:CO(e.x,e.y)})}}
     c.fillText(txt,320,252);
-    if(dead.length&&t>tEnd+700){c.globalAlpha=cl01((t-tEnd-700)/300);c.font="700 12px 'Archivo Narrow',sans-serif";c.fillStyle='#ff7a6a';c.fillText(t('{n} havnet i elva',{n:dead.map(f=>f.name).join(', ')}),320,266)}
+    if(dead.length&&t>tEnd+700){c.globalAlpha=cl01((t-tEnd-700)/300);c.font="700 12px 'Archivo Narrow',sans-serif";c.fillStyle='#ff7a6a';c.fillText(tr('{n} havnet i elva',{n:dead.map(f=>f.name).join(', ')}),320,266)}
     c.globalAlpha=1;
   }
 }
@@ -510,15 +510,15 @@ function drawStill(e,id='stageBigCv'){
     [[-60,-.5],[60,.5]].forEach(([x,r])=>{c.save();c.translate(x,-100);c.rotate(r);c.fillRect(-26,-8,52,16);c.restore()});
     c.restore();
     c.textAlign='left';
-    c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#a3957d'; c.fillText(t('PÅVIRKET'),300,92);
+    c.font="13px 'Archivo Narrow',sans-serif"; c.fillStyle='#a3957d'; c.fillText(tr('PÅVIRKET'),300,92);
     c.font="34px Limelight, Georgia, serif"; c.fillStyle=fam; c.fillText(name,300,130);
-    c.font="16px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1'; c.fillText(`${CO(e.x,e.y)} · ${t('betaler nå {f}',{f:FAM[e.f].name})}`,300,160);
-    c.font="bold 22px 'Archivo Narrow',sans-serif"; c.fillStyle='#8fbf7a'; c.fillText(`+$${BK[e.bk].v}/${t('mnd')}`,300,192);
+    c.font="16px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1'; c.fillText(`${CO(e.x,e.y)} · ${tr('betaler nå {f}',{f:FAM[e.f].name})}`,300,160);
+    c.font="bold 22px 'Archivo Narrow',sans-serif"; c.fillStyle='#8fbf7a'; c.fillText(`+$${BK[e.bk].v}/${tr('mnd')}`,300,192);
   }else if(e&&e.k==='take'){
-    c.font="34px Limelight, Georgia, serif"; c.fillStyle=FAMHEX[e.f]; c.fillText(t('Overtakelse'),320,130);
+    c.font="34px Limelight, Georgia, serif"; c.fillStyle=FAMHEX[e.f]; c.fillText(tr('Overtakelse'),320,130);
     c.font="16px 'Archivo Narrow',sans-serif"; c.fillStyle='#eee4d1';
     c.fillText(`${CO(e.x,e.y)} · ${TYPES[blk(e.x,e.y).t].n} · ${FAM[e.f].name}`,320,162);
   }else{
-    c.font="28px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f'; c.fillText(e?t('Kamp'):t('En rolig måned'),320,140);
+    c.font="28px Limelight, Georgia, serif"; c.fillStyle='#d0aa5f'; c.fillText(e?tr('Kamp'):tr('En rolig måned'),320,140);
   }
 }

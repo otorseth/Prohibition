@@ -13,6 +13,8 @@ function t(k,v){
   if(v)s=s.replace(/\{(\w+)\}/g,(m,n)=>v[n]!==undefined?v[n]:m);
   return s;
 }
+// Samme som t(), for kode der t allerede er navnet på en variabel (f.eks. tiden i kampscenen)
+const tr=(k,v)=>t(k,v);
 // Små bokstaver midt i setninger: tysk beholder stor forbokstav på substantiv, engelsk og tysk på måneder
 const lc=s=>LANG==='de'?s:s.toLowerCase();
 const lcMonth=s=>LANG==='no'||LANG==='fr'?s.toLowerCase():s;
